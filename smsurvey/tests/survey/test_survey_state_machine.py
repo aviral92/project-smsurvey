@@ -8,6 +8,8 @@ from smsurvey.survey.survey_state_machine import SurveyState
 from smsurvey.survey.survey_state_machine import SurveyStateService
 from smsurvey.survey.survey_state_machine import SurveyStatus
 
+from utility_scripts import create_survey_cache
+
 
 class TestSurveyStateService(unittest.TestCase):
 
@@ -18,51 +20,7 @@ class TestSurveyStateService(unittest.TestCase):
         if 'SurveyStateTest' in dynamo.list_tables()['TableNames']:
             dynamo.delete_table(TableName='SurveyStateTest')
 
-        dynamo.create_table(
-            TableName='SurveyStateTest',
-            AttributeDefinitions=[
-                {
-                    'AttributeName': 'event_id',
-                    'AttributeType': 'S'
-                },
-                {
-                    'AttributeName': 'survey_id',
-                    'AttributeType': 'S'
-                }
-            ],
-            KeySchema=[
-                {
-                    'AttributeName': 'event_id',
-                    'KeyType': 'HASH'
-                },
-                {
-                    'AttributeName': 'survey_id',
-                    'KeyType': 'RANGE'
-                }
-            ],
-            GlobalSecondaryIndexes=[
-                {
-                    'IndexName': 'survey_id_index',
-                    'KeySchema': [
-                        {
-                            'AttributeName': 'survey_id',
-                            'KeyType': 'HASH'
-                        }
-                    ],
-                    'Projection': {
-                        'ProjectionType': 'KEYS_ONLY'
-                    },
-                    'ProvisionedThroughput': {
-                        'ReadCapacityUnits': 10,
-                        'WriteCapacityUnits': 10
-                    }
-                }
-            ],
-            ProvisionedThroughput={
-                'ReadCapacityUnits': 10,
-                'WriteCapacityUnits': 10
-            }
-        )
+        create_survey_cache.create_cache('SurveyStateTest')
 
     def test_insert_new_survey_state(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
@@ -158,7 +116,7 @@ class TestSurveyStateService(unittest.TestCase):
         survey = SurveyState.new_state_object(3, 8)
         service.insert(survey)
         survey_received = service.get("3_8")
-        survey_received.survey_id = "wrong"
+        survey_received.survey_instance_id = "wrong"
         self.assertRaises(SurveyCacheOperationException, service.update, "3_8", survey_received)
 
     def test_update_object_invalid_update_different_versions(self):

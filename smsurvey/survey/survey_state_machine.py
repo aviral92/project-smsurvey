@@ -16,10 +16,10 @@ class SurveyStatus(Enum):
 
 
 class SurveyState:
-    def __init__(self, event_id, survey_id, next_question, survey_status=SurveyStatus.CREATED,
+    def __init__(self, event_id, survey_instance_id, next_question, survey_status=SurveyStatus.CREATED,
                  timestamp=int(time.time()), timeout=3600, survey_state_version=1):
         self.event_id = event_id
-        self.survey_id = survey_id
+        self.survey_instance_id = survey_instance_id
         self.next_question = next_question
         self.survey_status = survey_status
         self.timestamp = timestamp
@@ -27,21 +27,21 @@ class SurveyState:
         self.survey_state_version = survey_state_version
 
     @classmethod
-    def new_state_object(cls, survey_id, next_question, timeout=3600):
-        str_survey_id = str(survey_id)
-        event_id = str_survey_id + "_" + str(next_question)
-        return cls(event_id, str_survey_id, next_question, timeout=timeout)
+    def new_state_object(cls, survey_instance_id, next_question, timeout=3600):
+        str_survey_instance_id = str(survey_instance_id)
+        event_id = str_survey_instance_id + "_" + str(next_question)
+        return cls(event_id, str_survey_instance_id, next_question, timeout=timeout)
 
     @classmethod
     def from_item(cls, item):
-        return cls(item['event_id']['S'], item['survey_id']['S'], int(item['next_question']['N']),
+        return cls(item['event_id']['S'], item['survey_instance_id']['S'], int(item['next_question']['N']),
                    SurveyStatus(int(item['survey_status']['N'])), int(item['timestamp']['N']),
                    int(item['timeout']['N']), int(item['survey_state_version']['N']))
 
     def __eq__(self, other):
         if self.event_id != other.event_id:
             return False
-        if self.survey_id != other.survey_id:
+        if self.survey_instance_id != other.survey_instance_id:
             return False
         if self.next_question != other.next_question:
             return False
@@ -73,8 +73,8 @@ class SurveyStateService:
                 'event_id': {
                     'S': survey_state.event_id
                 },
-                'survey_id': {
-                    'S': survey_state.survey_id
+                'survey_instance_id': {
+                    'S': survey_state.survey_instance_id
                 },
                 'survey_status': {
                     'N': str(survey_state.survey_status.value)
@@ -100,13 +100,14 @@ class SurveyStateService:
                 TableName=self.cache_name,
                 Key={
                     'event_id': {"S": key},
-                    'survey_id': {"S": key[0:key.find('_')]}
+                    'survey_instance_id': {"S": key[0:key.find('_')]}
                 },
                 ConsistentRead=True,
                 ReturnConsumedCapacity="False"
             )
         except ClientError as e:
             print(e.response['Error']['Message'])
+            raise SurveyCacheOperationException("Error occurred trying to get item")
         else:
             if 'Item' in response:
                 return SurveyState.from_item(response['Item'])
@@ -121,7 +122,7 @@ class SurveyStateService:
             if key != survey_state.event_id:
                 raise SurveyCacheOperationException("Specified key is invalid, does not match")
 
-            if existing.survey_id != survey_state.survey_id:
+            if existing.survey_instance_id != survey_state.survey_instance_id:
                 raise SurveyCacheOperationException("Invalid update")
             if existing.survey_state_version != survey_state.survey_state_version:
                 raise SurveyCacheOperationException("Invalid update")
@@ -139,15 +140,12 @@ class SurveyStateService:
             TableName=self.cache_name,
             Key={
                 'event_id': {'S': key},
-                'survey_id': {'S': key[0:key.find('_')]}
+                'survey_instance_id': {'S': key[0:key.find('_')]}
             }
         )
 
 
 class SurveyCacheOperationException(Exception):
-    """
-    Exception Raised when performing a CRUD operation on the cache
-    """
 
     def __init__(self, message):
         self.message = message

@@ -6,25 +6,25 @@ dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=config.d
 
 
 def create_cache(cache_name):
-    survey_cache = dynamo.create_table(
+    question_cache = dynamo.create_table(
         TableName=cache_name,
         AttributeDefinitions=[
             {
-                'AttributeName': 'event_id',
+                'AttributeName': 'question_id',
                 'AttributeType': 'S'
             },
             {
-                'AttributeName': 'survey_instance_id',
+                'AttributeName': 'survey_id',
                 'AttributeType': 'S'
             }
         ],
         KeySchema=[
             {
-                'AttributeName': 'survey_instance_id',
+                'AttributeName': 'survey_id',
                 'KeyType': 'HASH'
             },
             {
-                'AttributeName': 'event_id',
+                'AttributeName': 'question_id',
                 'KeyType': 'RANGE'
             }
         ],
@@ -34,18 +34,17 @@ def create_cache(cache_name):
         }
     )
 
-    print("Cache status: ", survey_cache['TableDescription']['TableStatus'])
-
+    print("Cache status: ", question_cache['TableDescription']['TableStatus'])
 
 if __name__ == "__main__":
-    if 'SurveyState' in dynamo.list_tables()['TableNames']:
+    if 'Question' in dynamo.list_tables()['TableNames']:
         while True:
-            answer = input("SurveyState already exists. Delete existing and create new? (Yes/n)")
+            answer = input("Question already exists. Delete existing and create new? (Yes/n)")
 
             if answer == 'n':
                 exit(0)
             elif answer == 'Yes':
-                dynamo.delete_table(TableName='SurveyState')
+                dynamo.delete_table(TableName='Question')
                 break
 
-    create_cache('SurveyState')
+    create_cache('Question')
