@@ -1,4 +1,12 @@
 import boto3
+import os
+import inspect
+import sys
+
+c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+p = os.path.dirname(c)
+pp = os.path.dirname(p)
+sys.path.insert(0, pp)
 
 from smsurvey import config
 
@@ -10,21 +18,21 @@ def create_cache(cache_name):
         TableName=cache_name,
         AttributeDefinitions=[
             {
-                'AttributeName': 'event_id',
+                'AttributeName': 'participant',
                 'AttributeType': 'S'
             },
             {
-                'AttributeName': 'survey_instance_id',
+                'AttributeName': 'survey_id',
                 'AttributeType': 'S'
             }
         ],
         KeySchema=[
             {
-                'AttributeName': 'survey_instance_id',
+                'AttributeName': 'participant',
                 'KeyType': 'HASH'
             },
             {
-                'AttributeName': 'event_id',
+                'AttributeName': 'survey_id',
                 'KeyType': 'RANGE'
             }
         ],
@@ -38,14 +46,14 @@ def create_cache(cache_name):
 
 
 if __name__ == "__main__":
-    if 'SurveyState' in dynamo.list_tables()['TableNames']:
+    if config.survey_backend_name in dynamo.list_tables()['TableNames']:
         while True:
-            answer = input("SurveyState already exists. Delete existing and create new? (Yes/n)")
+            answer = input(config.survey_backend_name + " already exists. Delete existing and create new? (Yes/n)")
 
             if answer == 'n':
                 exit(0)
             elif answer == 'Yes':
-                dynamo.delete_table(TableName='SurveyState')
+                dynamo.delete_table(TableName=config.survey_backend_name)
                 break
 
-    create_cache('SurveyState')
+    create_cache(config.survey_backend_name)

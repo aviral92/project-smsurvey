@@ -1,16 +1,26 @@
 import unittest
 import boto3
+import os
+import inspect
+import sys
+
+c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+p = os.path.dirname(c)
+pp = os.path.dirname(p)
+ppp = os.path.dirname(pp)
+pppp = os.path.dirname(ppp)
+ppppp = os.path.dirname(pppp)
+sys.path.insert(0, ppppp)
 
 from smsurvey import config
-from smsurvey.survey.survey_question import QuestionService
-from smsurvey.survey.survey_question import QuestionServiceOperationException
-from smsurvey.survey.survey_question import SurveyQuestion
-from smsurvey.survey.survey_state_machine import SurveyState
+from smsurvey.core.model.survey.question import Question
+from smsurvey.core.model.survey.survey_state_machine import SurveyState
+from smsurvey.core.services.question_service import QuestionOperationException
+from smsurvey.core.services.question_service import QuestionService
+from smsurvey.utility_scripts import create_question_cache
 
-from utility_scripts import create_question_cache
 
-
-class MockQuestion(SurveyQuestion):
+class MockQuestion(Question):
 
     def __init__(self, question_identifier):
         self.question_identifier = question_identifier
@@ -50,7 +60,7 @@ class TestQuestionService(unittest.TestCase):
     def test_insert_question_id_exists(self):
         service = QuestionService(config.dynamo_url, 'QuestionTest')
         service.insert("1_3", MockQuestion("1"))
-        self.assertRaises(QuestionServiceOperationException, service.insert, "1_3", MockQuestion("2"))
+        self.assertRaises(QuestionOperationException, service.insert, "1_3", MockQuestion("2"))
 
     def test_insert_question_id_exists_safe_mode_off(self):
         service = QuestionService(config.dynamo_url, 'QuestionTest')
@@ -61,19 +71,19 @@ class TestQuestionService(unittest.TestCase):
 
     def test_insert_question_invalid_id(self):
         service = QuestionService(config.dynamo_url, 'QuestionTest')
-        self.assertRaises(QuestionServiceOperationException, service.insert, "1.5", MockQuestion(""))
+        self.assertRaises(QuestionOperationException, service.insert, "1.5", MockQuestion(""))
 
     def test_insert_question_invalid_id_safe_mode_off(self):
         service = QuestionService(config.dynamo_url, 'QuestionTest')
-        self.assertRaises(QuestionServiceOperationException, service.insert, "1.6", MockQuestion(""), False)
+        self.assertRaises(QuestionOperationException, service.insert, "1.6", MockQuestion(""), False)
 
     def test_insert_question_not_question_object(self):
         service = QuestionService(config.dynamo_url, 'QuestionTest')
-        self.assertRaises(QuestionServiceOperationException, service.insert, "1_7", [])
+        self.assertRaises(QuestionOperationException, service.insert, "1_7", [])
 
     def test_insert_question_not_question_object_safe_mode_off(self):
         service = QuestionService(config.dynamo_url, 'QuestionTest')
-        self.assertRaises(QuestionServiceOperationException, service.insert, "1_8", [], False)
+        self.assertRaises(QuestionOperationException, service.insert, "1_8", [], False)
 
     def test_get_question(self):
         service = QuestionService(config.dynamo_url, 'QuestionTest')
