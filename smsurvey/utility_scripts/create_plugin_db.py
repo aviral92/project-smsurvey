@@ -1,4 +1,12 @@
 import boto3
+import os
+import inspect
+import sys
+
+c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+p = os.path.dirname(c)
+pp = os.path.dirname(p)
+sys.path.insert(0, pp)
 
 from smsurvey import config
 
@@ -10,21 +18,21 @@ def create_cache(cache_name):
         TableName=cache_name,
         AttributeDefinitions=[
             {
-                'AttributeName': 'question_id',
+                'AttributeName': 'plugin_id',
                 'AttributeType': 'S'
             },
             {
-                'AttributeName': 'survey_id',
+                'AttributeName': 'owner',
                 'AttributeType': 'S'
             }
         ],
         KeySchema=[
             {
-                'AttributeName': 'survey_id',
+                'AttributeName': 'plugin_id',
                 'KeyType': 'HASH'
             },
             {
-                'AttributeName': 'question_id',
+                'AttributeName': 'owner',
                 'KeyType': 'RANGE'
             }
         ],
@@ -37,14 +45,14 @@ def create_cache(cache_name):
     print("Cache status: ", question_cache['TableDescription']['TableStatus'])
 
 if __name__ == "__main__":
-    if 'Question' in dynamo.list_tables()['TableNames']:
+    if 'PluginDB' in dynamo.list_tables()['TableNames']:
         while True:
-            answer = input("Question already exists. Delete existing and create new? (Yes/n)")
+            answer = input("PluginDB already exists. Delete existing and create new? (Yes/n)")
 
             if answer == 'n':
                 exit(0)
             elif answer == 'Yes':
-                dynamo.delete_table(TableName='Question')
+                dynamo.delete_table(TableName='P')
                 break
 
     create_cache('Question')
