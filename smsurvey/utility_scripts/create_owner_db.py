@@ -18,21 +18,21 @@ def create_cache(cache_name):
         TableName=cache_name,
         AttributeDefinitions=[
             {
-                'AttributeName': 'plugin_id',
+                'AttributeName': 'domain',
                 'AttributeType': 'S'
             },
             {
-                'AttributeName': 'owner',
+                'AttributeName': 'name',
                 'AttributeType': 'S'
             }
         ],
         KeySchema=[
             {
-                'AttributeName': 'plugin_id',
+                'AttributeName': 'domain',
                 'KeyType': 'HASH'
             },
             {
-                'AttributeName': 'owner',
+                'AttributeName': 'name',
                 'KeyType': 'RANGE'
             }
         ],
@@ -45,14 +45,14 @@ def create_cache(cache_name):
     print("Cache status: ", question_cache['TableDescription']['TableStatus'])
 
 if __name__ == "__main__":
-    if config.plugin_backend_name in dynamo.list_tables()['TableNames']:
+    if config.owner_backend_name in dynamo.list_tables()['TableNames']:
         while True:
-            answer = input(config.plugin_backend_name + " already exists. Delete existing and create new? (Yes/n)")
+            answer = input(config.owner_backend_name + " already exists. Delete existing and create new? (Yes/n)")
 
             if answer == 'n':
                 exit(0)
             elif answer == 'Yes':
-                dynamo.delete_table(TableName=config.plugin_backend_name)
+                dynamo.delete_table(TableName=config.owner_backend_name)
                 break
 
-    create_cache(config.plugin_backend_name)
+    create_cache(config.owner_backend_name)

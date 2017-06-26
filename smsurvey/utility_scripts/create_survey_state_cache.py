@@ -28,6 +28,10 @@ def create_cache(cache_name):
             {
                 'AttributeName': 'survey_status',
                 'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'owner',
+                'AttributeType': 'S'
             }
         ],
         KeySchema=[
@@ -49,6 +53,26 @@ def create_cache(cache_name):
                         'KeyType': 'HASH'
                     }, {
                         'AttributeName': 'survey_status',
+                        'KeyType': 'RANGE'
+                    }
+                ],
+                'Projection': {
+                    'ProjectionType': 'ALL'
+                },
+                'ProvisionedThroughput': {
+                    'ReadCapacityUnits': 10,
+                    'WriteCapacityUnits': 10
+                }
+            },
+            {
+                'IndexName': 'SurveyOwner',
+                'KeySchema': [
+                    {
+                        'AttributeName': 'survey_instance_id',
+                        'KeyType': 'HASH'
+                    },
+                    {
+                        'AttributeName': 'owner',
                         'KeyType': 'RANGE'
                     }
                 ],
