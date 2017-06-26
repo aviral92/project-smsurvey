@@ -1,9 +1,20 @@
 # TO BE USED TEMPORARILY UNTIL UI EXISTS
+import os
+import inspect
+import sys
+
+c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+p = os.path.dirname(c)
+pp = os.path.dirname(p)
+sys.path.insert(0, pp)
 
 from smsurvey import config
 from smsurvey.core.model.survey.question import Question
 from smsurvey.core.model.survey.survey_state_machine import SurveyState
 from smsurvey.core.services.question_service import QuestionService
+from smsurvey.core.services.survey_state_service import SurveyStateService
+from smsurvey.interface.services.owner_service import OwnerService
+from smsurvey.interface.services.plugin_service import PluginService
 
 survey_id = 1
 
@@ -171,3 +182,15 @@ if __name__ == "__main__":
     question_service.insert("1_19", nineteen)
     question_service.insert("1_20", twenty)
     question_service.insert("1_21", twenty_one)
+
+    owner_service = OwnerService(config.dynamo_url, config.owner_backend_name)
+    owner_service.create_owner('test', 'owner', 'password')
+
+    plugin_service = PluginService(config.dynamo_url, config.plugin_backend_name)
+    token = plugin_service.register_plugin("owner@test", "password", "12345")
+    print("token = " + token)
+    survey_state_service = SurveyStateService(config.dynamo_url, config.survey_state_backend_name)
+
+    survey_state = SurveyState.new_state_object("1_1", "owner@test", "1_1")
+
+    survey_state_service.insert(survey_state)

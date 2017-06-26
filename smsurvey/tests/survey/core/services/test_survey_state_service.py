@@ -32,33 +32,33 @@ class TestSurveyStateService(unittest.TestCase):
 
     def test_insert_new_survey_state(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(1, 1)
+        survey = SurveyState.new_state_object(1, "test", 1)
         service.insert(survey)
         survey_received = service.get("1_1")
         self.assertTrue(survey == survey_received)
 
     def test_insert_new_survey_state_safe_mode_off(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(1, 2)
+        survey = SurveyState.new_state_object(1, "test", 2)
         service.insert(survey, False)
         survey_received = service.get("1_2")
         self.assertTrue(survey == survey_received)
 
     def test_insert_new_survey_state_safe_mode_off_key_exists(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(1, 2)
+        survey = SurveyState.new_state_object(1, "test", 2)
         service.insert(survey, False)
         survey_received = service.get("1_2")
         self.assertTrue(survey == survey_received)
 
     def test_insert_new_survey_state_safe_mode_on_key_exists(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(1, 2)
+        survey = SurveyState.new_state_object(1, "test", 2)
         self.assertRaises(SurveyStateOperationException, service.insert, survey)
 
     def test_get_object_exists(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(2, 1)
+        survey = SurveyState.new_state_object(2, "test", 1)
         service.insert(survey)
         survey_received = service.get("2_1")
         self.assertTrue(survey == survey_received)
@@ -70,7 +70,7 @@ class TestSurveyStateService(unittest.TestCase):
 
     def test_update_object(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(3, 1)
+        survey = SurveyState.new_state_object(3, "test", 1)
         service.insert(survey)
         survey_received = service.get("3_1")
         survey_received.survey_status = SurveyStatus.TERMINATED_COMPLETE
@@ -80,7 +80,7 @@ class TestSurveyStateService(unittest.TestCase):
 
     def test_update_object_safe_mode_off(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(3, 2)
+        survey = SurveyState.new_state_object(3, "test", 2)
         service.insert(survey)
         survey_received = service.get("3_2")
         survey_received.survey_status = SurveyStatus.TERMINATED_COMPLETE
@@ -90,7 +90,7 @@ class TestSurveyStateService(unittest.TestCase):
 
     def test_update_object_safe_mode_off_key_not_exist(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(3, 3)
+        survey = SurveyState.new_state_object(3, "test", 3)
         survey.survey_status = SurveyStatus.TERMINATED_COMPLETE
         service.update("3_3", survey, False)
         survey_received = service.get("3_3")
@@ -98,30 +98,28 @@ class TestSurveyStateService(unittest.TestCase):
 
     def test_update_object_safe_mode_on_key_not_exist(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(3, 4)
+        survey = SurveyState.new_state_object(3, "test", 4)
         self.assertRaises(SurveyStateOperationException, service.update, "3_4", survey)
 
     def test_update_object_safe_mode_off_key_does_not_match(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(3, 5)
+        survey = SurveyState.new_state_object(3, "test", 5)
         service.insert(survey)
         survey.survey_status = SurveyStatus.TERMINATED_COMPLETE
         service.update("3_1", survey, False)
         survey_received = service.get("3_5")
         self.assertTrue(survey == survey_received)
-        survey_received = service.get("3_1")
-        self.assertTrue(survey != survey_received)
 
     def test_update_object_safe_mode_on_key_does_not_match(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(3, 6)
+        survey = SurveyState.new_state_object(3, "test", 6)
         service.insert(survey)
-        survey = SurveyState.new_state_object(3, 7)
+        survey = SurveyState.new_state_object(3, "test", 7)
         self.assertRaises(SurveyStateOperationException, service.update, "3_5", survey)
 
     def test_update_object_invalid_update_different_surveys(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(3, 8)
+        survey = SurveyState.new_state_object(3, "test", 8)
         service.insert(survey)
         survey_received = service.get("3_8")
         survey_received.survey_instance_id = "wrong"
@@ -129,7 +127,7 @@ class TestSurveyStateService(unittest.TestCase):
 
     def test_update_object_invalid_update_different_versions(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(3, 9)
+        survey = SurveyState.new_state_object(3, "test", 9)
         service.insert(survey)
         survey_received = service.get("3_9")
         survey_received.survey_state_version = 1337
@@ -137,7 +135,7 @@ class TestSurveyStateService(unittest.TestCase):
 
     def test_update_object_invalid_update_different_questions(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(3, 10)
+        survey = SurveyState.new_state_object(3, "test", 10)
         service.insert(survey)
         survey_received = service.get("3_10")
         survey_received.next_question = 1337
@@ -145,7 +143,7 @@ class TestSurveyStateService(unittest.TestCase):
 
     def test_delete_object(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(4, 1)
+        survey = SurveyState.new_state_object(4, "test", 1)
         service.insert(survey)
         survey_received = service.get("4_1")
         self.assertTrue(survey == survey_received)
@@ -155,7 +153,7 @@ class TestSurveyStateService(unittest.TestCase):
 
     def test_delete_object_safe_mode_off(self):
         service = SurveyStateService(config.dynamo_url, 'SurveyStateTest')
-        survey = SurveyState.new_state_object(4, 2)
+        survey = SurveyState.new_state_object(4, "test", 2)
         service.insert(survey)
         survey_received = service.get("4_2")
         self.assertTrue(survey == survey_received)

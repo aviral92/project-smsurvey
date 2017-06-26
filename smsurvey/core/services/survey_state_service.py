@@ -26,11 +26,14 @@ class SurveyStateService:
                 'survey_instance_id': {
                     'S': survey_state.survey_instance_id
                 },
+                'owner': {
+                    'S': str(survey_state.owner)
+                },
                 'survey_status': {
                     'N': str(survey_state.survey_status.value)
                 },
                 'next_question': {
-                    'N': str(survey_state.next_question)
+                    'S': str(survey_state.next_question)
                 },
                 'timestamp': {
                     'N': str(survey_state.timestamp)
@@ -73,11 +76,13 @@ class SurveyStateService:
                 raise SurveyStateOperationException("Specified key is invalid, does not match")
 
             if existing.survey_instance_id != survey_state.survey_instance_id:
-                raise SurveyStateOperationException("Invalid update")
+                raise SurveyStateOperationException("Invalid update - ids must be constant")
             if existing.survey_state_version != survey_state.survey_state_version:
-                raise SurveyStateOperationException("Invalid update")
+                raise SurveyStateOperationException("Invalid update - version must be constant")
             if existing.next_question != survey_state.next_question:
-                raise SurveyStateOperationException("Invalid update")
+                raise SurveyStateOperationException("Invalid update - next question must be constant")
+            if existing.owner != survey_state.owner:
+                raise SurveyStateOperationException("Invalid update - owner must constant")
 
         self.insert(survey_state, False)
 
@@ -94,21 +99,16 @@ class SurveyStateService:
             }
         )
 
-    def get_by_instance_and_status(self, survey_instance_id, survey_status, last_key=None):
+    def get_by_instance_and_status(self, survey_instance_id, survey_statuses, last_key=None):
         try:
             response = self.dynamo.query(
                 TableName=self.cache_name,
                 IndexName='SurveyStatus',
                 ConsisentRead=True,
-                KeyConditions={
-                    'survey_instance_id': {
-                        'ComparisonOperator': 'EQ',
-                        'AttributeValueList': [survey_instance_id]
-                    },
-                    'survey_status': {
-                        'ComparisonOperator': 'EQ',
-                        'AttributeValueList': [survey_status]
-                    }
+                KeyConditionExpression= "survey_instance_id = :sid AND survey_status = :status",
+                ExpressionAttributeValues={
+                    "sid": survey_instance_id,
+                    ":status": survey_statuses
                 },
                 ExclusiveStartKey=last_key
             )
@@ -118,4 +118,35 @@ class SurveyStateService:
             if 'Items' in response:
                 return SurveyState.from_item(response['Items'][0])
             elif 'LastEvaluatedKey' in response:
-                return self.get_by_instance_and_status(survey_instance_id, survey_status, response['LastEvaluatedKey'])
+                return self.get_by_instance_and_status(survey_instance_id, survey_statuses, response['LastEvaluatedKey'])
+            else:
+                return None
+
+    def get_by_owner(self, survey_owner, survey_status=None, last_key=None):
+        try:
+            response = self.dynamo.query(
+                TableName=self.cache_name,
+                IndexName='SurveyOwner',
+                ConsistentRead=True,
+                KeyConditionExpression= "survey_owner = :so",
+                ExpressionAttributeValues={
+                    "so": survey_owner
+                }
+            )
+        except ClientError as e:
+            print(e.response['Error']['Message'])
+        else:
+            if 'Items' in response:
+                items = []
+                for i in response['Items']:
+                    item = SurveyState.from_item(i)
+                    if item.owner == survey_owner:
+                        items.append(item.survey_instance_id)
+
+                if 'LastEvaluatedKey' in response:
+                    items += self.get_by_owner(survey_owner, survey_status, response['LastEvaluatedKey'])
+
+                return items
+            else:
+                return []
+
