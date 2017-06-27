@@ -5,6 +5,7 @@ from tornado.ioloop import IOLoop
 from smsurvey import config
 from smsurvey.interface.survey_interface import SurveyHandler
 from smsurvey.interface.survey_interface import SurveysHandler
+from smsurvey.interface.survey_interface import NewSurveyHandler
 
 
 def initiate_interface():
@@ -12,7 +13,8 @@ def initiate_interface():
 
     instance = Application([
         (r"/surveys", SurveysHandler),
-        (r"/surveys/(.*)", SurveyHandler)
+        (r"/surveys/(.*)", SurveyHandler),
+        (r"/newsurvey/(.*)", NewSurveyHandler)
     ])
 
     port = config.survey_response_interface_port_begin + process_id

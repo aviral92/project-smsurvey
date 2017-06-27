@@ -30,7 +30,7 @@ def create_cache(cache_name):
                 'AttributeType': 'N'
             },
             {
-                'AttributeName': 'owner',
+                'AttributeName': 'survey_owner',
                 'AttributeType': 'S'
             }
         ],
@@ -68,11 +68,11 @@ def create_cache(cache_name):
                 'IndexName': 'SurveyOwner',
                 'KeySchema': [
                     {
-                        'AttributeName': 'survey_instance_id',
+                        'AttributeName': 'survey_owner',
                         'KeyType': 'HASH'
                     },
                     {
-                        'AttributeName': 'owner',
+                        'AttributeName': 'survey_instance_id',
                         'KeyType': 'RANGE'
                     }
                 ],
