@@ -53,8 +53,8 @@ class PluginService:
         plugin = self.get_plugin(owner, plugin_id)
 
         if plugin is not None:
-            test = encrypt_password(token, plugin['salt'])
-            return test == plugin['encrypted']
+            test = encrypt_password(token, plugin['salt']).decode()
+            return test == plugin['token']
         else:
             return False
 
@@ -82,6 +82,8 @@ class PluginService:
             if owner_service.validate_password(domain, name, password):
                 salt = os.urandom(16)
                 token = encrypt_password(owner + str(time.time()), salt).decode()
+                salt2 = os.urandom(16)
+                token2 = encrypt_password(token, salt2).decode()
 
                 self.dynamo.put_item(
                     TableName=self.cache_name,
@@ -93,10 +95,10 @@ class PluginService:
                             'S': plugin_id
                         },
                         'token': {
-                            'S': token
+                            'S': token2
                         },
                         'salt': {
-                            'B': salt
+                            'B': salt2
                         }
                     }
                 )

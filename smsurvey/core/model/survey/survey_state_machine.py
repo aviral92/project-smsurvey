@@ -34,9 +34,9 @@ class SurveyState:
 
     @classmethod
     def from_item(cls, item):
-        return cls(item['event_id']['S'], item['survey_instance_id']['S'], item['owner']['S'], int(item['next_question']['N']),
-                   SurveyStatus(int(item['survey_status']['N'])), int(item['timestamp']['N']),
-                   int(item['timeout']['N']), int(item['survey_state_version']['N']))
+        return cls(item['event_id']['S'], item['survey_instance_id']['S'], item['survey_owner']['S'],
+                   item['next_question']['S'], SurveyStatus(int(item['survey_status']['N'])),
+                   int(item['timestamp']['N']),int(item['timeout']['N']), int(item['survey_state_version']['N']))
 
     def __eq__(self, other):
         if self.event_id != other.event_id:
