@@ -72,28 +72,26 @@ class SurveyHandler(RequestHandler):
                         for state in new_states:
                             state.survey_status = SurveyStatus.CREATED_MID
                             state.owner = owner
-                            print(state.survey_instance_id)
                             survey_state_service.insert(state)
-                        survey_state.survey_status = SurveyStatus.TERMINATED_COMPLETE
-                        survey_state_service.update(survey_state)
-
-                        if len(new_states) is 1:
-                            new_survey_state = new_states[0]
-                        else:
-                            new_survey_state = survey_state_service.get_by_instance_and_status(
-                                survey_state.survey_instance_id, SurveyStatus.CREATED_MID)
 
                     if new_survey_state is None:
                         new_survey_state = survey_state_service.get_by_instance_and_status(
                             survey_state.survey_instance_id, SurveyStatus.CREATED_MID)
+
+                    survey_state.survey_status = SurveyStatus.TERMINATED_COMPLETE
+                    survey_state_service.update(survey_state)
+
+                    if new_survey_state is None:
+                        self.set_status(410)
+                        self.write('{"status":"error","message":"Survey has completed"}')
+                        self.flush()
+                        return
 
                     new_survey_state.survey_status = SurveyStatus.AWAITING_USER_RESPONSE
                     survey_state_service.update(new_survey_state)
                     new_question = question_service.get(new_survey_state.next_question)
                     message = new_question.question_text
                     end = new_question.final
-
-                    # TODO: Logic for ending survey
 
                     self.set_status(200)
                     self.write('{"status":"success","is_end":"' + str(end) + '","message":"' + message + '"}')
@@ -196,7 +194,7 @@ class NewSurveyHandler(RequestHandler):
         plugin_service = PluginService(config.dynamo_url, config.plugin_backend_name)
         if plugin_service.validate_plugin(owner, plugin_id, token):
             survey_state_service = SurveyStateService(config.dynamo_url, config.survey_state_backend_name)
-            survey_state = survey_state_service.get(survey_id, "1_1")
+            survey_state = survey_state_service.get(survey_id, survey_id + "_" + "1_1")
 
             if survey_state is not None:
                 if survey_state.owner == owner:
