@@ -8,6 +8,7 @@ from smsurvey.core.model.survey.survey_state_machine import SurveyStatus
 from smsurvey.interface.services.plugin_service import PluginService
 from smsurvey.core.services.survey_state_service import SurveyStateService
 from smsurvey.core.services.question_service import QuestionService
+from smsurvey.core.services.response_service import ResponseService
 
 
 class SurveyHandler(RequestHandler):
@@ -66,6 +67,10 @@ class SurveyHandler(RequestHandler):
                 new_survey_state = None
 
                 if question is not None:
+                    response_service = ResponseService(config.dynamo_url, config.response_backend_name)
+                    variable_name = question.variable_name
+                    # TODO: survey id not yet implemented, as in MVP only one survey
+                    response_service.insert_response("1", survey_id, variable_name, response)
                     new_states = question.process(response)
 
                     if new_states is not None:
@@ -107,6 +112,7 @@ class SurveyHandler(RequestHandler):
         else:
             self.set_status(403, "Owner does not have ability to modify this survey")
             self.write('{"status":"error","message":"Owner does not have authorization to modify this survey"}')
+            self.flush()
 
     def data_received(self, chunk):
         pass

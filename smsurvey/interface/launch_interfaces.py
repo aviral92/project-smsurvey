@@ -6,7 +6,7 @@ from smsurvey import config
 from smsurvey.interface.survey_interface import SurveyHandler
 from smsurvey.interface.survey_interface import SurveysHandler
 from smsurvey.interface.survey_interface import NewSurveyHandler
-
+from smsurvey.interface.data_interface import DataRequestHandler
 
 def initiate_interface():
     process_id = process.fork_processes(config.response_interface_processes, max_restarts=0)
@@ -14,7 +14,8 @@ def initiate_interface():
     instance = Application([
         (r"/surveys", SurveysHandler),
         (r"/surveys/(.*)", SurveyHandler),
-        (r"/newsurvey/(.*)", NewSurveyHandler)
+        (r"/newsurvey/(.*)", NewSurveyHandler),
+        (r"/data/(.*)", DataRequestHandler)
     ])
 
     port = config.survey_response_interface_port_begin + process_id
