@@ -35,6 +35,9 @@ class SurveyStateService:
                 'next_question': {
                     'S': str(survey_state.next_question)
                 },
+                'priority' : {
+                    'N': str(survey_state.priority)
+                },
                 'timestamp': {
                     'N': str(survey_state.timestamp)
                 },
@@ -122,7 +125,17 @@ class SurveyStateService:
         else:
             print(response)
             if 'Items' in response and len(response['Items']) > 0:
-                return SurveyState.from_item(response['Items'][0])
+                lowest_priority = int(response['Items'][0]['priority']['N'])
+                item = SurveyState.from_item(response['Items'][0])
+
+                for i in response['Items']:
+                    priority = int(i['priority']['N'])
+                    if priority < lowest_priority:
+                        lowest_priority = priority
+                        item = SurveyState.from_item(i)
+
+                return item
+
             elif 'LastEvaluatedKey' in response:
                 return self.get_by_instance_and_status(survey_instance_id, survey_status, response['LastEvaluatedKey'])
             else:
