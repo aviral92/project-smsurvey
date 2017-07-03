@@ -13,23 +13,9 @@ ppppp = os.path.dirname(pppp)
 sys.path.insert(0, ppppp)
 
 from smsurvey import config
-from smsurvey.core.model.survey.question import Question
-from smsurvey.core.model.survey.survey_state_machine import SurveyState
 from smsurvey.core.services.question_service import QuestionOperationException
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.utility_scripts import create_question_cache
-
-
-class MockQuestion(Question):
-
-    def __init__(self, question_identifier):
-        self.question_identifier = question_identifier
-
-    def ask_question(self):
-        return self.question_identifier
-
-    def process_response(self, response):
-        return SurveyState.new_state_object(1, 1)
 
 
 class TestQuestionService(unittest.TestCase):
