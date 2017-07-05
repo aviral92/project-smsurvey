@@ -3,7 +3,8 @@ import pickle
 
 class Question:
 
-    def __init__(self, survey_id, question_text, variable_name, processor, free_input=False, invalid_message="", final=False):
+    def __init__(self, survey_id, question_text, variable_name, processor, free_input=False, invalid_message="",
+                 final=False):
         self.survey_id = survey_id
         self.question_text = question_text
         self.variable_name = variable_name
