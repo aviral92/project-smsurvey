@@ -13,7 +13,7 @@ class SurveyStateService:
         self.dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=cache_url)
         self.cache_name = cache_name
 
-    def insert(self, survey_state, safe=True, message="Bongo"):
+    def insert(self, survey_state, safe=True):
         if safe:
             if self.get(survey_state.survey_instance_id, survey_state.next_question) is not None:
                 raise SurveyStateOperationException("Key exists")

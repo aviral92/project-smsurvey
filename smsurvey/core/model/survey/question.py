@@ -3,10 +3,12 @@ import pickle
 
 class Question:
 
-    def __init__(self, survey_id, question_text, variable_name, processor, final=False):
+    def __init__(self, survey_id, question_text, variable_name, processor, free_input=False, invalid_message="", final=False):
         self.survey_id = survey_id
         self.question_text = question_text
         self.variable_name = variable_name
+        self.free_input = free_input
+        self.invalid_message = invalid_message
         if processor is None:
             self.processor = None
         else:
@@ -17,10 +19,13 @@ class Question:
         if self.processor is not None:
             p = pickle.loads(self.processor)
 
-            if param in p:
-                return p[param]
+            if self.free_input:
+                return p
             else:
-                return p["~~else~~"]
+                if param in p:
+                    return p[param]
+                else:
+                    return 'INV_RESP'
 
 
 class QuestionOperationException(Exception):

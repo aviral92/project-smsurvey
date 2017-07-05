@@ -27,199 +27,168 @@ from smsurvey.utility_scripts import create_survey_state_cache
 
 def get_one_p(sid):
     return {
-        '0': [SurveyState.new_state_object(sid, "owner@test", sid + "_4", 1)],
-        '1': [SurveyState.new_state_object(sid, "owner@test", sid + "_2", 1),
-              SurveyState.new_state_object(sid, "owner@test", sid + "_6"), 2],
-        '2': [SurveyState.new_state_object(sid, "owner@test", sid + "_3", 1),
-              SurveyState.new_state_object(sid, "owner@test", sid + "_11", 2)],
-        '3': [SurveyState.new_state_object(sid, "owner@test", sid + "_2", 1),
-              SurveyState.new_state_object(sid, "owner@test", sid + "_3", 2),
-              SurveyState.new_state_object(sid, "owner@test", survey_id + "_16", 3)],
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_5", 5)]
+        '0': [[sid + "_4", 1]],
+        '1': [[sid + "_2", 1], [sid + "_6", 2]],
+        '2': [[sid + "_3", 1], [sid + "_11", 2]],
+        '3': [[sid + "_2", 1], [sid + "_3", 2], [sid + "_16", 3]]
     }
 
 
 def get_four_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_5", 5)]
-    }
+    return [[sid + "_5", 5]]
 
 
 def get_six_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_7", 1)]
-    }
+    return [[sid + "_7", 1]]
 
 
 def get_seven_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_8", 1)]
-    }
+    return [[sid + "_8", 1]]
 
 
 def get_eight_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_10", 5)]
-    }
+    return [[sid + "_10", 5]]
 
 
 def get_eleven_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_12", 1)]
-    }
+    return [[sid + "_12", 1]]
 
 
 def get_twelve_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_13", 1)]
-    }
+    return [[sid + "_13", 1]]
 
 
 def get_thirteen_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_14", 1)]
-    }
+    return [[sid + "_14", 1]]
 
 
 def get_fourteen_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_15", 5)]
-    }
+    return [[sid + "_15", 5]]
 
 
 def get_sixteen_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_17", 1)]
-    }
+    return [[sid + "_17", 1]]
 
 
 def get_seventeen_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_18", 1)]
-    }
+    return [[sid + "_18", 1]]
 
 
 def get_eighteen_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_19", 1)]
-    }
+    return [[sid + "_19", 1]]
 
 
 def get_nineteen_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_20", 1)]
-    }
+    return [[sid + "_20", 1]]
 
 
 def get_twenty_p(sid):
-    return {
-        '~~else~~': [SurveyState.new_state_object(sid, "owner@test", sid + "_21", 5)]
-    }
+    return[[sid + "_21", 5]]
 
 
 def get_one(sid):
     pr = get_one_p(sid)
     return Question(sid, "Since your last report: Did you smoke a cigarette and/or E-cigarette? [no=0; cig=1; "
-                         "Ecig=2; both=3]", "cigEcig", pr, False)
+                         "Ecig=2; both=3]", "cigEcig", pr, False, "Invalid response - Must be 0, 1, 2 or 3", False)
 
 
 def get_two(sid):
-    return Question(sid, "How many minutes after waking did you smoke your first cigarette?", "cig_wake", None, False)
+    return Question(sid, "How many minutes after waking did you smoke your first cigarette?", "cig_wake", None, True, "", False)
 
 
 def get_three(sid):
-    return Question(sid, "How many minutes after waking did you use your first E-cig?", "ecig_wake", None, False)
+    return Question(sid, "How many minutes after waking did you use your first E-cig?", "ecig_wake", None, True, "", False)
 
 
 def get_four(sid):
     pr = get_four_p(sid)
     return Question(sid, "On a scale of 0-9, how much do you want to smoke a CIGARETTE right now? [0=Not at all – "
-                         "9=Very, Very much]", "cig_want", pr, False)
+                         "9=Very, Very much]", "cig_want", pr, True, "" ,False)
 
 
 def get_five(sid):
-    return Question(sid, "Thank you for completing the survey.", "thanks", None, True)
+    return Question(sid, "Thank you for completing the survey.", "thanks", None, True, "", True)
 
 
 def get_six(sid):
     pr = get_six_p(sid)
-    return Question(sid, "Since your last report: How many cigarettes did you smoke?", "cig_num", pr, False)
+    return Question(sid, "Since your last report: How many cigarettes did you smoke?", "cig_num", pr, True, "", False)
 
 
 def get_seven(sid):
     pr = get_seven_p(sid)
     return Question(sid, "On a scale of 0-9, how satisfying was your last cigarette? [0=Not at all – 9=Extremely "
-                         "Satisfying]", "cig_sat", pr, False)
+                         "Satisfying]", "cig_sat", pr, True, "", False)
 
 
 def get_eight(sid):
     pr = get_eight_p(sid)
     return Question(sid, "On a scale of 0-9, how much do you want to smoke a CIGARETTE right now? [0=Not at all – "
-                         "9=Very, Very much]", "cig_want", pr, False)
+                         "9=Very, Very much]", "cig_want", pr, True, "", False)
 
 
 def get_ten(sid):
-    return Question(sid, "Thank you for completing the survey.", "thanks", None, True)
+    return Question(sid, "Thank you for completing the survey.", "thanks", None, True, "", True)
 
 
 def get_eleven(sid):
     pr = get_eleven_p(sid)
     return Question(sid, "Since your last report: How many separate times did you use an E-cigarette? ", "Ecig_num",
-                    pr, False)
+                    pr, True, "", False)
 
 
 def get_twelve(sid):
     pr = get_twelve_p(sid)
-    return Question(sid, "On average, how many puffs did you take each time?", "Ecig_puffs", pr, False)
+    return Question(sid, "On average, how many puffs did you take each time?", "Ecig_puffs", pr, True, "", False)
 
 
 def get_thirteen(sid):
     pr = get_thirteen_p(sid)
     return Question(sid, "On a scale of 0-9, how satisfying was your last E-cigarette? [0=Not at all – "
-                         "9=Extremely Satisfying]", "Ecig_sat", pr, False)
+                         "9=Extremely Satisfying]", "Ecig_sat", pr, True, "", False)
 
 
 def get_fourteen(sid):
     pr = get_fourteen_p(sid)
     return Question(sid, "On a scale of 0-9, how much do you want to smoke a CIGARETTE right now? [0=Not at all "
-                         "– 9=Very, Very much]", "cig_want", pr, False)
+                         "– 9=Very, Very much]", "cig_want", pr, True, "", False)
 
 
 def get_fifteen(sid):
-    return Question(sid, "Thank you for completing the survey.", "thanks", None, True)
+    return Question(sid, "Thank you for completing the survey.", "thanks", None, True, "", True)
 
 
 def get_sixteen(sid):
     pr = get_sixteen_p(sid)
-    return Question(sid, "Since your last report: How many cigarettes did you smoke?", "cig_num", pr, False)
+    return Question(sid, "Since your last report: How many cigarettes did you smoke?", "cig_num", pr, True, False)
 
 
 def get_seventeen(sid):
     pr = get_seventeen_p(sid)
     return Question(sid, "Since your last report: How many separate times did you smoke an E-cigarette? ",
-                    "Ecig_num", pr, False)
+                    "Ecig_num", pr, True, False)
 
 
 def get_eighteen(sid):
     pr = get_eighteen_p(sid)
     return Question(sid, "If you smoked an E-cigarette was it JUUL or another type?If JUUL- Did you smoke T, "
-                         "Mint, Mango, Brule ", "Ecig_type", pr, False)
+                         "Mint, Mango, Brule ", "Ecig_type", pr, True, False)
 
 
 def get_nineteen(sid):
     pr = get_nineteen_p(sid)
     return Question(sid, "On a scale of 0-9, how satisfying was your last E-cigarette? [0=Not at all – "
-                         "9=Extremely Satisfying]", "Ecig_sat", pr, False)
+                         "9=Extremely Satisfying]", "Ecig_sat", pr, True, False)
 
 
 def get_twenty(sid):
     pr = get_twenty_p(sid)
     return Question(sid, "On a scale of 0-9, how much do you want to smoke a CIGARETTE right now? [0=Not at all – "
-                         "9=Very, Very much]", "cig_want", pr, False)
+                         "9=Very, Very much]", "cig_want", pr, True, False)
 
 
 def get_twenty_one(sid):
-    return Question(sid, "Thank you for completing the survey.", "thanks", None, True)
+    return Question(sid, "Thank you for completing the survey.", "thanks", None, True, True)
 
 
 if __name__ == "__main__":
