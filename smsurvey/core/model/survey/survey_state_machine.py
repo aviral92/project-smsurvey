@@ -40,9 +40,9 @@ class SurveyState:
                    int(item['timestamp']['N']), int(item['timeout']['N']), int(item['survey_state_version']['N']))
 
     def __eq__(self, other):
-        if self.event_id != other.event_id:
-            return False
         if self.survey_instance_id != other.survey_instance_id:
+            return False
+        if self.event_id != other.event_id:
             return False
         if self.owner != other.owner:
             return False

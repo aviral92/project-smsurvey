@@ -18,6 +18,7 @@ from smsurvey.core.services.question_service import QuestionOperationException
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.utility_scripts import create_question_cache
 
+
 class TestQuestionService(unittest.TestCase):
 
     @classmethod

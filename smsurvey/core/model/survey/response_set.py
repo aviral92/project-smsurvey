@@ -20,7 +20,5 @@ class ResponseSet:
             return None
 
     def to_json(self):
-        print(type(self.response_dict))
-        print(self.response_dict)
         return '{"survey_id":"' + self.survey_id + '","survey_instance_id":"' + self.survey_instance_id + '", "data":' \
               + json.dumps(self.response_dict) + "}"
