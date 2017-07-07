@@ -193,26 +193,32 @@ def get_twenty_one(sid):
 
 if __name__ == "__main__":
 
-    create_owner_db.main(True)
-    create_plugin_db.main(True)
-    create_question_cache.main(True)
-    create_response_store.main(True)
-    create_survey_cache.main(True)
-    create_survey_state_cache.main(True)
+    create_owner_db.main(True, False)
+    create_plugin_db.main(True, False)
+    create_question_cache.main(True, False)
+    create_response_store.main(True, False)
+    create_survey_cache.main(True, False)
+    create_survey_state_cache.main(True, False)
 
-    question_service = QuestionService(config.dynamo_url, config.question_backend_name)
+    question_service = QuestionService()
 
     survey_id = "1"
     survey_instance_ids = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
 
-    owner_service = OwnerService(config.dynamo_url, config.owner_backend_name)
+    print("Creating Owner")
+    owner_service = OwnerService()
     owner_service.create_owner('test', 'owner', 'password')
+    print("Owner created")
 
-    plugin_service = PluginService(config.dynamo_url, config.plugin_backend_name)
+    print("Creating plugin")
+    plugin_service = PluginService()
     token = plugin_service.register_plugin("owner@test", "password", "12345")
+    print("Plugin created")
     print("token = " + token)
-    survey_state_service = SurveyStateService(config.dynamo_url, config.survey_state_backend_name)
 
+    survey_state_service = SurveyStateService()
+
+    print("Generating questions")
     one = get_one(survey_id)
     two = get_two(survey_id)
     three = get_three(survey_id)
@@ -233,7 +239,9 @@ if __name__ == "__main__":
     nineteen = get_nineteen(survey_id)
     twenty = get_twenty(survey_id)
     twenty_one = get_twenty_one(survey_id)
+    print("Questions generated")
 
+    print("Inserting questions")
     question_service.insert(survey_id + "_" + "1", one)
     question_service.insert(survey_id + "_" + "2", two)
     question_service.insert(survey_id + "_" + "3", three)
@@ -254,10 +262,14 @@ if __name__ == "__main__":
     question_service.insert(survey_id + "_" + "19", nineteen)
     question_service.insert(survey_id + "_" + "20", twenty)
     question_service.insert(survey_id + "_" + "21", twenty_one)
+    print("Questions inserted")
 
     first_question = survey_id + "_" + "1"
 
+    print("Generating and inserting surveys")
     for instance_id in survey_instance_ids:
         instance = survey_id + "_" + instance_id
         survey_state = SurveyState.new_state_object(instance, "owner@test", first_question)
         survey_state_service.insert(survey_state)
+    print("Surveys inserted and generated")
+    print("Script finished")

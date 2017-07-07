@@ -3,6 +3,7 @@ import os
 import inspect
 import sys
 import argparse
+import time
 
 c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 p = os.path.dirname(c)
@@ -11,7 +12,14 @@ sys.path.insert(0, pp)
 
 from smsurvey import config
 
-dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=config.dynamo_url)
+dynamo = None
+
+
+def get_dynamo(local):
+    if local:
+        return boto3.client('dynamodb', "us-west-2", config.dynamo_url_local)
+    else:
+        return boto3.client('dynamodb', 'us-east-1')
 
 
 def create_cache(t_name):
@@ -43,10 +51,23 @@ def create_cache(t_name):
         }
     )
 
+    while True:
+        response = dynamo.describe_table(
+            TableName=t_name
+        )
+        if response['Table']['TableStatus'] == 'ACTIVE':
+            break
+        else:
+            print("Still creating")
+            time.sleep(5)
+
     print("Cache status: ", t['TableDescription']['TableStatus'])
 
 
-def main(force):
+def main(force, local):
+    global dynamo
+    dynamo = get_dynamo(local)
+
     t_name = config.survey_backend_name
 
     if force:
@@ -54,6 +75,10 @@ def main(force):
         if t_name in dynamo.list_tables()['TableNames']:
             print("Removing old " + t_name)
             dynamo.delete_table(TableName=t_name)
+
+            while t_name in dynamo.list_tables()['TableNames']:
+                print("Still deleting")
+                time.sleep(5)
     else:
         if t_name in dynamo.list_tables()['TableNames']:
             while True:
@@ -63,6 +88,11 @@ def main(force):
                     exit(0)
                 elif answer == 'Yes':
                     dynamo.delete_table(TableName=t_name)
+
+                    while t_name in dynamo.list_tables()['TableNames']:
+                        print("Still deleting")
+                        time.sleep(5)
+
                     break
 
     print("Creating " + t_name)
@@ -73,7 +103,8 @@ def main(force):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", action="store_true", dest="force")
+    parser.add_argument("-l", action="store_true", dest="local")
     args = parser.parse_args()
 
-    main(args.force)
+    main(args.force, args.local)
 

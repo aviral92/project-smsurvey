@@ -3,14 +3,19 @@ import pickle
 
 from botocore.exceptions import ClientError
 
+from smsurvey import config
 from smsurvey.core.model.survey.question import Question
 from smsurvey.core.model.survey.question import QuestionOperationException
 
 
 class QuestionService:
 
-    def __init__(self, cache_url, cache_name):
-        self.dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=cache_url)
+    def __init__(self, cache_name=config.question_backend_name, local=config.local):
+        if local:
+            self.dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=config.dynamo_url_local)
+        else:
+            self.dynamo = boto3.client('dynamodb', region_name='us-east-1')
+
         self.cache_name = cache_name
 
     def insert(self, question_id, question, safe=True):

@@ -12,8 +12,12 @@ from smsurvey.interface.services.owner_service import OwnerService
 
 class PluginService:
 
-    def __init__(self, cache_url, cache_name):
-        self.dynamo = boto3.client('dynamodb', region_name='us_west_2', endpoint_url=cache_url)
+    def __init__(self, cache_name=config.plugin_backend_name, local=config.local):
+        if local:
+            self.dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=config.dynamo_url_local)
+        else:
+            self.dynamo = boto3.client('dynamodb', region_name='us-east-1')
+
         self.cache_name = cache_name
 
     def get_plugin(self, owner, plugin_id):
@@ -29,7 +33,7 @@ class PluginService:
                     }
                 },
                 ConsistentRead=True,
-                ReturnConsumedCapacity="False"
+                ReturnConsumedCapacity="NONE"
             )
         except ClientError as e:
             print(e.response['Error']['Message'])
@@ -76,7 +80,7 @@ class PluginService:
         name = owner[:at]
         domain = owner[at+1:]
 
-        owner_service = OwnerService(config.dynamo_url, config.owner_backend_name)
+        owner_service = OwnerService()
 
         if owner_service.does_owner_exist(domain, name):
             if owner_service.validate_password(domain, name, password):

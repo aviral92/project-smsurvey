@@ -36,7 +36,7 @@ def authenticate(response):
             plugin_id = credentials[hyphen_index + 1: colon_index]
             token = credentials[colon_index + 1:]
 
-            plugin_service = PluginService(config.dynamo_url, config.plugin_backend_name)
+            plugin_service = PluginService()
 
             if plugin_service.validate_plugin(owner, plugin_id, token):
                 return {
@@ -62,7 +62,7 @@ class AllSurveysHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            survey_state_service = SurveyStateService(config.dynamo_url, config.survey_state_backend_name)
+            survey_state_service = SurveyStateService()
             survey_ids = survey_state_service.get_by_owner(auth_response["owner"])
             self.set_status(200)
             self.write('{"status":"success","ids":' + json.dumps(list(set(survey_ids))) + '}')
@@ -78,7 +78,7 @@ class LatestQuestionHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            survey_state_service = SurveyStateService(config.dynamo_url, config.survey_state_backend_name)
+            survey_state_service = SurveyStateService()
             survey_state = survey_state_service.get_by_instance_and_status(survey_id,
                                                                            SurveyStatus.AWAITING_USER_RESPONSE)
 
@@ -88,7 +88,7 @@ class LatestQuestionHandler(RequestHandler):
                 self.finish()
             else:
                 if survey_state.owner == auth_response['owner']:
-                    question_service = QuestionService(config.dynamo_url, config.question_backend_name)
+                    question_service = QuestionService()
                     question = question_service.get(survey_state.next_question)
 
                     if question is not None:
@@ -123,14 +123,14 @@ class LatestQuestionHandler(RequestHandler):
                 self.flush()
                 return
 
-            survey_state_service = SurveyStateService(config.dynamo_url, config.survey_state_backend_name)
+            survey_state_service = SurveyStateService()
             survey_state = survey_state_service.get_by_instance_and_status(survey_id, SurveyStatus.AWAITING_USER_RESPONSE)
 
             if survey_state is not None:
                 if survey_state.owner == auth_response['owner']:
                     question_id = survey_state.next_question
 
-                    question_service = QuestionService(config.dynamo_url, config.question_backend_name)
+                    question_service = QuestionService()
                     question = question_service.get(question_id)
 
                     if question is not None:
@@ -155,7 +155,7 @@ class LatestQuestionHandler(RequestHandler):
                                            + question.invalid_message + '"}')
                                 self.flush()
                             else:
-                                response_service = ResponseService(config.dynamo_url, config.response_backend_name)
+                                response_service = ResponseService()
                                 variable_name = question.variable_name
                                 survey = survey_id[:survey_id.find('_')]
                                 response_service.insert_response(survey, survey_id, variable_name, response)
@@ -204,7 +204,7 @@ class AQuestionHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response['valid']:
-            survey_state_service = SurveyStateService(config.dynamo_url, config.survey_state_backend_name)
+            survey_state_service = SurveyStateService()
             survey_state = survey_state_service.get(survey_id, question_id)
 
             if survey_state is None:
@@ -212,7 +212,7 @@ class AQuestionHandler(RequestHandler):
                 self.write('{"status":"error","message":"Question or survey does not exist"}')
                 self.finish()
             else:
-                question_service = QuestionService(config.dynamo_url, config.question_backend_name)
+                question_service = QuestionService()
                 question = question_service.get(survey_state.next_question)
 
                 if question is None:
@@ -223,7 +223,7 @@ class AQuestionHandler(RequestHandler):
                     q_text = question.question_text
 
                     if survey_state.survey_status == SurveyStatus.TERMINATED_COMPLETE:
-                        response_service = ResponseService(config.dynamo_url, config.response_backend_name)
+                        response_service = ResponseService(c)
                         survey = survey_id[:survey_id.find('_')]
                         response_set = response_service.get_response_set(survey, survey_id)
                         response = response_set.get_response(question.variable_name)
@@ -247,7 +247,7 @@ class ASurveyHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            survey_state_service = SurveyStateService(config.dynamo_url, config.survey_state_backend_name)
+            survey_state_service = SurveyStateService()
             survey_state = survey_state_service.get_by_instance(survey_id)
 
             if survey_state is None:
@@ -290,7 +290,7 @@ class ASurveyHandler(RequestHandler):
                 return
 
             if action == 'start':
-                survey_state_service = SurveyStateService(config.dynamo_url, config.survey_state_backend_name)
+                survey_state_service = SurveyStateService()
                 survey_state = survey_state_service.get_by_instance_and_status(survey_id, SurveyStatus.CREATED_START)
 
                 if survey_state is not None:

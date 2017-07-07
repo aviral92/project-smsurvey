@@ -20,8 +20,6 @@ def initiate_interface():
         (r"/surveys/(\d*_*\d*)", ASurveyHandler),
     ])
 
-
-
     port = config.survey_response_interface_port_begin + process_id
     instance.listen(port)
     print("Survey Response Interface Handler listening on " + str(port))
