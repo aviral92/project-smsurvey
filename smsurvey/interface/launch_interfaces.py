@@ -35,4 +35,6 @@ class HealthCheckHandler(RequestHandler):
         pass
 
     def get(self):
+        self.set_status(200)
         self.write("Healthy")
+        self.flush()
