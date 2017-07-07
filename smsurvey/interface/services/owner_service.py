@@ -5,13 +5,18 @@ import smsurvey.core.security.secure as secure
 
 from botocore.exceptions import ClientError
 
+from smsurvey import config
 from smsurvey.core.security.secure import SecurityException
 
 
 class OwnerService:
 
-    def __init__(self, cache_url, cache_name):
-        self.dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=cache_url)
+    def __init__(self, cache_name=config.owner_backend_name, local=config.local):
+        if local:
+            self.dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=config.dynamo_url_local)
+        else:
+            self.dynamo = boto3.client('dynamodb', region_name='us-east-1')
+
         self.cache_name = cache_name
 
     def get(self, domain, name):
@@ -23,7 +28,7 @@ class OwnerService:
                     'name': {"S": name}
                 },
                 ConsistentRead=True,
-                ReturnConsumedCapacity="False"
+                ReturnConsumedCapacity="NONE"
             )
         except ClientError as e:
             print(e.response['Error']['Message'])

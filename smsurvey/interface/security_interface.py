@@ -14,7 +14,7 @@ class CreatePluginHandler(RequestHandler):
         plugin_id = self.get_argument("plugin_id")
 
         try:
-            plugin_service = PluginService(config.dynamo_url, config.plugin_backend_name)
+            plugin_service = PluginService()
             token = plugin_service.register_plugin(owner, owner_password, plugin_id)
         except SecurityException as e:
             self.set_status(403, e.message)
@@ -37,7 +37,7 @@ class CreateOwnerHandler(RequestHandler):
         password = self.get_argument("password")
 
         try:
-            owner_service = OwnerService(config.dynamo_url, config.owner_backend_name)
+            owner_service = OwnerService()
             owner_service.create_owner(domain, name, password)
         except SecurityException as e:
             self.set_status(400, e.message)

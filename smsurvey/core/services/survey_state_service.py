@@ -2,6 +2,7 @@ import boto3
 
 from botocore.exceptions import ClientError
 
+from smsurvey import config
 from smsurvey.core.model.survey.survey_state_machine import SurveyStateOperationException
 from smsurvey.core.model.survey.survey_state_machine import SurveyState
 from smsurvey.core.model.survey.survey_state_machine import SurveyStatus
@@ -9,8 +10,12 @@ from smsurvey.core.model.survey.survey_state_machine import SurveyStatus
 
 class SurveyStateService:
 
-    def __init__(self, cache_url, cache_name):
-        self.dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=cache_url)
+    def __init__(self, cache_name=config.survey_state_backend_name, local=config.local):
+        if local:
+            self.dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=config.dynamo_url_local)
+        else:
+            self.dynamo = boto3.client('dynamodb', region_name='us-east-1')
+
         self.cache_name = cache_name
 
     def insert(self, survey_state, safe=True):
@@ -60,7 +65,7 @@ class SurveyStateService:
                     'survey_instance_id': {"S": survey_instance_id}
                 },
                 ConsistentRead=True,
-                ReturnConsumedCapacity="False"
+                ReturnConsumedCapacity="NONE"
             )
         except ClientError as e:
             print(e.response['Error']['Message'])
