@@ -4,7 +4,6 @@ import base64
 from tornado.web import RequestHandler
 from tornado.escape import json_decode
 
-from smsurvey import config
 from smsurvey.core.model.survey.survey_state_machine import SurveyStatus
 from smsurvey.core.model.survey.survey_state_machine import SurveyState
 from smsurvey.interface.services.plugin_service import PluginService

@@ -141,3 +141,5 @@ ENV/
 
 .idea/
 .vagrant
+
+.DS_Store
