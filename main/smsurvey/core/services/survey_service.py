@@ -23,7 +23,7 @@ class SurveyService:
                 TableName=self.cache_name,
                 Key={
                     'survey_id': {'S': survey_id},
-                    'participant': {'S': survey_instance_id}
+                    'survey_instance_id': {'S': survey_instance_id}
                 },
                 ConsistentRead=True,
                 ReturnConsumedCapacity='NONE'

@@ -1,6 +1,5 @@
 from tornado.web import RequestHandler
 
-from smsurvey import config
 from smsurvey.interface.services.plugin_service import PluginService
 from smsurvey.interface.services.owner_service import OwnerService
 from smsurvey.core.security.secure import SecurityException

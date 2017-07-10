@@ -12,6 +12,7 @@ from smsurvey.interface.survey_interface import AQuestionHandler
 from smsurvey.interface.survey_interface import ASurveyHandler
 from smsurvey.interface.participant_interface import ParticipantHandler
 
+
 def initiate_interface():
     process_id = process.fork_processes(config.response_interface_processes, max_restarts=0)
 
