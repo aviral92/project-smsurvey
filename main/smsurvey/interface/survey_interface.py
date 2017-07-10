@@ -138,7 +138,7 @@ class LatestQuestionHandler(RequestHandler):
                             survey_state_service.update(survey_state)
 
                             self.set_status(200)
-                            self.write('{"status":"success","response_accepted":"false","reason":"Survey has finished"}')
+                            self.write('{"status":"success","response_accepted":"False","reason":"Survey has finished"}')
                             self.flush()
                         else:
                             survey_state.survey_status = SurveyStatus.PROCESSING_USER_RESPONSE

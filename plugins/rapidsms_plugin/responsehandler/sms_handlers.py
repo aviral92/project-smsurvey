@@ -15,23 +15,18 @@ class SurveyStartHandler(KeywordHandler):
     def handle(self, text):
         url = 'http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/surveys'
         b64 = base64.b64encode("owner@test-12345"
-                               ":a8ecc91c71df2d5a0220adf5982bd35c083d4dd6056027d5f4f1d60feb47455c21e714dc3a67fc0954ed478f5cacfb77e7035f287bf7168baa6926cb4e40897d".encode()).decode()
+                               ":f7ddea7c7cb264d12d1d4e5f9dd0221529487b5331748ba96d6e088fdc87cf314b1caa5359366bbb6ab757d4d2ba17b969a541f0d6a3edc837c5c93558074f26".encode()).decode()
         headers = {
             "Authorization": "Basic " + b64
         }
         r = requests.get(url, headers=headers)
         response = json.loads(r.text)
 
-        for id in response["ids"]:
-            survey_id = id[:1]
+        for sid in response["ids"]:
+            survey_id = sid[:1]
 
             if survey_id == text:
-                SurveyStarter.start_survey(survey_id)
-                self.respond(survey_id)
-
-
-        #self.respond(response["ids"])
-
+                SurveyStarter.start_survey(sid)
 
 
     def help(self):
