@@ -1,8 +1,6 @@
 import argparse
 
-import smsurvey.interface.launch_interfaces as li
-
-from smsurvey import config
+import smsurvey.interface.interfaces_master as li
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

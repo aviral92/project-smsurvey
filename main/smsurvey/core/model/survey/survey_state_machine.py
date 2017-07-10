@@ -61,6 +61,7 @@ class SurveyState:
 
         return True
 
+
 class SurveyStateOperationException(Exception):
 
     def __init__(self, message):

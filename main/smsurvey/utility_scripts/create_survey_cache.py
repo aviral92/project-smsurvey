@@ -27,21 +27,21 @@ def create_cache(t_name):
         TableName=t_name,
         AttributeDefinitions=[
             {
-                'AttributeName': 'participant',
+                'AttributeName': 'survey_id',
                 'AttributeType': 'S'
             },
             {
-                'AttributeName': 'survey_id',
+                'AttributeName': 'survey_instance_id',
                 'AttributeType': 'S'
             }
         ],
         KeySchema=[
             {
-                'AttributeName': 'participant',
+                'AttributeName': 'survey_id',
                 'KeyType': 'HASH'
             },
             {
-                'AttributeName': 'survey_id',
+                'AttributeName': 'survey_instance_id',
                 'KeyType': 'RANGE'
             }
         ],

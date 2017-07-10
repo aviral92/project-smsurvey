@@ -9,11 +9,12 @@ p = os.path.dirname(c)
 pp = os.path.dirname(p)
 sys.path.insert(0, pp)
 
-from smsurvey import config
 from smsurvey.core.model.survey.question import Question
 from smsurvey.core.model.survey.survey_state_machine import SurveyState
+from smsurvey.core.model.survey.survey import Survey
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.core.services.survey_state_service import SurveyStateService
+from smsurvey.core.services.survey_service import SurveyService
 from smsurvey.interface.services.owner_service import OwnerService
 from smsurvey.interface.services.plugin_service import PluginService
 
@@ -203,7 +204,14 @@ if __name__ == "__main__":
     question_service = QuestionService()
 
     survey_id = "1"
-    survey_instance_ids = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+
+    surveys = [
+        {
+            "instance_id": "1",
+            "participant_id": "1",
+            "participant_payload": "9178568305"
+        }
+    ]
 
     print("Creating Owner")
     owner_service = OwnerService()
@@ -267,9 +275,14 @@ if __name__ == "__main__":
     first_question = survey_id + "_" + "1"
 
     print("Generating and inserting surveys")
-    for instance_id in survey_instance_ids:
-        instance = survey_id + "_" + instance_id
+
+    survey_service = SurveyService()
+    for survey in surveys:
+        instance = survey_id + "_" + survey["instance_id"]
         survey_state = SurveyState.new_state_object(instance, "owner@test", first_question)
         survey_state_service.insert(survey_state)
+        survey_object = Survey("1", instance, "owner@test", survey["participant_id"], survey["participant_payload"])
+        survey_service.insert(survey_object)
+
     print("Surveys inserted and generated")
     print("Script finished")
