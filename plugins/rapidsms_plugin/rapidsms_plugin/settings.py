@@ -6,6 +6,7 @@ import os
 # and README.rst, a rapidsms_plugin directory with settings etc (see
 # PROJECT_PATH), as well as a directory for each Django app added to this
 # project.
+
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 # The directory with this project's templates, settings, urls, static dir,
@@ -191,14 +192,14 @@ INSTALLED_APPS = (
     "django_tables2",
     "selectable",
     # RapidSMS
+    "rapidsms.contrib.handlers",
     "rapidsms",
     "rapidsms.backends.database",
-    "rapidsms.contrib.handlers",
     "rapidsms.contrib.httptester",
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
     "rapidsms.contrib.registration",
-    # "rapidsms.contrib.echo",
+    "responsehandler",
     "rapidsms.contrib.default",  # Must be last
 )
 
@@ -210,7 +211,6 @@ INSTALLED_BACKENDS = {
 
 LOGIN_REDIRECT_URL = '/'
 
-RAPIDSMS_HANDLERS = (
-    #'rapidsms.contrib.echo.handlers.echo.EchoHandler',
-    #'rapidsms.contrib.echo.handlers.ping.PingHandler',
-)
+RAPIDSMS_HANDLERS = [
+    "responsehandler.sms_handlers.SurveyStartHandler"
+]
