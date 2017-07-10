@@ -2,7 +2,7 @@ import json
 
 from tornado.web import RequestHandler
 
-from smsurvey.interface.interfaces_master import authenticate
+from smsurvey.core.security.secure import authenticate
 from smsurvey.core.services.survey_service import SurveyService
 
 

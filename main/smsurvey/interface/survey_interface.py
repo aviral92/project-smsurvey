@@ -3,9 +3,9 @@ import json
 from tornado.web import RequestHandler
 from tornado.escape import json_decode
 
-from smsurvey.interface.interfaces_master import authenticate
 from smsurvey.core.model.survey.survey_state_machine import SurveyStatus
 from smsurvey.core.model.survey.survey_state_machine import SurveyState
+from smsurvey.core.security.secure import authenticate
 from smsurvey.core.services.survey_state_service import SurveyStateService
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.core.services.response_service import ResponseService
