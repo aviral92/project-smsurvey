@@ -41,7 +41,7 @@ class SurveyStateService:
                 'next_question': {
                     'S': str(survey_state.next_question)
                 },
-                'priority' : {
+                'priority': {
                     'N': str(survey_state.priority)
                 },
                 'timestamp': {

@@ -2,16 +2,7 @@ import base64
 import requests
 import json
 
-from rapidsms.apps.base import AppBase
 from rapidsms.router import send, lookup_connections
-
-class PingPong(AppBase):
-
-    def handle(self, msg):
-        if msg.text == 'ping':
-            msg.respond('pong')
-            return True
-        return False
 
 
 class SurveyStarter:
