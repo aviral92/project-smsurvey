@@ -281,7 +281,8 @@ if __name__ == "__main__":
         instance = survey_id + "_" + survey["instance_id"]
         survey_state = SurveyState.new_state_object(instance, "owner@test", first_question)
         survey_state_service.insert(survey_state)
-        survey_object = Survey("1", instance, "owner@test", survey["participant_id"], survey["participant_payload"])
+        survey_object = Survey("1", survey["instance_id"], "owner@test", survey["participant_id"],
+                               survey["participant_payload"])
         survey_service.insert(survey_object)
 
     print("Surveys inserted and generated")
