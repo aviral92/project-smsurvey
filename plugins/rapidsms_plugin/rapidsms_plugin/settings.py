@@ -211,9 +211,9 @@ INSTALLED_BACKENDS = {
     "twilio-backend": {
         "ENGINE": "rtwilio.outgoing.TwilioBackend",
         'config': {
-            'account_sid': os.environ["TWILIO_ACCT_SID"],
-            'auth_token': os.environ["TWILIO_TOKEN"],
-            'number': os.environ["TWILIO_NUM"],
+            'account_sid': os.environ.get["TWILIO_ACCT_SID"],
+            'auth_token': os.environ.get["TWILIO_TOKEN"],
+            'number': os.environ.get["TWILIO_NUM"],
             # 'callback': 'http://<public-django-instance>/backend/twilio/status-callback/',
         }
     },

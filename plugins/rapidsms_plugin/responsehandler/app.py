@@ -62,6 +62,7 @@ class SurveyStarter:
         participant_request = requests.get(url + "participants?survey_id=" + survey_id, headers=headers)
         participant = json.loads(participant_request.text)
         participant_number = participant["participant"]
+        print(participant_number + " assigned to survey " + survey_id)
 
         participant_lookup[participant_number] = survey_id
 
@@ -70,5 +71,5 @@ class SurveyStarter:
         first_question = requests.get(url + 'surveys/' + survey_id + "/latest", headers=headers)
         question_text = json.loads(first_question.text)["question_text"]
 
-        send(question_text, lookup_connections(backend="message_tester", identities=[participant_number]))
+        send(question_text, lookup_connections(backend="twilio-backend", identities=[participant_number]))
 
