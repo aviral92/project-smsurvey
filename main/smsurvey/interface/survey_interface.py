@@ -83,6 +83,7 @@ class LatestQuestionHandler(RequestHandler):
 
             if survey_state is None:
                 self.set_status(410)
+                print('{"status":"error","message":"No response was expected for this survey"}')
                 self.write('{"status":"error","message":"No response was expected for this survey"}')
                 self.finish()
             else:
@@ -97,10 +98,12 @@ class LatestQuestionHandler(RequestHandler):
                                    + str(question.final) + '"}')
                         self.flush()
                     else:
+                        print('{"status":"error","message":"No more questions in this survey"}')
                         self.set_status(410)
                         self.write('{"status":"error","message":"No more questions in this survey"}')
                         self.flush()
                 else:
+                    print('{"status":"error","message":"Owner has not registered plugin"}')
                     self.set_status(403)
                     self.write('{"status":"error","message":"Owner has not registered plugin"}')
                     self.flush()

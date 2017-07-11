@@ -28,6 +28,5 @@ class SurveyStartHandler(KeywordHandler):
             if survey_id == text:
                 SurveyStarter.start_survey(sid)
 
-
     def help(self):
         self.respond("Send START SURVEY_ID to start a survey batch")
