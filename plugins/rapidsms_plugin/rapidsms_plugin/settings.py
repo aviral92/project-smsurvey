@@ -193,6 +193,7 @@ INSTALLED_APPS = (
     "selectable",
     # RapidSMS
     "rapidsms.contrib.handlers",
+    "rtwilio",
     "rapidsms",
     "rapidsms.backends.database",
     "rapidsms.contrib.httptester",
@@ -206,6 +207,15 @@ INSTALLED_APPS = (
 INSTALLED_BACKENDS = {
     "message_tester": {
         "ENGINE": "rapidsms.backends.database.DatabaseBackend",
+    },
+    "twilio-backend": {
+        "ENGINE": "rtwilio.outgoing.TwilioBackend",
+        'config': {
+            'account_sid': os.environ["TWILIO_ACCT_SID"],
+            'auth_token': os.environ["TWILIO_TOKEN"],
+            'number': os.environ["TWILIO_NUM"],
+            # 'callback': 'http://<public-django-instance>/backend/twilio/status-callback/',
+        }
     },
 }
 

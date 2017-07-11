@@ -14,7 +14,8 @@ urlpatterns = [
     url(r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     url(r'^messaging/', include('rapidsms.contrib.messaging.urls')),
     url(r'^registration/', include('rapidsms.contrib.registration.urls')),
-
+    # Twilio backend
+    url(r'^backend/twilio/', include('rtwilio.urls')),
     # Third party URLs
     url(r'^selectable/', include('selectable.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

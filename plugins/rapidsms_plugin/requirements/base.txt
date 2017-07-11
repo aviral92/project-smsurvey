@@ -1,2 +1,4 @@
 Django>=1.8,<1.9
 RapidSMS==0.21.0
+rapidsms-twilio
+socksipy-branch
