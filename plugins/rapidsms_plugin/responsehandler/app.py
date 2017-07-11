@@ -1,13 +1,16 @@
 import base64
 import requests
 import json
+import os
 
 from rapidsms.router import send, lookup_connections
 from rapidsms.apps.base import AppBase
 
+token = os.environ.get("plugin_token")
+a = "owner@test-12345:" + token
 url = 'http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/'
-b64 = base64.b64encode("owner@test-12345"
-                               ":f7ddea7c7cb264d12d1d4e5f9dd0221529487b5331748ba96d6e088fdc87cf314b1caa5359366bbb6ab757d4d2ba17b969a541f0d6a3edc837c5c93558074f26".encode()).decode()
+b64 = base64.b64encode(a.encode()).decode()
+
 headers = {
     "Authorization": "Basic " + b64
 }

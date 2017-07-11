@@ -205,13 +205,17 @@ if __name__ == "__main__":
 
     survey_id = "1"
 
-    surveys = [
-        {
-            "instance_id": "1",
-            "participant_id": "1",
-            "participant_payload": "9178568305"
-        }
-    ]
+    phone_numbers = os.environ.get("PHONE_NUMBERS")
+
+    surveys = []
+    i = 1
+    for phone_number in phone_numbers.split(","):
+        surveys.append({
+            "instance_id": str(i),
+            "participant_id": str(i),
+            "participant_payload": phone_number
+        })
+        i += 1
 
     print("Creating Owner")
     owner_service = OwnerService()
@@ -284,6 +288,7 @@ if __name__ == "__main__":
         survey_object = Survey("1", survey["instance_id"], "owner@test", survey["participant_id"],
                                survey["participant_payload"])
         survey_service.insert(survey_object)
+        print("Inserted survey for " + survey["participant_payload"])
 
     print("Surveys inserted and generated")
     print("Script finished")
