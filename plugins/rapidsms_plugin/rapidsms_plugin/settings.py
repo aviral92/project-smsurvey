@@ -224,3 +224,7 @@ LOGIN_REDIRECT_URL = '/'
 RAPIDSMS_HANDLERS = [
     "responsehandler.sms_handlers.SurveyStartHandler"
 ]
+
+ALLOWED_HOSTS = [
+    "*"
+]
