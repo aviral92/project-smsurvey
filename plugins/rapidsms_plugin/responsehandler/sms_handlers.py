@@ -21,7 +21,7 @@ class SurveyStartHandler(KeywordHandler):
         headers = {
             "Authorization": "Basic " + b64
         }
-        r = requests.get(url, headers=headers)
+        r = requests.get(url + "surveys", headers=headers)
         response = json.loads(r.text)
 
         for sid in response["ids"]:
