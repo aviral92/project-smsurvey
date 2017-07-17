@@ -6,9 +6,12 @@ import os
 from rapidsms.router import send, lookup_connections
 from rapidsms.apps.base import AppBase
 
-token = os.environ.get("plugin_token")
-a = "owner@test-12345:" + token
-url = 'http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/'
+token = os.environ.get("SEC_TOKEN")
+owner = os.environ.get("OWNER")
+domain = os.environ.get("DOMAIN")
+plugin_id = os.environ.get("PLUGIN_ID")
+a = owner + "@" + domain + "-" + plugin_id + ":" + token
+url = os.environ.get("SYSTEM_URL")
 b64 = base64.b64encode(a.encode()).decode()
 
 headers = {
@@ -16,7 +19,6 @@ headers = {
 }
 
 participant_lookup = {}
-
 
 class ResponseRespond(AppBase):
 
