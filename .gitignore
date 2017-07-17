@@ -143,3 +143,13 @@ ENV/
 .vagrant
 
 .DS_Store
+
+.project
+.pydevproject
+*~
+*.db
+*.orig
+*/settings/local.py
+public/static/
+public/media/
+*-env/
