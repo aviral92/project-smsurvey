@@ -4,26 +4,26 @@ import inspect
 import sys
 import pickle
 
+
 c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 p = os.path.dirname(c)
 pp = os.path.dirname(p)
 sys.path.insert(0, pp)
 
 from smsurvey.core.model.survey.question import Question
-from smsurvey.core.model.survey.survey_state_machine import SurveyState
 from smsurvey.core.model.survey.survey import Survey
+from smsurvey.core.model.survey.state import Status
+from smsurvey.core.services.state_service import StateService
 from smsurvey.core.services.question_service import QuestionService
-from smsurvey.core.services.survey_state_service import SurveyStateService
 from smsurvey.core.services.survey_service import SurveyService
-from smsurvey.interface.services.owner_service import OwnerService
-from smsurvey.interface.services.plugin_service import PluginService
+from smsurvey.core.services.owner_service import OwnerService
+from smsurvey.core.services.plugin_service import PluginService
+from smsurvey.core.services.protocol_service import ProtocolService
+from smsurvey.core.services.participant_service import ParticipantService
+from smsurvey.core.services.instance_service import InstanceService
 
-from smsurvey.utility_scripts import create_owner_db
-from smsurvey.utility_scripts import create_plugin_db
-from smsurvey.utility_scripts import create_question_cache
+from smsurvey.utility_scripts import create_question_store
 from smsurvey.utility_scripts import create_response_store
-from smsurvey.utility_scripts import create_survey_cache
-from smsurvey.utility_scripts import create_survey_state_cache
 
 
 def get_one_p(sid):
@@ -194,12 +194,8 @@ def get_twenty_one(sid):
 
 if __name__ == "__main__":
 
-    create_owner_db.main(True, False)
-    create_plugin_db.main(True, False)
-    create_question_cache.main(True, False)
+    create_question_store.main(True, False)
     create_response_store.main(True, False)
-    create_survey_cache.main(True, False)
-    create_survey_state_cache.main(True, False)
 
     question_service = QuestionService()
 
@@ -213,22 +209,21 @@ if __name__ == "__main__":
         surveys.append({
             "instance_id": str(i),
             "participant_id": str(i),
-            "participant_payload": phone_number
+            "participant_scratch": phone_number
         })
         i += 1
 
     print("Creating Owner")
     owner_service = OwnerService()
-    owner_service.create_owner('test', 'owner', 'password')
+    owner_service.create_owner('owner', 'test', 'password')
     print("Owner created")
 
     print("Creating plugin")
     plugin_service = PluginService()
-    token = plugin_service.register_plugin("owner@test", "password", "12345")
+    token = plugin_service.register_plugin("owner", "test", "password", "12345", 50)
     print("Plugin created")
     print("token = " + token)
 
-    survey_state_service = SurveyStateService()
 
     print("Generating questions")
     one = get_one(survey_id)
@@ -278,17 +273,27 @@ if __name__ == "__main__":
 
     first_question = survey_id + "_" + "1"
 
+    protocol_id = ProtocolService().create_protocol(first_question)
+
     print("Generating and inserting surveys")
 
     survey_service = SurveyService()
+    participant_service = ParticipantService()
+    instance_service = InstanceService()
+    state_service = StateService()
+    i = 0
     for survey in surveys:
-        instance = survey_id + "_" + survey["instance_id"]
-        survey_state = SurveyState.new_state_object(instance, "owner@test", first_question)
-        survey_state_service.insert(survey_state)
-        survey_object = Survey("1", survey["instance_id"], "owner@test", survey["participant_id"],
-                               survey["participant_payload"])
+        i += 1
+
+        participant_service.register_participant(survey["participant_id"], survey["participant_scratch"])
+
+        survey_object = Survey(str(i), protocol_id, survey["participant_id"], "owner", "test")
         survey_service.insert(survey_object)
-        print("Inserted survey for " + survey["participant_payload"])
+
+        instance = instance_service.create_instance(str(i), None)
+
+        state_service.create_state(instance.instance_id, first_question, Status.CREATED_START, 0)
+        print("Inserted survey for " + survey["participant_scratch"])
 
     print("Surveys inserted and generated")
     print("Script finished")
