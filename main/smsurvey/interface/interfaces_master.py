@@ -6,10 +6,10 @@ from tornado.web import RequestHandler
 from tornado.ioloop import IOLoop
 
 from smsurvey import config
-from smsurvey.interface.survey_interface import AllSurveysHandler
+from smsurvey.interface.survey_interface import AllInstancesHandler
 from smsurvey.interface.survey_interface import LatestQuestionHandler
 from smsurvey.interface.survey_interface import AQuestionHandler
-from smsurvey.interface.survey_interface import ASurveyHandler
+from smsurvey.interface.survey_interface import AnInstanceHandler
 from smsurvey.interface.participant_interface import ParticipantHandler
 
 
@@ -18,10 +18,10 @@ def initiate_interface():
 
     instance = Application([
 
-        (r"/surveys", AllSurveysHandler),
-        (r"/surveys/(\d*_*\d*)/latest", LatestQuestionHandler),
-        (r"/surveys/(\d*_*\d*)/(\d*_*\d*)", AQuestionHandler),
-        (r"/surveys/(\d*_*\d*)", ASurveyHandler),
+        (r"/instances", AllInstancesHandler),
+        (r"/instances/(\d*)/latest", LatestQuestionHandler),
+        (r"/instances/(\d*)/(\d*_*\d*)", AQuestionHandler),
+        (r"/instances/(\d*)", AnInstanceHandler),
         (r"/participants", ParticipantHandler),
         (r"/healthcheck", HealthCheckHandler)
     ])

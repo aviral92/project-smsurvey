@@ -31,7 +31,7 @@ def create_cache(t_name):
                 'AttributeType': 'S'
             },
             {
-                'AttributeName': 'survey_instance_id',
+                'AttributeName': 'instance_id',
                 'AttributeType': 'S'
             }
         ],

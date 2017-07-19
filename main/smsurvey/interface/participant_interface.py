@@ -4,7 +4,7 @@ import json
 from tornado.web import RequestHandler
 
 from smsurvey.core.services.survey_service import SurveyService
-from smsurvey.interface.services.plugin_service import PluginService
+from smsurvey.core.services.plugin_service import PluginService
 
 
 def authenticate(response):
@@ -18,21 +18,25 @@ def authenticate(response):
     if auth.startswith("Basic"):
         base64enc = auth[6:]
         credentials = base64.b64decode(base64enc).decode()
+        at_index = credentials.find("@")
         hyphen_index = credentials.find("-")
         colon_index = credentials.find(":")
 
-        if colon_index is -1 or hyphen_index is -1:
+        if colon_index is -1 or hyphen_index is -1 or at_index is -1:
             response.set_status(401)
             response.write('{"status":"error","message":"Invalid Authorization header"}')
             response.flush()
         else:
             owner = credentials[:hyphen_index]
+            owner_name = owner[:at_index]
+            owner_domain = owner[at_index +1:]
+
             plugin_id = credentials[hyphen_index + 1: colon_index]
             token = credentials[colon_index + 1:]
 
             plugin_service = PluginService()
 
-            if plugin_service.validate_plugin(owner, plugin_id, token):
+            if plugin_service.validate_plugin(plugin_id, owner_name, owner_domain, token):
                 return {
                     "valid": True,
                     "owner": owner
@@ -57,12 +61,10 @@ class ParticipantHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            survey_master_id = self.get_argument("survey_id")
+            survey_id = self.get_argument("survey_id")
             survey_service = SurveyService()
 
-            survey_id = survey_master_id[0:survey_master_id.find("_")]
-            survey_instance_id = survey_master_id[survey_master_id.find("_") + 1:]
-            survey = survey_service.get_survey(survey_id, survey_instance_id)
+            survey = survey_service.get_survey(survey_id)
 
             if survey is None:
                 response = {
@@ -74,7 +76,9 @@ class ParticipantHandler(RequestHandler):
                 self.write(json.dumps(response))
                 self.flush()
             else:
-                if survey.owner == auth_response["owner"]:
+
+                owner = survey.owner_name + "@" + survey.owner_domain
+                if owner == auth_response["owner"]:
                     response = {
                         "status": "success",
                         "participant": survey.participant_payload

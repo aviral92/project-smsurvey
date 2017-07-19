@@ -1,19 +1,18 @@
 class Survey:
 
-    def __init__(self, survey_id, survey_instance_id, owner, participant_id, participant_payload):
+    def __init__(self, survey_id, protocol_id, participant_id, owner_name, owner_domain):
         self.survey_id = survey_id
-        self.survey_instance_id = survey_instance_id
-        self.owner = owner
+        self.protocol_id = protocol_id
         self.participant_id = participant_id
-        self.participant_payload = participant_payload
+        self.owner_name = owner_name
+        self.owner_domain = owner_domain
 
     @classmethod
-    def from_item(cls, item):
-        return cls(item['survey_id']['S'], item['survey_instance_id']['S'], item['owner']['S'], item['participant_id']['S'],
-                   item['participant_payload']['S'])
+    def from_tuple(cls, survey_tuple):
+        return cls(survey_tuple[0], survey_tuple[1], survey_tuple[2], survey_tuple[3], survey_tuple[4])
 
 
-class SurveyOperationException(Exception):
+class SurveyException(Exception):
 
     def __init__(self, message):
         self.message = message

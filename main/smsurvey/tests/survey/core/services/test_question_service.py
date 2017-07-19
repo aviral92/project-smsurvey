@@ -16,7 +16,7 @@ from smsurvey import config
 from smsurvey.core.model.survey.question import Question
 from smsurvey.core.services.question_service import QuestionOperationException
 from smsurvey.core.services.question_service import QuestionService
-from smsurvey.utility_scripts import create_question_cache
+from smsurvey.utility_scripts import create_question_store
 
 
 class TestQuestionService(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestQuestionService(unittest.TestCase):
         if 'QuestionTest' in dynamo.list_tables()['TableNames']:
             dynamo.delete_table(TableName='QuestionTest')
 
-        create_question_cache.create_cache('QuestionTest')
+        create_question_store.create_cache('QuestionTest')
         cls.service = QuestionService(config.dynamo_url, 'QuestionTest')
 
     def test_insert_question(self):

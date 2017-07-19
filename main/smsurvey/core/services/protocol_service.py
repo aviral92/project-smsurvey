@@ -1,10 +1,10 @@
 import os
 import pymysql
 
-from smsurvey.core.model.survey.survey import Survey, SurveyException
+from smsurvey.core.model.survey.protocol import Protocol
 
 
-class SurveyService:
+class ProtocolService:
 
     def __init__(self, database_url=os.environ.get("RDS_URL"), database_username=os.environ.get("RDS_USERNAME"),
                  database_password=os.environ.get("RDS_PASSWORD")):
@@ -13,35 +13,37 @@ class SurveyService:
         self.database_password = database_password
         self.database = "dbase"
 
-    def get_survey(self, survey_id):
+    def get(self, protocol_id):
         sql = "SELECT * from survey WHERE survey_id = %s"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database)
 
         try:
             with connection.cursor() as cursor:
-                cursor.execute(sql, survey_id)
+                cursor.execute(sql, protocol_id)
                 result = cursor.fetchall()
         finally:
             connection.close()
 
         if len(result) > 0:
             survey_tuple = result[0]
-            return Survey.from_tuple(survey_tuple)
+            return Protocol.from_tuple(survey_tuple)
 
         return None
 
-    def insert(self, survey):
-        sql = "INSERT INTO survey VALUES(%s, %s, %s, %s, %s)"
+    def create_protocol(self, first_question):
+        sql = "INSERT INTO survey (first_question) VALUES(%s)"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database)
 
         try:
             with connection.cursor() as cursor:
-                cursor.execute(sql, (survey.survey_id, survey.protocol_id, survey.participant_id, survey.owner_name,
-                                     survey.owner_domain))
+                cursor.execute(sql, first_question)
                 connection.commit()
                 connection.fetchall()
+                protocol_id = cursor.lastrowid
         finally:
             connection.close()
+
+        return Protocol(protocol_id, first_question)

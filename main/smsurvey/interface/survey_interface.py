@@ -4,12 +4,12 @@ import base64
 from tornado.web import RequestHandler
 from tornado.escape import json_decode
 
-from smsurvey.core.model.survey.survey_state_machine import SurveyStatus
-from smsurvey.core.model.survey.survey_state_machine import SurveyState
-from smsurvey.core.services.survey_state_service import SurveyStateService
+from smsurvey.core.model.survey.state import Status
+from smsurvey.core.services.instance_service import InstanceService
+from smsurvey.core.services.state_service import StateService
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.core.services.response_service import ResponseService
-from smsurvey.interface.services.plugin_service import PluginService
+from smsurvey.core.services.plugin_service import PluginService
 
 
 def authenticate(response):
@@ -25,22 +25,27 @@ def authenticate(response):
         credentials = base64.b64decode(base64enc).decode()
         hyphen_index = credentials.find("-")
         colon_index = credentials.find(":")
+        at_index = credentials.find("@")
 
-        if colon_index is -1 or hyphen_index is -1:
+        if colon_index is -1 or hyphen_index is -1 or at_index is -1:
             response.set_status(401)
             response.write('{"status":"error","message":"Invalid Authorization header"}')
             response.flush()
         else:
             owner = credentials[:hyphen_index]
+            owner_name = owner[:at_index]
+            owner_domain = owner[at_index + 1:]
+
             plugin_id = credentials[hyphen_index + 1: colon_index]
             token = credentials[colon_index + 1:]
 
             plugin_service = PluginService()
 
-            if plugin_service.validate_plugin(owner, plugin_id, token):
+            if plugin_service.validate_plugin(plugin_id, owner_name, owner_domain, token):
                 return {
                     "valid": True,
-                    "owner": owner
+                    "owner_name": owner_name,
+                    "owner_domain": owner_domain
                 }
             else:
                 response.set_status(403)
@@ -55,31 +60,30 @@ def authenticate(response):
     return {"valid": False}
 
 
-class AllSurveysHandler(RequestHandler):
-    # GET /surveys <- Should return all ongoing surveys that my plugin has access to
+class AllInstancesHandler(RequestHandler):
+    # GET /instances <- Should return all ongoing instances that my plugin has access to
     def get(self):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            survey_state_service = SurveyStateService()
-            survey_ids = survey_state_service.get_by_owner(auth_response["owner"])
+            instance_service = InstanceService()
+            instance_ids = instance_service.get_by_owner(auth_response["owner_name"], auth_response["owner_domain"])
             self.set_status(200)
-            self.write('{"status":"success","ids":' + json.dumps(list(set(survey_ids))) + '}')
+            self.write('{"status":"success","ids":' + json.dumps(instance_ids) + '}')
 
     def data_received(self, chunk):
         pass
 
 
 class LatestQuestionHandler(RequestHandler):
-    # GET /surveys/[survey-id]/latest <- Should return me the text of the latest question in this survey,
+    # GET /instances/[survey-id]/latest <- Should return me the text of the latest question in this survey,
     #  as well as the question-id. If no questions left, return an error message indicating as such
-    def get(self, survey_id):
+    def get(self, instance_id):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            survey_state_service = SurveyStateService()
-            survey_state = survey_state_service.get_by_instance_and_status(survey_id,
-                                                                           SurveyStatus.AWAITING_USER_RESPONSE)
+            state_service = StateService()
+            survey_state = state_service.get_next_state_in_instance(instance_id, Status.AWAITING_USER_RESPONSE)
 
             if survey_state is None:
                 self.set_status(410)
@@ -108,10 +112,10 @@ class LatestQuestionHandler(RequestHandler):
                     self.write('{"status":"error","message":"Owner has not registered plugin"}')
                     self.flush()
 
-    # POST /surveys/[survey-id]/latest <- posts a response to the latest survey question.
+    # POST /instances/[instance-id]/latest <- posts a response to the latest instance question.
     #  Returns whether the response was accepted. If yes, latest increments to next question,
     #  if no, latest remains (and a message is returned for the plugin to optionally relay onto the participant).
-    def post(self, survey_id):
+    def post(self, instance_id):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
@@ -125,32 +129,32 @@ class LatestQuestionHandler(RequestHandler):
                 self.flush()
                 return
 
-            survey_state_service = SurveyStateService()
-            survey_state = survey_state_service.get_by_instance_and_status(survey_id, SurveyStatus.AWAITING_USER_RESPONSE)
+            state_service = StateService()
+            state = state_service.get_next_state_in_instance(instance_id, Status.AWAITING_USER_RESPONSE)
 
-            if survey_state is not None:
-                if survey_state.owner == auth_response['owner']:
-                    question_id = survey_state.next_question
+            if state is not None:
+                if state.owner == auth_response['owner']:
+                    question_id = state.next_question
 
                     question_service = QuestionService()
                     question = question_service.get(question_id)
 
                     if question is not None:
                         if question.final:
-                            survey_state.survey_status = SurveyStatus.TERMINATED_COMPLETE
-                            survey_state_service.update(survey_state)
+                            state.survey_status = Status.TERMINATED_COMPLETE
+                            state_service.update_state(state)
 
                             self.set_status(200)
                             self.write('{"status":"success","response_accepted":"False","reason":"Survey has finished"}')
                             self.flush()
                         else:
-                            survey_state.survey_status = SurveyStatus.PROCESSING_USER_RESPONSE
-                            survey_state_service.update(survey_state)
+                            state.status = Status.PROCESSING_USER_RESPONSE
+                            state_service.update_state(state)
 
                             new_questions = question.process(response)
                             if new_questions == 'INV_RESP':
-                                survey_state.survey_status = SurveyStatus.AWAITING_USER_RESPONSE
-                                survey_state_service.update(survey_state)
+                                state.status = Status.AWAITING_USER_RESPONSE
+                                state_service.update_state(state)
 
                                 self.set_status(200)
                                 self.write('{"status":"success","response_accepted":"False","reason":"Invalid Response","pass_along_message":"'
@@ -159,24 +163,22 @@ class LatestQuestionHandler(RequestHandler):
                             else:
                                 response_service = ResponseService()
                                 variable_name = question.variable_name
-                                survey = survey_id[:survey_id.find('_')]
-                                response_service.insert_response(survey, survey_id, variable_name, response)
+                                instance_service = InstanceService()
+                                survey_id = instance_service.get_survey_id(instance_id)
+                                response_service.insert_response(survey_id, instance_id, variable_name, response)
 
                                 if new_questions is not None:
                                     for new_question in new_questions:
-                                        state = SurveyState.new_state_object(survey_id, auth_response['owner'],
-                                                                             new_question[0], new_question[1])
-                                        state.survey_status = SurveyStatus.CREATED_MID
-                                        survey_state_service.insert(state)
+                                        state_service.create_state(state.instance_id, new_question[0],
+                                                                   Status.CREATED_MID, new_question[1])
 
-                                survey_state.survey_status = SurveyStatus.TERMINATED_COMPLETE
-                                survey_state_service.update(survey_state)
+                                state.status = Status.TERMINATED_COMPLETE
+                                state_service.update_state(state)
 
-                                new_survey_state = survey_state_service.get_by_instance_and_status(survey_id,
-                                                                                                   SurveyStatus.CREATED_MID)
+                                new_state = state_service.get_next_state_in_instance(survey_id, Status.CREATED_MID)
 
-                                new_survey_state.survey_status = SurveyStatus.AWAITING_USER_RESPONSE
-                                survey_state_service.update(new_survey_state)
+                                new_state.status = Status.AWAITING_USER_RESPONSE
+                                state_service.update_state(new_state)
 
                                 self.set_status(200)
                                 self.write('{"status":"success","response_accepted":"True"}')
@@ -200,22 +202,22 @@ class LatestQuestionHandler(RequestHandler):
 
 
 class AQuestionHandler(RequestHandler):
-    # GET /surveys/[survey-id]/[question-id] <- Should return me the question text for that question id,
+    # GET /instances/[instance-id]/[question-id] <- Should return me the question text for that question id,
     #  plus any response if that response has been provided
-    def get(self, survey_id, question_id):
+    def get(self, instance_id, question_id):
         auth_response = authenticate(self)
 
         if auth_response['valid']:
-            survey_state_service = SurveyStateService()
-            survey_state = survey_state_service.get(survey_id, question_id)
+            state_service = StateService()
+            state = state_service.get_state_by_instance_and_question(instance_id, question_id)
 
-            if survey_state is None:
+            if state is None:
                 self.set_status(404)
                 self.write('{"status":"error","message":"Question or survey does not exist"}')
                 self.finish()
             else:
                 question_service = QuestionService()
-                question = question_service.get(survey_state.next_question)
+                question = question_service.get(state.question_id)
 
                 if question is None:
                     self.set_status(404)
@@ -224,10 +226,10 @@ class AQuestionHandler(RequestHandler):
                 else:
                     q_text = question.question_text
 
-                    if survey_state.survey_status == SurveyStatus.TERMINATED_COMPLETE:
-                        response_service = ResponseService(c)
-                        survey = survey_id[:survey_id.find('_')]
-                        response_set = response_service.get_response_set(survey, survey_id)
+                    if state.status == Status.TERMINATED_COMPLETE:
+                        response_service = ResponseService()
+                        survey_id = InstanceService().get_survey_id(instance_id)
+                        response_set = response_service.get_response_set(survey_id, instance_id)
                         response = response_set.get_response(question.variable_name)
 
                         self.set_status(200)
@@ -243,26 +245,27 @@ class AQuestionHandler(RequestHandler):
         pass
 
 
-class ASurveyHandler(RequestHandler):
-    # GET/surveys/[survey-id] <- Should return state of this current survey, given I have authorization
-    def get(self, survey_id):
+class AnInstanceHandler(RequestHandler):
+    # GET/instances/[instance-id] <- Should return state of this current survey, given I have authorization
+    def get(self, instance_id):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            survey_state_service = SurveyStateService()
-            survey_state = survey_state_service.get_by_instance(survey_id)
+            state_service = StateService()
+            state = state_service.get_next_state_in_instance(instance_id)
 
-            if survey_state is None:
+            if state is None:
                 self.set_status(404)
                 self.write('{"status":"error","message":"Survey does not exist"}')
                 self.finish()
             else:
-                if survey_state.owner == auth_response["owner"]:
-                    if survey_state.survey_status == SurveyStatus.CREATED_START:
+                owner = InstanceService().get_owner(instance_id)
+                if owner.domain == auth_response["owner_domain"] and owner.name == auth_response["owner_name"]:
+                    if state.status == Status.CREATED_START:
                         self.set_status(200)
                         self.write('{"status":"success","survey_status":"NOT STARTED"}')
                         self.flush()
-                    elif survey_state.survey_status == SurveyStatus.TERMINATED_COMPLETE:
+                    elif state.survey_status == Status.TERMINATED_COMPLETE:
                         self.set_status(200)
                         self.write('{"status":"success","survey_status":"COMPLETE"}')
                         self.flush()
@@ -276,8 +279,8 @@ class ASurveyHandler(RequestHandler):
                     self.write('{"status":"error","message":"Owner does not have authorization to see this survey"}')
                     self.flush()
 
-    # POST /surveys/[survey-id] <- Should allow me to modify the state of the survey (start the survey)
-    def post(self, survey_id):
+    # POST /instances/[instance-id] <- Should allow me to modify the state of the survey (start the survey)
+    def post(self, instance_id):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
@@ -292,13 +295,14 @@ class ASurveyHandler(RequestHandler):
                 return
 
             if action == 'start':
-                survey_state_service = SurveyStateService()
-                survey_state = survey_state_service.get_by_instance_and_status(survey_id, SurveyStatus.CREATED_START)
+                state_service = StateService()
+                state = state_service.get_next_state_in_instance(instance_id, Status.CREATED_START)
 
-                if survey_state is not None:
-                    if survey_state.owner == auth_response['owner']:
-                        survey_state.survey_status = SurveyStatus.AWAITING_USER_RESPONSE
-                        survey_state_service.update(survey_state)
+                if state is not None:
+                    owner = InstanceService().get_owner(instance_id)
+                    if owner.domain == auth_response["owner_domain"] and owner.name == auth_response["owner_name"]:
+                        state.survey_status = Status.AWAITING_USER_RESPONSE
+                        state_service.update_state(state)
                         self.set_status(200)
                         self.write('{"status":"success","survey_status":"STARTED"}')
                         self.flush()
