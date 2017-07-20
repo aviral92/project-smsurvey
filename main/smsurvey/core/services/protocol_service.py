@@ -41,7 +41,7 @@ class ProtocolService:
             with connection.cursor() as cursor:
                 cursor.execute(sql, first_question)
                 connection.commit()
-                connection.fetchall()
+                cursor.fetchall()
                 protocol_id = cursor.lastrowid
         finally:
             connection.close()
