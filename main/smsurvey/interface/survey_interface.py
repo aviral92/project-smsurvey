@@ -133,8 +133,9 @@ class LatestQuestionHandler(RequestHandler):
             state = state_service.get_next_state_in_instance(instance_id, Status.AWAITING_USER_RESPONSE)
 
             if state is not None:
-                if state.owner == auth_response['owner']:
-                    question_id = state.next_question
+                owner = InstanceService().get_owner(instance_id)
+                if owner.name == auth_response['owner_name'] and owner.domain == auth_response['owner_domain']:
+                    question_id = state.question_id
 
                     question_service = QuestionService()
                     question = question_service.get(question_id)
