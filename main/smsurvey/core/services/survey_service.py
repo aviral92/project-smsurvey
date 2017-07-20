@@ -1,7 +1,8 @@
 import os
 import pymysql
 
-from smsurvey.core.model.survey.survey import Survey, SurveyException
+from smsurvey.core.model.survey.survey import Survey
+from smsurvey.core.services.owner_service import OwnerService
 
 
 class SurveyService:
@@ -45,3 +46,10 @@ class SurveyService:
                 cursor.fetchall()
         finally:
             connection.close()
+
+    def get_owner(self, survey_id):
+        survey = self.get_survey(survey_id)
+
+        if survey is not None:
+            return OwnerService().get(survey.owner_name, survey.owner_domain)
+        pass
