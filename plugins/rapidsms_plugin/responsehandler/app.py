@@ -7,8 +7,8 @@ from rapidsms.router import send, lookup_connections
 from rapidsms.apps.base import AppBase
 
 token = os.environ.get("SEC_TOKEN")
-owner = os.environ.get("OWNER")
-domain = os.environ.get("DOMAIN")
+owner = os.environ.get("OWNER_NAME")
+domain = os.environ.get("OWNER_DOMAIN")
 plugin_id = os.environ.get("PLUGIN_ID")
 a = owner + "@" + domain + "-" + plugin_id + ":" + token
 url = os.environ.get("SYSTEM_URL")

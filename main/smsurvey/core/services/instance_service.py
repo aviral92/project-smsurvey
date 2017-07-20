@@ -66,18 +66,16 @@ class InstanceService:
 
         return None
 
-
-
-    def get_by_owner(self, owner_name, owner_domain):
+    def get_by_owner(self, owner_name, owner_domain, survey_id):
         sql = "SELECT instance_id FROM instance INNER JOIN survey ON instance.survey_id = survey.survey_id WHERE" \
-              " owner_name = %s AND owner_domain = %s"
+              " owner_name = %s AND owner_domain = %s AND survey.survey_id = %s"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
-                cursor.execute(sql, (owner_name, owner_domain))
+                cursor.execute(sql, (owner_name, owner_domain, survey_id))
                 result = cursor.fetchall()
         finally:
             connection.close()
