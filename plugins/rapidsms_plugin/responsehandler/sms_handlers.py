@@ -27,7 +27,7 @@ class SurveyStartHandler(KeywordHandler):
         response = json.loads(r.text)
 
         for iid in response["ids"]:
-            SurveyStarter.start_survey(iid)
+            SurveyStarter.start_survey(text, iid)
 
     def help(self):
         self.respond("Send START SURVEY_ID to start a survey batch")
