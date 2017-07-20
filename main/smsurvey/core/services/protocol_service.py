@@ -14,7 +14,7 @@ class ProtocolService:
         self.database = "dbase"
 
     def get(self, protocol_id):
-        sql = "SELECT * from survey WHERE survey_id = %s"
+        sql = "SELECT * from protocol WHERE protocol_id = %s"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database, charset="utf8")
 
@@ -32,7 +32,7 @@ class ProtocolService:
         return None
 
     def create_protocol(self, first_question):
-        sql = "INSERT INTO survey (protocol_id) VALUES(%s)"
+        sql = "INSERT INTO protocol (protocol_id) VALUES(%s)"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database, charset="utf8")
