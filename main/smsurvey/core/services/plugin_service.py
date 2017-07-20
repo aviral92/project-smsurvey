@@ -2,6 +2,8 @@ import os
 import time
 import pymysql
 
+from base64 import b64encode
+
 from smsurvey.core.model.plugin.plugin import Plugin
 from smsurvey.core.services.owner_service import OwnerService
 from smsurvey.core.security import secure
@@ -56,7 +58,7 @@ class PluginService:
         if owner_service.does_owner_exist(owner_name, owner_domain):
             if owner_service.validate_password(owner_name, owner_domain, owner_password):
                 token = secure.encrypt_password(owner_domain + owner_name + str(time.time())).decode()
-                salt_for_token = os.urandom(16).decode()
+                salt_for_token = b64encode(os.urandom(16)).decode()
                 salted_token = secure.encrypt_password(token, salt_for_token).decode()
 
                 sql = "INSERT INTO plugin VALUES(%s, %s, %s, %s, %s, %s)"
