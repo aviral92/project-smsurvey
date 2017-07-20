@@ -18,7 +18,7 @@ class State:
         self.state_id = state_id
         self.instance_id = instance_id
         self.question_id = question_id
-        self.status = status
+        self.status = Status(status)
         self.priority = priority
 
     @classmethod

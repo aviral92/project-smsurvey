@@ -83,21 +83,21 @@ class LatestQuestionHandler(RequestHandler):
 
         if auth_response["valid"]:
             state_service = StateService()
-            survey_state = state_service.get_next_state_in_instance(instance_id, Status.AWAITING_USER_RESPONSE)
+            state = state_service.get_next_state_in_instance(instance_id, Status.AWAITING_USER_RESPONSE)
 
-            if survey_state is None:
+            if state is None:
                 self.set_status(410)
-                print('{"status":"error","message":"No response was expected for this survey"}')
                 self.write('{"status":"error","message":"No response was expected for this survey"}')
                 self.finish()
             else:
-                if survey_state.owner == auth_response['owner']:
+                owner = InstanceService().get_owner(instance_id)
+                if owner.name == auth_response['owner_name'] and owner.domain == auth_response["owner_domain"]:
                     question_service = QuestionService()
-                    question = question_service.get(survey_state.next_question)
+                    question = question_service.get(state.question_id)
 
                     if question is not None:
                         self.set_status(200)
-                        self.write('{"status":"success","question_id":"' + survey_state.next_question
+                        self.write('{"status":"success","question_id":"' + state.question_id
                                    + '","question_text":"' + question.question_text + '","survey_end":"'
                                    + str(question.final) + '"}')
                         self.flush()

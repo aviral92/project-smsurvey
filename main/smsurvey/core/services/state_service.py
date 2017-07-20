@@ -54,7 +54,7 @@ class StateService:
         if existing is None:
             raise StateException("Attempting update state that does not exist")
 
-        if existing.question_id != state.next_question_id:
+        if existing.question_id != state.question_id:
             raise StateException("Cannot modify question id")
         if existing.instance_id != state.instance_id:
             raise StateException("Cannot modify instance id")
@@ -65,7 +65,7 @@ class StateService:
 
         try:
             with connection.cursor() as cursor:
-                cursor.execute(sql, (state.status, state.priority))
+                cursor.execute(sql, (state.status.value, state.priority, state.state_id))
                 connection.commit()
         finally:
             connection.close()
@@ -99,7 +99,7 @@ class StateService:
                 if status == "*":
                     cursor.execute(sql, instance_id)
                 else:
-                    cursor.execute(sql, (instance_id, status))
+                    cursor.execute(sql, (instance_id, status.value))
                 result = cursor.fetchall()
         finally:
             connection.close()
