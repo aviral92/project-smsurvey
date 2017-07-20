@@ -55,16 +55,16 @@ class ResponseRespond(AppBase):
 class SurveyStarter:
 
     @staticmethod
-    def start_survey(survey_id):
+    def start_survey(survey_id, instance_id):
         # make call to start survey
         data = {
             'action': 'start'
         }
 
-        requests.post(url + 'instances/' + survey_id, json.dumps(data), headers=headers)
+        requests.post(url + 'instances/' + str(instance_id), json.dumps(data), headers=headers)
 
         #get participant for survey
-        participant_request = requests.get(url + "participants?survey_id=" + survey_id, headers=headers)
+        participant_request = requests.get(url + "participants?survey_id=" + str(survey_id), headers=headers)
         participant = json.loads(participant_request.text)
         participant_number = participant["participant"]
         print(participant_number + " assigned to survey " + survey_id)
