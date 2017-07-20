@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS owner;
 CREATE TABLE owner (
   name VARCHAR(25) NOT NULL UNIQUE,
   domain VARCHAR(25) NOT NULL,
-  password VARCHAR(100) NOT NULL,
+  password VARCHAR(200) NOT NULL,
   salt VARCHAR(100) NOT NULL,
   PRIMARY KEY(name, domain)
 );
@@ -18,7 +18,7 @@ CREATE TABLE plugin (
   plugin_id VARCHAR(25) NOT NULL UNIQUE,
   owner_name VARCHAR(25) NOT NULL,
   owner_domain VARCHAR(25) NOT NULL,
-  secret_token VARCHAR(100) NOT NULL,
+  secret_token VARCHAR(200) NOT NULL,
   salt VARCHAR(100) NOT NULL,
   permissions INTEGER NOT NULL,
   PRIMARY KEY(plugin_id),
