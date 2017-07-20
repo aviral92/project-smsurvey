@@ -7,7 +7,7 @@ class Plugin:
         self.owner_name = owner_name
         self.owner_domain = owner_domain
         self.token = token
-        self.salt = salt
+        self.salt = salt.decode()
         self.permissions = permissions
 
     @classmethod

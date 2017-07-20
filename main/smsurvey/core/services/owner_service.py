@@ -32,7 +32,7 @@ class OwnerService:
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database, charset="utf8")
 
-        salt = os.urandom(16)
+        salt = os.urandom(16).encode
         password = secure.encrypt_password(unsafe_password, salt)
 
         try:
