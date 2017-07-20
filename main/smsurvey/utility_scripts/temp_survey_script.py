@@ -273,7 +273,7 @@ if __name__ == "__main__":
 
     first_question = survey_id + "_" + "1"
 
-    protocol_id = ProtocolService().create_protocol(first_question)
+    protocol = ProtocolService().create_protocol(first_question)
 
     print("Generating and inserting surveys")
 
@@ -287,7 +287,7 @@ if __name__ == "__main__":
 
         participant_service.register_participant(survey["participant_id"], survey["participant_scratch"])
 
-        survey_object = Survey(str(i), protocol_id, survey["participant_id"], "owner", "test")
+        survey_object = Survey(str(i), protocol.protocol_id, survey["participant_id"], "owner", "test")
         survey_service.insert(survey_object)
 
         instance = instance_service.create_instance(str(i), None)
