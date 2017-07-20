@@ -30,7 +30,7 @@ class PluginService:
 
         if len(result) > 0:
             plugin_sql = result[0]
-            return Plugin.from_tuple(result)
+            return Plugin.from_tuple(plugin_sql)
 
         return None
 
@@ -55,9 +55,8 @@ class PluginService:
 
         if owner_service.does_owner_exist(owner_name, owner_domain):
             if owner_service.validate_password(owner_name, owner_domain, owner_password):
-                salt = os.urandom(16)
-                token = secure.encrypt_password(owner_domain + owner_name + str(time.time()), salt).decode()
-                salt_for_token = os.urandom(16)
+                token = secure.encrypt_password(owner_domain + owner_name + str(time.time())).decode()
+                salt_for_token = os.urandom(16).decode()
                 salted_token = secure.encrypt_password(token, salt_for_token).decode()
 
                 sql = "INSERT INTO plugin VALUES(%s, %s, %s, %s, %s, %s)"
