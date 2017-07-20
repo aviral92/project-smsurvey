@@ -141,7 +141,7 @@ class LatestQuestionHandler(RequestHandler):
 
                     if question is not None:
                         if question.final:
-                            state.survey_status = Status.TERMINATED_COMPLETE
+                            state.status = Status.TERMINATED_COMPLETE
                             state_service.update_state(state)
 
                             self.set_status(200)
@@ -263,15 +263,15 @@ class AnInstanceHandler(RequestHandler):
                 if owner.domain == auth_response["owner_domain"] and owner.name == auth_response["owner_name"]:
                     if state.status == Status.CREATED_START:
                         self.set_status(200)
-                        self.write('{"status":"success","survey_status":"NOT STARTED"}')
+                        self.write('{"status":"success","status":"NOT STARTED"}')
                         self.flush()
-                    elif state.survey_status == Status.TERMINATED_COMPLETE:
+                    elif state.status == Status.TERMINATED_COMPLETE:
                         self.set_status(200)
-                        self.write('{"status":"success","survey_status":"COMPLETE"}')
+                        self.write('{"status":"success","status":"COMPLETE"}')
                         self.flush()
                     else:
                         self.set_status(200)
-                        self.write('{"status":"success","survey_status":"IN PROGRESS"}')
+                        self.write('{"status":"success","status":"IN PROGRESS"}')
                         self.flush()
 
                 else:
@@ -301,10 +301,10 @@ class AnInstanceHandler(RequestHandler):
                 if state is not None:
                     owner = InstanceService().get_owner(instance_id)
                     if owner.domain == auth_response["owner_domain"] and owner.name == auth_response["owner_name"]:
-                        state.survey_status = Status.AWAITING_USER_RESPONSE
+                        state.status = Status.AWAITING_USER_RESPONSE
                         state_service.update_state(state)
                         self.set_status(200)
-                        self.write('{"status":"success","survey_status":"STARTED"}')
+                        self.write('{"status":"success","status":"STARTED"}')
                         self.flush()
                     else:
                         self.set_status(403)
