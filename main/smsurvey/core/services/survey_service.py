@@ -16,7 +16,7 @@ class SurveyService:
     def get_survey(self, survey_id):
         sql = "SELECT * from survey WHERE survey_id = %s"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
@@ -35,7 +35,7 @@ class SurveyService:
         sql = "INSERT INTO survey VALUES(%s, %s, %s, %s, %s)"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:

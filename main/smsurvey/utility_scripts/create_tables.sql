@@ -12,7 +12,7 @@ CREATE TABLE owner (
   password VARCHAR(200) NOT NULL,
   salt VARCHAR(100) NOT NULL,
   PRIMARY KEY(name, domain)
-);
+) CHARACTER SET utf8;
 
 CREATE TABLE plugin (
   plugin_id VARCHAR(25) NOT NULL UNIQUE,
@@ -23,19 +23,19 @@ CREATE TABLE plugin (
   permissions INTEGER NOT NULL,
   PRIMARY KEY(plugin_id),
   FOREIGN KEY(owner_name, owner_domain) REFERENCES owner(name, domain) ON DELETE CASCADE
-);
+) CHARACTER SET utf8;
 
 CREATE TABLE participant (
   participant_id VARCHAR(25) NOT NULL UNIQUE,
   participant_scratch VARCHAR(100) NOT NULL,
   PRIMARY KEY(participant_id)
-);
+) CHARACTER SET utf8;
 
 CREATE TABLE protocol (
   protocol_id INT NOT NULL UNIQUE AUTO_INCREMENT,
   first_question VARCHAR(100) NOT NULL,
   PRIMARY KEY(protocol_id)
-);
+) CHARACTER SET utf8;
 
 CREATE TABLE survey (
   survey_id VARCHAR(25) NOT NULL UNIQUE,
@@ -47,7 +47,7 @@ CREATE TABLE survey (
   FOREIGN KEY (participant_id) REFERENCES participant (participant_id) ON DELETE CASCADE,
   FOREIGN KEY (owner_name, owner_domain) REFERENCES owner (name, domain) ON DELETE CASCADE,
   FOREIGN KEY (protocol_id) REFERENCES protocol (protocol_id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8;
 
 CREATE TABLE instance (
   instance_id INT NOT NULL UNIQUE AUTO_INCREMENT,
@@ -56,7 +56,7 @@ CREATE TABLE instance (
   timeout TIMESTAMP,
   PRIMARY KEY(instance_id),
   FOREIGN KEY(survey_id) REFERENCES survey(survey_id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8;
 
 CREATE TABLE state_version0 (
   state_id INT NOT NULL UNIQUE AUTO_INCREMENT,
@@ -66,4 +66,4 @@ CREATE TABLE state_version0 (
   priority TINYINT DEFAULT 0 NOT NULL,
   PRIMARY KEY(state_id),
   FOREIGN KEY(instance_id) REFERENCES instance(instance_id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8;

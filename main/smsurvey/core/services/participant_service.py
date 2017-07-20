@@ -16,7 +16,7 @@ class ParticipantService:
     def get_participant(self, participant_id):
         sql = "SELECT * from participant WHERE participant_id = %s"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
@@ -40,7 +40,7 @@ class ParticipantService:
 
         sql = "INSERT INTO participant VALUES(%s, %s)"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
