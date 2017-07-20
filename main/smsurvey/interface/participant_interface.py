@@ -5,7 +5,7 @@ from tornado.web import RequestHandler
 
 from smsurvey.core.services.survey_service import SurveyService
 from smsurvey.core.services.plugin_service import PluginService
-
+from smsurvey.core.services.participant_service import ParticipantService
 
 def authenticate(response):
     auth = response.request.headers.get("Authorization")
@@ -39,7 +39,8 @@ def authenticate(response):
             if plugin_service.validate_plugin(plugin_id, owner_name, owner_domain, token):
                 return {
                     "valid": True,
-                    "owner": owner
+                    "owner_domain": owner_domain,
+                    "owner_name": owner_name
                 }
             else:
                 response.set_status(403)
@@ -76,12 +77,14 @@ class ParticipantHandler(RequestHandler):
                 self.write(json.dumps(response))
                 self.flush()
             else:
+                owner = SurveyService().get_owner(survey_id)
+                if owner.name == auth_response["owner_name"] and owner.domain == auth_response["owner_domain"]:
 
-                owner = survey.owner_name + "@" + survey.owner_domain
-                if owner == auth_response["owner"]:
+                    participant = ParticipantService().get_participant(survey.participant_id)
+
                     response = {
                         "status": "success",
-                        "participant": survey.participant_payload
+                        "participant": participant.participant_scratch,
                     }
 
                     self.set_status(200)
