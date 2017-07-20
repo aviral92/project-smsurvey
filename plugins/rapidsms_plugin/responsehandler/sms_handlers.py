@@ -13,8 +13,8 @@ class SurveyStartHandler(KeywordHandler):
 
     def handle(self, text):
         token = os.environ.get("SEC_TOKEN")
-        owner = os.environ.get("OWNER")
-        domain = os.environ.get("DOMAIN")
+        owner = os.environ.get("OWNER_NAME")
+        domain = os.environ.get("OWNER_DOMAIN")
         plugin_id = os.environ.get("PLUGIN_ID")
         a = owner + "@" + domain + "-" + plugin_id + ":" + token
         url = os.environ.get("SYSTEM_URL")
@@ -23,14 +23,11 @@ class SurveyStartHandler(KeywordHandler):
         headers = {
             "Authorization": "Basic " + b64
         }
-        r = requests.get(url + "instances", headers=headers)
+        r = requests.get(url + "instances?survey_id=" + text, headers=headers)
         response = json.loads(r.text)
 
-        for sid in response["ids"]:
-            survey_id = sid[:1]
-
-            if survey_id == text:
-                SurveyStarter.start_survey(sid)
+        for iid in response["ids"]:
+            SurveyStarter.start_survey(iid)
 
     def help(self):
         self.respond("Send START SURVEY_ID to start a survey batch")

@@ -65,9 +65,12 @@ class AllInstancesHandler(RequestHandler):
     def get(self):
         auth_response = authenticate(self)
 
+        survey_id = self.get_argument("survey_id", "*")
+
         if auth_response["valid"]:
             instance_service = InstanceService()
-            instance_ids = instance_service.get_by_owner(auth_response["owner_name"], auth_response["owner_domain"])
+            instance_ids = instance_service.get_by_owner(auth_response["owner_name"], auth_response["owner_domain"],
+                                                         survey_id)
             self.set_status(200)
             self.write('{"status":"success","ids":' + json.dumps(instance_ids) + '}')
 
