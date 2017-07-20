@@ -1,6 +1,8 @@
 import os
 import pymysql
 
+from base64 import b64encode
+
 from smsurvey.core.security import secure
 from smsurvey.core.model.survey.owner import Owner
 
@@ -32,7 +34,7 @@ class OwnerService:
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database, charset="utf8")
 
-        salt = os.urandom(16).decode()
+        salt = b64encode(os.urandom(16)).decode()
         password = secure.encrypt_password(unsafe_password, salt).decode()
 
         try:
