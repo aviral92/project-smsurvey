@@ -28,7 +28,7 @@ class OwnerService:
         return Owner.from_tuple(owner_sql)
 
     def create_owner(self, name, domain, unsafe_password):
-        sql = "INSERT INTO owner VALUES(%s, %s, %s, %s, %s)"
+        sql = "INSERT INTO owner VALUES(%s, %s, %s, %s)"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database)
 
