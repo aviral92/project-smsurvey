@@ -16,7 +16,7 @@ class StateService:
     def get_state(self, state_id):
         sql = "SELECT * from state_version0 WHERE state_id = %s"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
@@ -35,7 +35,7 @@ class StateService:
         sql = "INSERT INTO state_version0 (instance_id, question_id, status, priority) VALUES(%s,%s,%s,%s)"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
@@ -61,7 +61,7 @@ class StateService:
 
         sql = "UPDATE state_version0 SET status = %s, priority = %s WHERE state_id = %s"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
@@ -75,7 +75,7 @@ class StateService:
             sql = "DELETE FROM state_version0 WHERE state_id = %s"
 
             connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                         host=self.database_url, database=self.database)
+                                         host=self.database_url, database=self.database, charset="utf8")
 
             try:
                 with connection.cursor() as cursor:
@@ -92,7 +92,7 @@ class StateService:
             sql = "SELECT * FROM state_version0 WHERE instance_id = %s AND status = %s"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
@@ -121,7 +121,7 @@ class StateService:
     def get_state_by_instance_and_question(self, instance_id, question_id):
         sql = "SELECT * FROM state_version0 WHERE instance_id = %s AND question_id = %s"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:

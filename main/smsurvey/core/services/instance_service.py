@@ -16,7 +16,7 @@ class InstanceService:
     def get_instance(self, instance_id):
         sql = "SELECT * from instance WHERE instance_id = %s"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
@@ -35,7 +35,7 @@ class InstanceService:
         sql = "INSERT INTO instance (survey_id, timeout) VALUES(%s, %s)"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
@@ -52,7 +52,7 @@ class InstanceService:
               " instance.survey_id = survey.survey_id WHERE instance_id = %s"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
@@ -73,7 +73,7 @@ class InstanceService:
               " owner_name = %s AND owner_domain = %s"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database)
+                                     host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
