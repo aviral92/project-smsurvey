@@ -17,13 +17,13 @@ class ResponseService:
 
         self.cache_name = cache_name
 
-    def get_response_set(self, survey_id, survey_instance_id):
+    def get_response_set(self, survey_id, instance_id):
         try:
             response = self.dynamo.get_item(
                 TableName=self.cache_name,
                 Key={
                     'survey_id': {'S': survey_id},
-                    'survey_instance_id': {'S': survey_instance_id}
+                    'instance_id': {'S': instance_id}
                 }
             )
         except ClientError as e:
@@ -33,13 +33,13 @@ class ResponseService:
             if 'Item' in response:
                 response_dict = pickle.loads(response['Item']['responses']['B'])
 
-                return ResponseSet(survey_id, survey_instance_id, response_dict)
+                return ResponseSet(survey_id, instance_id, response_dict)
 
-    def insert_response(self, survey_id, survey_instance_id, variable_name, message):
-        response = self.get_response_set(survey_id,survey_instance_id)
+    def insert_response(self, survey_id, instance_id, variable_name, message):
+        response = self.get_response_set(survey_id,instance_id)
 
         if response is None:
-            response = ResponseSet(survey_id, survey_instance_id)
+            response = ResponseSet(survey_id, instance_id)
 
         response.add_response(variable_name, message)
 
@@ -49,8 +49,8 @@ class ResponseService:
                 'survey_id': {
                     'S': survey_id
                 },
-                'survey_instance_id': {
-                    'S': survey_instance_id
+                'instance_id': {
+                    'S': instance_id
                 },
                 'responses': {
                     'B': pickle.dumps(response.response_dict)
