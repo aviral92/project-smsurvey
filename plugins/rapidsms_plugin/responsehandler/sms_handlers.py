@@ -6,8 +6,6 @@ import os
 from rapidsms.contrib.handlers import KeywordHandler
 from .app import SurveyStarter
 
-### This is all temporary
-
 
 class SurveyStartHandler(KeywordHandler):
 
@@ -25,7 +23,7 @@ class SurveyStartHandler(KeywordHandler):
         headers = {
             "Authorization": "Basic " + b64
         }
-        r = requests.get(url + "surveys", headers=headers)
+        r = requests.get(url + "instances", headers=headers)
         response = json.loads(r.text)
 
         for sid in response["ids"]:
