@@ -4,10 +4,12 @@ import binascii
 
 
 def encrypt_password(not_safe, salt=os.urandom(16)):
-    print(type(not_safe))
     if isinstance(not_safe, str):
         not_safe = not_safe.encode()
-    print(type(not_safe))
+
+    if isinstance(salt, str):
+        salt = salt.encode()
+
     bin_pass = hashlib.pbkdf2_hmac('sha512', not_safe, salt, 100000)
     return binascii.hexlify(bin_pass)
 
