@@ -73,7 +73,7 @@ class SurveyStarter:
 
         #send first question to participant
 
-        first_question = requests.get(url + 'surveys/' + survey_id + "/latest", headers=headers)
+        first_question = requests.get(url + 'instances/' + str(instance_id) + "/latest", headers=headers)
         question_text = json.loads(first_question.text)["question_text"]
 
         send(question_text, lookup_connections(backend="twilio-backend", identities=[participant_number]))
