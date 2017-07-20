@@ -32,7 +32,7 @@ class ProtocolService:
         return None
 
     def create_protocol(self, first_question):
-        sql = "INSERT INTO protocol (protocol_id) VALUES(%s)"
+        sql = "INSERT INTO protocol (first_question) VALUES(%s)"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database, charset="utf8")
