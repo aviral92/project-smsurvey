@@ -24,19 +24,19 @@ class ResponseRespond(AppBase):
 
     def handle(self, msg):
         p = msg.connection.identity
-        survey_id = participant_lookup[p]
+        instance_id = participant_lookup[p]
         # POST /surveys/[survey-id]/latest
 
         data = {
             "response": msg.text
         }
 
-        r = requests.post(url + 'surveys/' + survey_id + "/latest", data=json.dumps(data), headers=headers)
+        r = requests.post(url + 'instances/' + instance_id + "/latest", data=json.dumps(data), headers=headers)
         rd = json.loads(r.text)
 
         if rd['status'].lower() == 'success':
             if rd['response_accepted'].lower() == 'true':
-                new_question = requests.get(url + 'surveys/' + survey_id + "/latest", data=json.dumps(data),
+                new_question = requests.get(url + 'instances/' + instance_id + "/latest", data=json.dumps(data),
                                             headers=headers)
 
                 if new_question.status_code == 200:
@@ -61,7 +61,7 @@ class SurveyStarter:
             'action': 'start'
         }
 
-        requests.post(url + 'surveys/' + survey_id, json.dumps(data), headers=headers)
+        requests.post(url + 'instances/' + survey_id, json.dumps(data), headers=headers)
 
         #get participant for survey
         participant_request = requests.get(url + "participants?survey_id=" + survey_id, headers=headers)
