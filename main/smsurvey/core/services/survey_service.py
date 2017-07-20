@@ -42,6 +42,6 @@ class SurveyService:
                 cursor.execute(sql, (survey.survey_id, survey.protocol_id, survey.participant_id, survey.owner_name,
                                      survey.owner_domain))
                 connection.commit()
-                connection.fetchall()
+                cursor.fetchall()
         finally:
             connection.close()

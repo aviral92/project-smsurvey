@@ -41,7 +41,7 @@ class StateService:
             with connection.cursor() as cursor:
                 cursor.execute(sql, (instance_id, question_id, status, priority))
                 connection.commit()
-                connection.fetchall()
+                cursor.fetchall()
                 state_id = cursor.lastrowid
         finally:
             connection.close()

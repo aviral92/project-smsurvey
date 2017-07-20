@@ -46,6 +46,6 @@ class ParticipantService:
             with connection.cursor() as cursor:
                 cursor.execute(sql, (participant_id, participant_scratch))
                 connection.commit()
-                connection.fetchall()
+                cursor.fetchall()
         finally:
             connection.close()
