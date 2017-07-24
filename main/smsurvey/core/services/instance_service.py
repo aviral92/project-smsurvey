@@ -4,6 +4,7 @@ import pymysql
 from smsurvey.core.model.survey.instance import Instance
 from smsurvey.core.services.owner_service import OwnerService
 
+
 class InstanceService:
 
     def __init__(self, database_url=os.environ.get("RDS_URL"), database_username=os.environ.get("RDS_USERNAME"),
@@ -31,15 +32,15 @@ class InstanceService:
 
         return None
 
-    def create_instance(self, survey_id, timeout):
-        sql = "INSERT INTO instance (survey_id, timeout) VALUES(%s, %s)"
+    def create_instance(self, survey_id):
+        sql = "INSERT INTO instance (survey_id) VALUES(%s)"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
-                cursor.execute(sql, (survey_id, timeout))
+                cursor.execute(sql, survey_id)
                 connection.commit()
                 protocol_id = cursor.lastrowid
         finally:
