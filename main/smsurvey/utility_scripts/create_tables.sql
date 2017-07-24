@@ -40,6 +40,7 @@ CREATE TABLE protocol (
 CREATE TABLE survey (
   survey_id VARCHAR(25) NOT NULL UNIQUE,
   protocol_id INT NOT NULL,
+  time_rule_id VARCHAR(100) NOT NULL,
   participant_id VARCHAR(25) NOT NULL,
   owner_name VARCHAR(25) NOT NULL,
   owner_domain VARCHAR(25) NOT NULL,
@@ -53,6 +54,7 @@ CREATE TABLE instance (
   instance_id INT NOT NULL UNIQUE AUTO_INCREMENT,
   survey_id VARCHAR(25) NOT NULL UNIQUE,
   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  triggered BIT(1) DEFAULT 0,
   timeout TIMESTAMP,
   PRIMARY KEY(instance_id),
   FOREIGN KEY(survey_id) REFERENCES survey(survey_id) ON DELETE CASCADE
