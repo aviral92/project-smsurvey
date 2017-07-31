@@ -84,7 +84,7 @@ class ParticipantHandler(RequestHandler):
 
                     response = {
                         "status": "success",
-                        "participant": participant.participant_scratch,
+                        "participant": participant.plugin_scratch,
                     }
 
                     self.set_status(200)

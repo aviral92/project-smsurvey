@@ -1,8 +1,19 @@
+import os
+import inspect
+import sys
+
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from ..responsehandler import poke_handler
+
+c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+p = os.path.dirname(c)
+pp = os.path.dirname(p)
+ppp = os.path.dirname(pp)
+sys.path.insert(0, ppp)
+
+from plugins.rapidsms_plugin.responsehandler import poke_handler
 
 
 urlpatterns = [
