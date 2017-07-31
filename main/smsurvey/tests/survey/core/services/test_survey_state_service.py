@@ -15,8 +15,6 @@ sys.path.insert(0, ppppp)
 
 from smsurvey import config
 from smsurvey.core.model.survey.survey_state_machine import SurveyState, SurveyStateOperationException, SurveyStatus
-from smsurvey.core.services.survey_state_service import SurveyStateService
-from smsurvey.utility_scripts import create_survey_state_cache
 
 
 class TestSurveyStateService(unittest.TestCase):

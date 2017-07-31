@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS state_version0;
 DROP TABLE IF EXISTS instance;
+DROP TABLE IF EXISTS schedule;
 DROP TABLE IF EXISTS survey;
 DROP TABLE IF EXISTS participant;
 DROP TABLE IF EXISTS protocol;
@@ -40,7 +41,6 @@ CREATE TABLE protocol (
 CREATE TABLE survey (
   survey_id VARCHAR(25) NOT NULL UNIQUE,
   protocol_id INT NOT NULL,
-  time_rule_id VARCHAR(100) NOT NULL,
   participant_id VARCHAR(25) NOT NULL,
   owner_name VARCHAR(25) NOT NULL,
   owner_domain VARCHAR(25) NOT NULL,
@@ -50,9 +50,17 @@ CREATE TABLE survey (
   FOREIGN KEY (protocol_id) REFERENCES protocol (protocol_id) ON DELETE CASCADE
 ) CHARACTER SET utf8;
 
+CREATE TABLE schedule (
+  task_id INT NOT NULL UNIQUE AUTO_INCREMENT,
+  survey_id VARCHAR(25) NOT NULL,
+  time_rule_id VARCHAR(100) NOT NULL,
+  PRIMARY KEY (task_id),
+  FOREIGN KEY (survey_id) REFERENCES survey (survey_id) ON DELETE CASCADE
+) CHARACTER SET utf8;
+
 CREATE TABLE instance (
   instance_id INT NOT NULL UNIQUE AUTO_INCREMENT,
-  survey_id VARCHAR(25) NOT NULL UNIQUE,
+  survey_id VARCHAR(25) NOT NULL,
   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   triggered BIT(1) DEFAULT 0,
   timeout TIMESTAMP,

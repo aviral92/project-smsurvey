@@ -1,10 +1,11 @@
 import os
+
 import pymysql
 
-from smsurvey.core.model.survey.protocol import Protocol
+from smsurvey.schedule.task import Task
 
 
-class ProtocolService:
+class ScheduleService:
 
     def __init__(self, database_url=os.environ.get("RDS_URL"), database_username=os.environ.get("RDS_USERNAME"),
                  database_password=os.environ.get("RDS_PASSWORD")):
@@ -13,37 +14,36 @@ class ProtocolService:
         self.database_password = database_password
         self.database = "dbase"
 
-    def get_protocol(self, protocol_id):
-        sql = "SELECT * from protocol WHERE protocol_id = %s"
+    def insert_task(self, survey_id, time_rule_id):
+        sql = "INSERT INTO schedule (survey_id, time_rule_id) VALUES (%s, %s)"
+
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
-                cursor.execute(sql, protocol_id)
+                cursor.execute(sql, (survey_id, time_rule_id))
+                connection.commit()
+                cursor.fetchall()
+        finally:
+            connection.close()
+
+    def get_all_tasks(self):
+        sql = "SELECT * FROM schedule"
+
+        connection = pymysql.connect(user=self.database_username, password=self.database_password,
+                                     host=self.database_url, database=self.database, charset="utf8")
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(sql)
                 result = cursor.fetchall()
         finally:
             connection.close()
 
-        if len(result) > 0:
-            survey_tuple = result[0]
-            return Protocol.from_tuple(survey_tuple)
+        arr = []
 
-        return None
+        for row in result:
+            arr.append(Task.from_tuple(row))
 
-    def create_protocol(self, first_question):
-        sql = "INSERT INTO protocol (first_question) VALUES(%s)"
-
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
-
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, first_question)
-                connection.commit()
-                cursor.fetchall()
-                protocol_id = cursor.lastrowid
-        finally:
-            connection.close()
-
-        return Protocol(protocol_id, first_question)
+        return arr

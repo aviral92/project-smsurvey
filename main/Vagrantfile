@@ -74,12 +74,22 @@ Vagrant.configure("2") do |config|
    config.vm.provision "shell", inline: <<-SHELL
      apt-get update
      apt-get install -y default-jdk git python3-pip python3-dev build-essential
+
      
      AWS_ACCESS_KEY_ID=#{ENV['PS_AWS_ACCESS_KEY_ID']}
      AWS_SECRET_ACCESS_KEY=#{ENV['PS_AWS_SECRET_ACCESS_KEY']}
-     
+     RDS_URL=#{ENV['RDS_URL']}
+     RDS_USERNAME=#{ENV['RDS_USERNAME']}
+     RDS_PASSWORD=#{ENV['RDS_PASSWORD']}
+     PHONE_NUMBERS=#{ENV['PHONE_NUMBERS']}
+
      echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> /home/vagrant/.profile
      echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> /home/vagrant/.profile
+     echo "export RDS_URL=$RDS_URL" >> /home/vagrant/.profile
+     echo "export RDS_USERNAME=$RDS_USERNAME" >> /home/vagrant/.profile
+     echo "export RDS_PASSWORD=$RDS_PASSWORD" >> /home/vagrant/.profile
+     echo "export PHONE_NUMBERS=$PHONE_NUMBERS" >> /home/vagrant/.profile
+
      
      echo "Installing local DynamoDB"
      mkdir /dynamodb
@@ -88,6 +98,6 @@ Vagrant.configure("2") do |config|
      tar -xzf dynamodb_local_latest.tar.gz -C /dynamodb
      
      cd /vagrant
-     sudo pip3 install -r requirements.txt
+     sudo pip3 install  -r requirements.txt
    SHELL
 end

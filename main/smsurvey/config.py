@@ -1,5 +1,5 @@
-dynamo_url_local = "http://localhost:8888"
-local = False
+dynamo_url_local = "http://localhost:1234"
+local = True
 
 response_interface_processes = 10
 survey_response_interface_port_begin = 25280
