@@ -65,12 +65,22 @@ class AllInstancesHandler(RequestHandler):
     def get(self):
         auth_response = authenticate(self)
 
-        survey_id = self.get_argument("survey_id", "*")
+        survey_id = self.get_argument("survey_id", None)
+        status = self.get_argument("status", None)
+
+        if status is not None:
+            if status == "not_started":
+                status = Status.CREATED_START
+            else:
+                self.set_status(400)
+                self.write('{"status":"error","message":"Invalid start parameter - try not_started"}')
+                self.flush()
+                return
 
         if auth_response["valid"]:
             instance_service = InstanceService()
             instance_ids = instance_service.get_by_owner(auth_response["owner_name"], auth_response["owner_domain"],
-                                                         survey_id)
+                                                         survey_id, status)
             self.set_status(200)
             self.write('{"status":"success","ids":' + json.dumps(instance_ids) + '}')
 

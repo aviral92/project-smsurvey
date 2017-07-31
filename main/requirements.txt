@@ -6,3 +6,4 @@ rapidsms
 django
 pymysql
 apscheduler
+requests

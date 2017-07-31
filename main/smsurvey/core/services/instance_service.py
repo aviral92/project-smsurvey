@@ -8,6 +8,8 @@ from smsurvey.core.services.owner_service import OwnerService
 from smsurvey.core.services.state_service import StateService
 from smsurvey.core.services.survey_service import SurveyService
 from smsurvey.core.services.protocol_service import ProtocolService
+from smsurvey.core.services.participant_service import ParticipantService
+from smsurvey.core.services.plugin_service import PluginService
 
 
 class InstanceService:
@@ -86,8 +88,8 @@ class InstanceService:
 
         return None
 
-    def get_by_owner(self, owner_name, owner_domain, survey_id):
-        if survey_id == "*":
+    def get_by_owner(self, owner_name, owner_domain, survey_id=None, status=None):
+        if survey_id is None:
             sql = "SELECT instance_id FROM instance INNER JOIN survey ON instance.survey_id = survey.survey_id WHERE" \
               " owner_name = %s AND owner_domain = %s"
         else:
@@ -99,7 +101,7 @@ class InstanceService:
 
         try:
             with connection.cursor() as cursor:
-                if survey_id == "*":
+                if survey_id is None:
                     cursor.execute(sql, (owner_name, owner_domain))
                 else:
                     cursor.execute(sql, (owner_name, owner_domain, survey_id))
@@ -108,8 +110,18 @@ class InstanceService:
             connection.close()
 
         answer = []
+
+        state_service = StateService()
         for instance_tuple in result:
-            answer.append(instance_tuple[0])
+            if status is not None:
+                answer.append(instance_tuple[0])
+            else:
+                instance = Instance.from_tuple(instance_tuple)
+                state = state_service.get_next_state_in_instance(instance.instance_id, status)
+
+                if state is not None:
+                    answer.append(instance_tuple[0])
+
 
         return answer
 
@@ -152,6 +164,9 @@ class InstanceService:
         first_question = ProtocolService().get_protocol(survey.protocol_id).first_question
 
         state_service.create_state(instance_id, first_question, Status.CREATED_START, 0)
+
+        participant = ParticipantService().get_participant(survey.participant_id)
+        PluginService().poke(participant.plugin_id)
 
     def run_loop(self):
         print("Starting instance service loop")
