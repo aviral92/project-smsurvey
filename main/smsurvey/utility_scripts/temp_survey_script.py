@@ -206,6 +206,19 @@ if __name__ == "__main__":
 
     survey_id = "1"
 
+    print("Creating Owner")
+    owner_service = OwnerService()
+    owner_service.create_owner('owner', 'test', 'password')
+    print("Owner created")
+
+    print("Creating plugin")
+    plugin_service = PluginService()
+    plugin_id, token = plugin_service.register_plugin("owner", "test", "password",
+                                                      "http://smsurvey-twilio-2028755190.us-east-1.elb.amazonaws.com"
+                                                      "/poke/", 50) 
+    print("Plugin created")
+    print("token = " + token)
+
     phone_numbers = os.environ.get("PHONE_NUMBERS")
 
     surveys = []
@@ -214,20 +227,10 @@ if __name__ == "__main__":
         surveys.append({
             "instance_id": str(i),
             "participant_id": str(i),
-            "participant_scratch": phone_number
+            "plugin_id": plugin_id,
+            "plugin_scratch": phone_number
         })
         i += 1
-
-    print("Creating Owner")
-    owner_service = OwnerService()
-    owner_service.create_owner('owner', 'test', 'password')
-    print("Owner created")
-
-    print("Creating plugin")
-    plugin_service = PluginService()
-    token = plugin_service.register_plugin("owner", "test", "password", "12345", 50)
-    print("Plugin created")
-    print("token = " + token)
 
 
     print("Generating questions")
@@ -291,7 +294,8 @@ if __name__ == "__main__":
 
         i += 1
 
-        participant_service.register_participant(survey["participant_id"], survey["participant_scratch"])
+        participant_service.register_participant(survey["participant_id"], survey["plugin_id"],
+                                                 survey["plugin_scratch"])
 
         survey_object = Survey(str(i), protocol.protocol_id, survey["participant_id"], "owner", "test")
         survey_service.insert(survey_object)

@@ -16,19 +16,22 @@ CREATE TABLE owner (
 ) CHARACTER SET utf8;
 
 CREATE TABLE plugin (
-  plugin_id VARCHAR(25) NOT NULL UNIQUE,
+  plugin_id INT NOT NULL UNIQUE AUTO_INCREMENT,
   owner_name VARCHAR(25) NOT NULL,
   owner_domain VARCHAR(25) NOT NULL,
   secret_token VARCHAR(200) NOT NULL,
   salt VARCHAR(100) NOT NULL,
   permissions INTEGER NOT NULL,
+  poke_url VARCHAR(255) NOT NULL,
   PRIMARY KEY(plugin_id),
   FOREIGN KEY(owner_name, owner_domain) REFERENCES owner(name, domain) ON DELETE CASCADE
 ) CHARACTER SET utf8;
 
 CREATE TABLE participant (
   participant_id VARCHAR(25) NOT NULL UNIQUE,
-  participant_scratch VARCHAR(100) NOT NULL,
+  plugin_id INT NOT NULL,
+  plugin_scratch VARCHAR(100) NOT NULL,
+  FOREIGN KEY (plugin_id) REFERENCES plugin (plugin_id) ON DELETE CASCADE,
   PRIMARY KEY(participant_id)
 ) CHARACTER SET utf8;
 
@@ -62,7 +65,6 @@ CREATE TABLE instance (
   instance_id INT NOT NULL UNIQUE AUTO_INCREMENT,
   survey_id VARCHAR(25) NOT NULL,
   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  triggered BIT(1) DEFAULT 0,
   timeout TIMESTAMP,
   PRIMARY KEY(instance_id),
   FOREIGN KEY(survey_id) REFERENCES survey(survey_id) ON DELETE CASCADE

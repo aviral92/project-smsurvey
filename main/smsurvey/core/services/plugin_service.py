@@ -1,6 +1,8 @@
 import os
 import time
 import pymysql
+import requests
+import json
 
 from base64 import b64encode
 
@@ -49,10 +51,7 @@ class PluginService:
     def is_plugin_registered(self, plugin_id):
         return self.get_plugin(plugin_id) is not None
 
-    def register_plugin(self, owner_name, owner_domain, owner_password, plugin_id, permissions):
-        if self.is_plugin_registered(plugin_id):
-            raise secure.SecurityException("Plugin already registered")
-
+    def register_plugin(self, owner_name, owner_domain, owner_password, poke_url, permissions):
         owner_service = OwnerService()
 
         if owner_service.does_owner_exist(owner_name, owner_domain):
@@ -61,21 +60,31 @@ class PluginService:
                 salt_for_token = b64encode(os.urandom(16)).decode()
                 salted_token = secure.encrypt_password(token, salt_for_token).decode()
 
-                sql = "INSERT INTO plugin VALUES(%s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO plugin(owner_name,owner_domain,secret_token,salt,poke_url,permissions) VALUES(%s,%s,%s,%s,%s,%s)"
                 connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                              host=self.database_url, database=self.database, charset="utf8")
 
                 try:
                     with connection.cursor() as cursor:
-                        cursor.execute(sql, (plugin_id, owner_name, owner_domain, salted_token, salt_for_token,
+                        cursor.execute(sql, (owner_name, owner_domain, salted_token, salt_for_token, poke_url,
                                              permissions))
                         connection.commit()
                         cursor.fetchall()
+                        plugin_id = cursor.lastrowid
                 finally:
                     connection.close()
 
-                return token
+                return plugin_id, token
             else:
                 raise secure.SecurityException("Unable to validate owner")
         else:
             raise secure.SecurityException("Owner does not exist")
+
+    def poke(self, plugin_id):
+        plugin = self.get_plugin(plugin_id)
+
+        data = {
+            'plugin_id': plugin_id
+        }
+
+        requests.post(plugin.poke_url, json.dumps(data))

@@ -34,17 +34,17 @@ class ParticipantService:
     def is_participant_registered(self, participant_id):
         return self.get_participant(participant_id) is not None
 
-    def register_participant(self, participant_id, participant_scratch):
+    def register_participant(self, participant_id, plugin_id, plugin_scratch):
         if self.is_participant_registered(participant_id):
             raise ParticipantException("Not unique participant_id")
 
-        sql = "INSERT INTO participant VALUES(%s, %s)"
+        sql = "INSERT INTO participant VALUES(%s, %s, %s)"
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
                                      host=self.database_url, database=self.database, charset="utf8")
 
         try:
             with connection.cursor() as cursor:
-                cursor.execute(sql, (participant_id, participant_scratch))
+                cursor.execute(sql, (participant_id, plugin_id, plugin_scratch))
                 connection.commit()
                 cursor.fetchall()
         finally:
