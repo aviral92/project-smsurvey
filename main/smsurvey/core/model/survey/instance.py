@@ -4,7 +4,7 @@ class Instance:
         self.instance_id = instance_id
         self.survey_id = survey_id
         self.created = created
-        self.triggered = triggered
+        self.triggered = False if triggered == '\x00' else True
         self.timeout = timeout
 
     @classmethod

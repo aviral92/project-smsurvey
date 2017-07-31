@@ -79,7 +79,7 @@ class AllInstancesHandler(RequestHandler):
 
 
 class LatestQuestionHandler(RequestHandler):
-    # GET /instances/[survey-id]/latest <- Should return me the text of the latest question in this survey,
+    # GET /instances/[instance-id]/latest <- Should return me the text of the latest question in this survey,
     #  as well as the question-id. If no questions left, return an error message indicating as such
     def get(self, instance_id):
         auth_response = authenticate(self)

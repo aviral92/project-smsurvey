@@ -17,9 +17,9 @@ dynamo = None
 
 def get_dynamo(local):
     if local:
-        return boto3.client('dynamodb', "us-west-2", config.dynamo_url_local)
+        return boto3.client('dynamodb', region_name='us-west-2', endpoint_url=config.dynamo_url_local)
     else:
-        return boto3.client('dynamodb', 'us-east-1')
+        return boto3.client('dynamodb', region_name='us-east-1')
 
 
 def create_cache(t_name):
@@ -64,7 +64,7 @@ def create_cache(t_name):
     print("Cache status: ", t['TableDescription']['TableStatus'])
 
 
-def main(force, local):
+def main(force, local=config.local):
     global dynamo
     dynamo = get_dynamo(local)
 

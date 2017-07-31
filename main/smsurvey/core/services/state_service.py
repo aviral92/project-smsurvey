@@ -84,6 +84,20 @@ class StateService:
             finally:
                 connection.close()
 
+    def delete_states_for_instances(self, instance_ids):
+        print("Deleting states for instances " + str(instance_ids))
+        sql = "DELETE FROM state_version0 WHERE instance_id IN %s"
+
+        connection = pymysql.connect(user=self.database_username, password=self.database_password,
+                                     host=self.database_url, database=self.database, charset="utf8")
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(sql, [instance_ids])
+                connection.commit()
+        finally:
+            connection.close()
+
     def get_next_state_in_instance(self, instance_id, status="*"):
 
         if status == "*":
@@ -131,7 +145,24 @@ class StateService:
             connection.close()
 
         if len(result) > 0:
-            survey_tuple = result[0]
-            return State.from_tuple(survey_tuple)
+            state_tuple = result[0]
+            return State.from_tuple(state_tuple)
 
+    def get_unfinished_states(self, instance_id):
+        sql = "SELECT * FROM state_version0 WHERE instance_id = %s AND status < 500"
+        connection = pymysql.connect(user=self.database_username, password=self.database_password,
+                                     host=self.database_url, database=self.database, charset="utf8")
 
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(sql, instance_id)
+                result = cursor.fetchall()
+        finally:
+            connection.close()
+
+        states = []
+
+        for state_tuple in result:
+            states.append(State.from_tuple(state_tuple))
+
+        return states

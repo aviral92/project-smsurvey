@@ -1,9 +1,10 @@
 # TO BE USED TEMPORARILY UNTIL UI EXISTS
-import os
 import inspect
+import os
 import sys
-import pickle
+from datetime import datetime, timedelta
 
+import pytz
 
 c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 p = os.path.dirname(c)
@@ -12,7 +13,6 @@ sys.path.insert(0, pp)
 
 from smsurvey.core.model.survey.question import Question
 from smsurvey.core.model.survey.survey import Survey
-from smsurvey.core.model.survey.state import Status
 from smsurvey.core.services.state_service import StateService
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.core.services.survey_service import SurveyService
@@ -21,9 +21,13 @@ from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.protocol_service import ProtocolService
 from smsurvey.core.services.participant_service import ParticipantService
 from smsurvey.core.services.instance_service import InstanceService
+from smsurvey.schedule.time_rule.time_rule import NoRepeatTimeRule
+from smsurvey.schedule.time_rule.time_rule_service import TimeRuleService
+from smsurvey.schedule.schedule_service import ScheduleService
 
 from smsurvey.utility_scripts import create_question_store
 from smsurvey.utility_scripts import create_response_store
+from smsurvey.utility_scripts import create_time_rule_store
 
 
 def get_one_p(sid):
@@ -194,8 +198,9 @@ def get_twenty_one(sid):
 
 if __name__ == "__main__":
 
-    create_question_store.main(True, False)
-    create_response_store.main(True, False)
+    create_question_store.main(True)
+    create_response_store.main(True)
+    create_time_rule_store.main(True)
 
     question_service = QuestionService()
 
@@ -283,6 +288,7 @@ if __name__ == "__main__":
     state_service = StateService()
     i = 0
     for survey in surveys:
+
         i += 1
 
         participant_service.register_participant(survey["participant_id"], survey["participant_scratch"])
@@ -290,10 +296,9 @@ if __name__ == "__main__":
         survey_object = Survey(str(i), protocol.protocol_id, survey["participant_id"], "owner", "test")
         survey_service.insert(survey_object)
 
-        instance = instance_service.create_instance(str(i), None)
-
-        state_service.create_state(instance.instance_id, first_question, Status.CREATED_START, 0)
-        print("Inserted survey for " + survey["participant_scratch"])
+        time_rule = NoRepeatTimeRule(datetime.now(pytz.utc) + timedelta(minutes=1))
+        time_rule_id = TimeRuleService().insert(str(i), time_rule)
+        ScheduleService().insert_task(str(i), time_rule_id)
 
     print("Surveys inserted and generated")
     print("Script finished")
