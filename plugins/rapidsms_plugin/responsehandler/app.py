@@ -6,6 +6,8 @@ import os
 from rapidsms.router import send, lookup_connections
 from rapidsms.apps.base import AppBase
 
+from plugins.rapidsms_plugin.responsehandler.models import Participant
+
 token = os.environ.get("SEC_TOKEN")
 owner = os.environ.get("OWNER_NAME")
 domain = os.environ.get("OWNER_DOMAIN")
@@ -18,15 +20,14 @@ headers = {
     "Authorization": "Basic " + b64
 }
 
-participant_lookup = {}
 
 
 class ResponseRespond(AppBase):
 
     def handle(self, msg):
         p = msg.connection.identity
-        instance_id = participant_lookup[p]
-        # POST /surveys/[survey-id]/latest
+
+        instance_id = Participant.objects.get(phone_number=p)
 
         data = {
             "response": msg.text
@@ -68,11 +69,10 @@ class SurveyStarter:
         participant_request = requests.get(url + "participants?survey_id=" + str(survey_id), headers=headers)
         participant = json.loads(participant_request.text)
         participant_number = participant["participant"]
+
+        p = Participant(instance_id=instance_id, phone_number=participant_number)
+        p.save()
         print(participant_number + " assigned to survey " + survey_id)
-
-        participant_lookup[participant_number] = survey_id
-
-        #send first question to participant
 
         first_question = requests.get(url + 'instances/' + str(instance_id) + "/latest", headers=headers)
         question_text = json.loads(first_question.text)["question_text"]

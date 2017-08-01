@@ -14,12 +14,12 @@ if __name__ == "__main__":
         port = config.survey_response_interface_port_begin + process_id
         interfaces_master.start_interface(port)
 
-        try:
-            IOLoop.current().start()
-        except:
-            IOLoop.current().stop()
-
     elif process_id < config.response_interface_processes + 1:
         schedule_master.start_schedule()
     else:
         InstanceService().run_loop()
+
+    try:
+        IOLoop.current().start()
+    except:
+        IOLoop.current().stop()
