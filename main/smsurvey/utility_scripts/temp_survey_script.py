@@ -219,20 +219,6 @@ if __name__ == "__main__":
     print("Plugin created")
     print("token = " + token)
 
-    phone_numbers = os.environ.get("PHONE_NUMBERS")
-
-    surveys = []
-    i = 1
-    for phone_number in phone_numbers.split(","):
-        surveys.append({
-            "instance_id": str(i),
-            "participant_id": str(i),
-            "plugin_id": plugin_id,
-            "plugin_scratch": phone_number
-        })
-        i += 1
-
-
     print("Generating questions")
     one = get_one(survey_id)
     two = get_two(survey_id)
@@ -283,26 +269,4 @@ if __name__ == "__main__":
 
     protocol = ProtocolService().create_protocol(first_question)
 
-    print("Generating and inserting surveys")
-
-    survey_service = SurveyService()
-    participant_service = ParticipantService()
-    instance_service = InstanceService()
-    state_service = StateService()
-    i = 0
-    for survey in surveys:
-
-        i += 1
-
-        participant_service.register_participant(survey["participant_id"], survey["plugin_id"],
-                                                 survey["plugin_scratch"])
-
-        survey_object = Survey(str(i), protocol.protocol_id, survey["participant_id"], "owner", "test")
-        survey_service.insert(survey_object)
-
-        time_rule = NoRepeatTimeRule(datetime.now(pytz.utc) + timedelta(minutes=1))
-        time_rule_id = TimeRuleService().insert(str(i), time_rule)
-        ScheduleService().insert_task(str(i), time_rule_id)
-
-    print("Surveys inserted and generated")
     print("Script finished")
