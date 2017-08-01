@@ -90,10 +90,10 @@ class InstanceService:
 
     def get_by_owner(self, owner_name, owner_domain, survey_id=None, status=None):
         if survey_id is None:
-            sql = "SELECT instance_id FROM instance INNER JOIN survey ON instance.survey_id = survey.survey_id WHERE" \
+            sql = "SELECT * FROM instance INNER JOIN survey ON instance.survey_id = survey.survey_id WHERE" \
               " owner_name = %s AND owner_domain = %s"
         else:
-            sql = "SELECT instance_id FROM instance INNER JOIN survey ON instance.survey_id = survey.survey_id WHERE" \
+            sql = "SELECT * FROM instance INNER JOIN survey ON instance.survey_id = survey.survey_id WHERE" \
                   " owner_name = %s AND owner_domain = %s AND survey.survey_id = %s"
 
         connection = pymysql.connect(user=self.database_username, password=self.database_password,
@@ -121,7 +121,6 @@ class InstanceService:
 
                 if state is not None:
                     answer.append(instance_tuple[0])
-
 
         return answer
 

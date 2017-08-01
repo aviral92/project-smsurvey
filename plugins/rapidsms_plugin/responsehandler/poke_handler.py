@@ -17,8 +17,8 @@ url = os.environ.get("SYSTEM_URL")
 @csrf_exempt
 def handle(request):
     body = json.loads(request.body.decode())
-    plugin_id = body['plugin_id']
-    survey_id = body['survey_id']
+    plugin_id = str(body['plugin_id'])
+    survey_id = str(body['survey_id'])
     a = owner + "@" + domain + "-" + plugin_id + ":" + token
 
     b64 = base64.b64encode(a.encode()).decode()
