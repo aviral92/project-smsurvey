@@ -1,7 +1,15 @@
 import os
 import pytz
+import sys
+import inspect
+import time
 
 from datetime import datetime, timedelta
+
+c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+p = os.path.dirname(c)
+pp = os.path.dirname(p)
+sys.path.insert(0, pp)
 
 from smsurvey.core.model.survey.survey import Survey
 from smsurvey.core.services.survey_service import SurveyService
@@ -19,9 +27,9 @@ i = 1
 for phone_number in phone_numbers.split(","):
     surveys.append({
         "instance_id": str(i),
-        "participant_id": str(i),
-         "plugin_id": 1,
-         "plugin_scratch": phone_number
+        "participant_id": str(time.time() + i),
+        "plugin_id": 1,
+        "plugin_scratch": phone_number
     })
     i += 1
 
@@ -34,14 +42,15 @@ state_service = StateService()
 i = 0
 for survey in surveys:
     i += 1
+    survey_id = str(time.time() + i)
 
     participant_service.register_participant(survey["participant_id"], survey["plugin_id"], survey["plugin_scratch"])
-    survey_object = Survey(str(i), '1', survey["participant_id"], "owner", "test")
+    survey_object = Survey(survey_id, '1', survey["participant_id"], "owner", "test")
     survey_service.insert(survey_object)
 
     time_rule = NoRepeatTimeRule(datetime.now(pytz.utc) + timedelta(minutes=2))
-    time_rule_id = TimeRuleService().insert(str(i), time_rule)
-    ScheduleService().insert_task(str(i), time_rule_id)
+    time_rule_id = TimeRuleService().insert(survey_id, time_rule)
+    ScheduleService().insert_task(survey_id, time_rule_id)
 
 print("Surveys inserted and generated")
 
