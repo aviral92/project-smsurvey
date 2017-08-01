@@ -166,7 +166,7 @@ class InstanceService:
         state_service.create_state(instance_id, first_question, Status.CREATED_START, 0)
 
         participant = ParticipantService().get_participant(survey.participant_id)
-        PluginService().poke(participant.plugin_id)
+        PluginService().poke(participant.plugin_id, survey.survey_id)
 
     def run_loop(self):
         print("Starting instance service loop")

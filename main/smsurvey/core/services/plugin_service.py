@@ -80,11 +80,12 @@ class PluginService:
         else:
             raise secure.SecurityException("Owner does not exist")
 
-    def poke(self, plugin_id):
+    def poke(self, plugin_id, survey_id):
         plugin = self.get_plugin(plugin_id)
 
         data = {
-            'plugin_id': plugin_id
+            'plugin_id': plugin_id,
+            'survey_id': survey_id
         }
 
         requests.post(plugin.poke_url, json.dumps(data))
