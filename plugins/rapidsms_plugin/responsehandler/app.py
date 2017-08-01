@@ -6,7 +6,7 @@ import os
 from rapidsms.router import send, lookup_connections
 from rapidsms.apps.base import AppBase
 
-from plugins.rapidsms_plugin.responsehandler.models import Participant
+from responsehandler.models import ParticipantModel
 
 token = os.environ.get("SEC_TOKEN")
 owner = os.environ.get("OWNER_NAME")
@@ -21,13 +21,12 @@ headers = {
 }
 
 
-
 class ResponseRespond(AppBase):
 
     def handle(self, msg):
         p = msg.connection.identity
 
-        instance_id = Participant.objects.get(phone_number=p)
+        instance_id = str(ParticipantModel.objects.get(phone_number=p).instance_id)
 
         data = {
             "response": msg.text
@@ -70,7 +69,13 @@ class SurveyStarter:
         participant = json.loads(participant_request.text)
         participant_number = participant["participant"]
 
-        p = Participant(instance_id=instance_id, phone_number=participant_number)
+        p = ParticipantModel.objects.filter(phone_number=participant_number).first()
+
+        if p is not None:
+            p.delete()
+
+        p = ParticipantModel(instance_id=instance_id, phone_number=participant_number)
+
         p.save()
         print(participant_number + " assigned to survey " + survey_id)
 
