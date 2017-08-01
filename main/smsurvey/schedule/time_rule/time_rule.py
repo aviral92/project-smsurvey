@@ -105,7 +105,7 @@ class RepeatsMonthlyDate(TimeRule):
 
     @property
     def to_params(self):
-        return str(self.every) + "~" + str(self.days_of_month)[1:-1] + "~" + self.until.strftime("Y-%m-%d %Z") + "~" \
+        return str(self.every) + "~" + str(self.days_of_month)[1:-1] + "~" + self.until.strftime("%Y-%m-%d %Z") + "~" \
             + self.run_at.strftime("%H:%M:%S %Z")
 
     @staticmethod
@@ -116,8 +116,9 @@ class RepeatsMonthlyDate(TimeRule):
         date_times = []
 
         for day in self.days_of_month:
-            first_run = datetime.now().replace(day=day, hour=self.run_at.hour, minute=self.run_at.minute)
-            date_times + list(rrule.rrule(rrule.MONTHLY, dtstart=first_run, until=self.until))
+            first_run = datetime.now().replace(day=day, hour=self.run_at.hour, minute=self.run_at.minute,
+                                               second=self.run_at.second)
+            date_times += list(rrule.rrule(rrule.MONTHLY, dtstart=first_run, until=self.until))
 
         return date_times
 
@@ -144,7 +145,7 @@ class RepeatsMonthlyDay(TimeRule):
     @property
     def to_params(self):
         return str(self.every) + "~" + self.param1 + "~" + str(self.day_of_week) + "~" \
-               + self.until.strftime("Y-%m-%d %Z") + "~" + self.run_at.strftime("%H:%M:%S %Z")
+               + self.until.strftime("%Y-%m-%d %Z") + "~" + self.run_at.strftime("%H:%M:%S %Z")
 
     @staticmethod
     def get_type():
@@ -153,7 +154,7 @@ class RepeatsMonthlyDay(TimeRule):
     def get_date_times(self):
         date_times = []
         today = datetime.now()
-        number_of_months = (today.year - self.until.year) * 12 + today.month - self.until.month
+        number_of_months = (self.until.year - today.year) * 12 + today.month - self.until.month
 
         switch = {
             "first": lambda m: self.get_nth_of_month(1, m, self.day_of_week),
@@ -164,7 +165,8 @@ class RepeatsMonthlyDay(TimeRule):
         }
 
         for i in range(1, number_of_months + 1, self.every):
-            date_times.append(switch[self.param1](i).replace(hour=self.run_at.hour, minute=self.run_at.minute))
+            date_times.append(switch[self.param1](i).replace(hour=self.run_at.hour, minute=self.run_at.minute,
+                                                             second=self.run_at.second))
 
         return date_times
 
@@ -178,8 +180,8 @@ class RepeatsMonthlyDay(TimeRule):
             month_of_year = month_of_year - (12 * years_to_add) + 1
 
         d = datetime.today() + relativedelta.relativedelta(years=years_to_add)
-        d.replace(month=month_of_year)
-        d.replace(day=1)
+        d = d.replace(month=month_of_year)
+        d = d.replace(day=1)
         days = d.weekday() - day_of_week
         d -= timedelta(days=days)
         d += relativedelta.relativedelta(weeks=week_number)
@@ -226,7 +228,7 @@ class RepeatsWeekly(TimeRule):
         monday1 = (self.starting_from - timedelta(days=self.starting_from.weekday()))
         monday2 = (self.until - timedelta(days=self.until.weekday()))
 
-        number_of_weeks = (monday2 - monday1).days / 7
+        number_of_weeks = int((monday2 - monday1).days / 7)
 
         for i in range(0, number_of_weeks, self.every):
             d = datetime.today() + timedelta(weeks=i)

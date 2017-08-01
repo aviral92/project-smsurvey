@@ -11,7 +11,6 @@ from smsurvey.core.model.survey.question import QuestionOperationException
 class QuestionService:
 
     def __init__(self, cache_name=config.question_backend_name, local=config.local):
-        print("local" + str(local))
         if local:
             self.dynamo = boto3.client('dynamodb', region_name='us-west-2', endpoint_url=config.dynamo_url_local)
         else:
