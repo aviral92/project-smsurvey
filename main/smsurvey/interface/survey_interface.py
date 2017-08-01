@@ -189,7 +189,7 @@ class LatestQuestionHandler(RequestHandler):
                                 state.status = Status.TERMINATED_COMPLETE
                                 state_service.update_state(state)
 
-                                new_state = state_service.get_next_state_in_instance(survey_id, Status.CREATED_MID)
+                                new_state = state_service.get_next_state_in_instance(instance_id, Status.CREATED_MID)
 
                                 new_state.status = Status.AWAITING_USER_RESPONSE
                                 state_service.update_state(new_state)

@@ -98,9 +98,9 @@ class StateService:
         finally:
             connection.close()
 
-    def get_next_state_in_instance(self, instance_id, status="*"):
+    def get_next_state_in_instance(self, instance_id, status=None):
 
-        if status == "*":
+        if status is None:
             sql = "SELECT * FROM state_version0 WHERE instance_id = %s"
         else:
             sql = "SELECT * FROM state_version0 WHERE instance_id = %s AND status = %s"
@@ -110,7 +110,7 @@ class StateService:
 
         try:
             with connection.cursor() as cursor:
-                if status == "*":
+                if status is None:
                     cursor.execute(sql, instance_id)
                 else:
                     cursor.execute(sql, (instance_id, status.value))
