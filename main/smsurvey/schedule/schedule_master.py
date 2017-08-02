@@ -34,6 +34,7 @@ def load_persisted_tasks():
         date_times = time_rule.get_date_times()
 
         for dt in date_times:
+            dt = dt.replace(tzinfo=pytz.utc)
             if dt > datetime.now(pytz.utc):
                 add_job(task.survey_id, dt)
             else:
