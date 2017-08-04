@@ -48,7 +48,7 @@ class TimeRuleService:
                 if tr_type == 'repeat-monthly-day':
                     return RepeatsMonthlyDay.from_params(response['Item']['params']['S'])
 
-                if tr_type == 'repeats-weekly':
+                if tr_type == 'repeat-weekly':
                     return RepeatsWeekly.from_params(response['Item']['params']['S'])
 
         return None

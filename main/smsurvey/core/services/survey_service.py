@@ -8,11 +8,15 @@ from smsurvey.core.services.owner_service import OwnerService
 class SurveyService:
 
     def __init__(self, database_url=os.environ.get("RDS_URL"), database_username=os.environ.get("RDS_USERNAME"),
-                 database_password=os.environ.get("RDS_PASSWORD")):
+                 database_password=os.environ.get("RDS_PASSWORD"), test=False):
         self.database_url = database_url
         self.database_username = database_username
         self.database_password = database_password
-        self.database = "dbase"
+
+        if test:
+            self.database = "test"
+        else:
+            self.database = "dbase"
 
     def get_survey(self, survey_id):
         sql = "SELECT * from survey WHERE survey_id = %s"

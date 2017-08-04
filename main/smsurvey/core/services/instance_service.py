@@ -119,7 +119,7 @@ class InstanceService:
                 instance = Instance.from_tuple(instance_tuple)
                 state = state_service.get_next_state_in_instance(instance.instance_id, status)
 
-                if status == state.status:
+                if state is not None and status == state.status:
                     answer.append(instance_tuple[0])
 
         return answer
