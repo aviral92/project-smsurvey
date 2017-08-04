@@ -35,7 +35,6 @@ class NoRepeatTimeRule(TimeRule):
 
     @property
     def to_params(self):
-        print("to_params - " + self.run_time.strftime("%Y-%m-%d %H:%M:%S %Z"))
         return self.run_time.strftime("%Y-%m-%d %H:%M:%S %Z")
 
     @staticmethod
@@ -210,14 +209,14 @@ class RepeatsWeekly(TimeRule):
         every = int(p[0])
         days = [int(day) for day in p[1].split(',')]
         run_at = parser.parse(p[2])
-        starting_from = parser.parse(p[0])
-        until = parser.parse(p[3])
+        starting_from = parser.parse(p[3])
+        until = parser.parse(p[4])
         return RepeatsWeekly(every, days, run_at, starting_from, until)
 
     @property
     def to_params(self):
         return str(self.every) + "~" + str(self.days)[1:-1] + "~" + self.run_at.strftime("%H:%M:%S %Z") \
-            + "~" + self.starting_from.strftime("Y-%m-%d") + "~" + self.until.strftime("Y-%m-%d %Z")
+            + "~" + self.starting_from.strftime("%Y-%m-%d") + "~" + self.until.strftime("%Y-%m-%d %Z")
 
     @staticmethod
     def get_type():
@@ -235,6 +234,7 @@ class RepeatsWeekly(TimeRule):
 
             for day_of_week in self.days:
                 d -= timedelta(days=d.weekday() - day_of_week)
+                d = d.replace(hour=self.run_at.hour, minute=self.run_at.minute, second=self.run_at.second)
                 date_times.append(d)
 
         return date_times

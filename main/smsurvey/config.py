@@ -1,5 +1,7 @@
+import os
+
 dynamo_url_local = "http://localhost:1234"
-local = True
+local = False if os.environ.get("VAGRANT", None) is None else True
 
 response_interface_processes = 10
 survey_response_interface_port_begin = 25280

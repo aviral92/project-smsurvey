@@ -49,7 +49,7 @@ for survey in surveys:
     survey_object = Survey(survey_id, '1', survey["participant_id"], "owner", "test")
     survey_service.insert(survey_object)
 
-    starting_from = datetime.now(tz=pytz.utc)
+    starting_from = datetime.now()
     every = 1
     until = starting_from + timedelta(days=100)
     run_at1 = time(tzinfo=pytz.utc).replace(hour=10, minute=25, second=0, microsecond=0)
@@ -57,8 +57,8 @@ for survey in surveys:
     tr1 = RepeatsDailyTimeRule(starting_from, every, until, run_at1)
     tr2 = RepeatsDailyTimeRule(starting_from, every, until, run_at2)
 
-    time_rule_id1 = TimeRuleService().insert(survey_id, tr1)
-    time_rule_id2 = TimeRuleService().insert(survey_id, tr2)
+    time_rule_id1 = TimeRuleService().insert(survey_id, tr1, survey_id + "1")
+    time_rule_id2 = TimeRuleService().insert(survey_id, tr2, survey_id + "2")
 
     ScheduleService().insert_task(survey_id, time_rule_id1)
     ScheduleService().insert_task(survey_id, time_rule_id2)

@@ -8,11 +8,15 @@ from smsurvey.schedule.task import Task
 class ScheduleService:
 
     def __init__(self, database_url=os.environ.get("RDS_URL"), database_username=os.environ.get("RDS_USERNAME"),
-                 database_password=os.environ.get("RDS_PASSWORD")):
+                 database_password=os.environ.get("RDS_PASSWORD"), test=False):
         self.database_url = database_url
         self.database_username = database_username
         self.database_password = database_password
-        self.database = "dbase"
+
+        if test:
+            self.database = "test"
+        else:
+            self.database = "dbase"
 
     def insert_task(self, survey_id, time_rule_id):
         sql = "INSERT INTO schedule (survey_id, time_rule_id) VALUES (%s, %s)"

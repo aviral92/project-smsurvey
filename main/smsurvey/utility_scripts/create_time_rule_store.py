@@ -12,17 +12,19 @@ sys.path.insert(0, pp)
 
 from smsurvey import config
 
-dynamo = None
 
-
-def get_dynamo(local):
+def get_dynamo(local=config.local):
     if local:
         return boto3.client('dynamodb', region_name='us-west-2', endpoint_url=config.dynamo_url_local)
     else:
         return boto3.client('dynamodb', region_name='us-east-1')
 
 
-def create_cache(t_name):
+def create_cache(t_name, dynamo=None):
+
+    if dynamo is None:
+        dynamo = get_dynamo()
+
     t = dynamo.create_table(
         TableName=t_name,
         AttributeDefinitions=[
@@ -64,11 +66,13 @@ def create_cache(t_name):
     print("Cache status: ", t['TableDescription']['TableStatus'])
 
 
-def main(force, local=config.local):
-    global dynamo
+def create(force, local=config.local, test=False):
     dynamo = get_dynamo(local)
 
     t_name = config.time_rule_backend_name
+
+    if test:
+        t_name += "Test"
 
     if force:
         print("Creating " + t_name + " - FORCED")
@@ -99,6 +103,8 @@ def main(force, local=config.local):
     create_cache(t_name)
     print("Finished creating " + t_name)
 
+    return t_name
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -106,5 +112,5 @@ if __name__ == "__main__":
     parser.add_argument("-l", action="store_true", dest="local")
     args = parser.parse_args()
 
-    main(args.force, args.local)
+    create(args.force, args.local)
 
