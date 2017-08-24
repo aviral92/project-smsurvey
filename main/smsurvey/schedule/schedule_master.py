@@ -27,6 +27,9 @@ def add_job(survey_id, date_time):
 def load_persisted_tasks():
     tasks = TaskService.get_all_tasks()
 
+    if tasks is None:
+        return
+
     time_rule_service = TimeRuleService()
 
     for task in tasks:
