@@ -6,6 +6,8 @@ from tornado.web import RequestHandler
 from smsurvey.core.services.survey_service import SurveyService
 from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.participant_service import ParticipantService
+from smsurvey.core.services.owner_service import OwnerService
+
 
 def authenticate(response):
     auth = response.request.headers.get("Authorization")
@@ -29,14 +31,12 @@ def authenticate(response):
         else:
             owner = credentials[:hyphen_index]
             owner_name = owner[:at_index]
-            owner_domain = owner[at_index +1:]
+            owner_domain = owner[at_index + 1:]
 
             plugin_id = credentials[hyphen_index + 1: colon_index]
             token = credentials[colon_index + 1:]
 
-            plugin_service = PluginService()
-
-            if plugin_service.validate_plugin(plugin_id, owner_name, owner_domain, token):
+            if PluginService.validate_plugin(plugin_id, owner_name, owner_domain, token):
                 return {
                     "valid": True,
                     "owner_domain": owner_domain,
@@ -63,9 +63,8 @@ class ParticipantHandler(RequestHandler):
 
         if auth_response["valid"]:
             survey_id = self.get_argument("survey_id")
-            survey_service = SurveyService()
 
-            survey = survey_service.get_survey(survey_id)
+            survey = SurveyService.get_survey(survey_id)
 
             if survey is None:
                 response = {
@@ -77,10 +76,11 @@ class ParticipantHandler(RequestHandler):
                 self.write(json.dumps(response))
                 self.flush()
             else:
-                owner = SurveyService().get_owner(survey_id)
+                owner_id = SurveyService.get_survey(survey_id).owner_id
+                owner = OwnerService.get_by_id(owner_id)
                 if owner.name == auth_response["owner_name"] and owner.domain == auth_response["owner_domain"]:
 
-                    participant = ParticipantService().get_participant(survey.participant_id)
+                    participant = ParticipantService.get_participant(survey.participant_id)
 
                     response = {
                         "status": "success",

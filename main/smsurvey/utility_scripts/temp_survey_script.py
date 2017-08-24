@@ -2,28 +2,17 @@
 import inspect
 import os
 import sys
-from datetime import datetime, timedelta
-
-import pytz
 
 c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 p = os.path.dirname(c)
 pp = os.path.dirname(p)
 sys.path.insert(0, pp)
 
-from smsurvey.core.model.survey.question import Question
-from smsurvey.core.model.survey.survey import Survey
-from smsurvey.core.services.state_service import StateService
+from core.model.model.survey import Question
 from smsurvey.core.services.question_service import QuestionService
-from smsurvey.core.services.survey_service import SurveyService
 from smsurvey.core.services.owner_service import OwnerService
 from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.protocol_service import ProtocolService
-from smsurvey.core.services.participant_service import ParticipantService
-from smsurvey.core.services.instance_service import InstanceService
-from smsurvey.schedule.time_rule.time_rule import NoRepeatTimeRule
-from smsurvey.schedule.time_rule.time_rule_service import TimeRuleService
-from smsurvey.schedule.schedule_service import ScheduleService
 
 from smsurvey.utility_scripts import create_question_store
 from smsurvey.utility_scripts import create_response_store

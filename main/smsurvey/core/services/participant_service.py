@@ -1,51 +1,21 @@
-import os
-import pymysql
-
-from smsurvey.core.model.survey.participant import Participant, ParticipantException
+from smsurvey.core.model.model import Model
+from smsurvey.core.model.query.where import Where
 
 
 class ParticipantService:
 
-    def __init__(self, database_url=os.environ.get("RDS_URL"), database_username=os.environ.get("RDS_USERNAME"),
-                 database_password=os.environ.get("RDS_PASSWORD")):
-        self.database_url = database_url
-        self.database_username = database_username
-        self.database_password = database_password
-        self.database = "dbase"
+    @staticmethod
+    def get_participant(participant_id):
+        participants = Model.repository.participants
+        return participants.select(Where(participants.id, Where.EQUAL, participant_id))
 
-    def get_participant(self, participant_id):
-        sql = "SELECT * from participant WHERE participant_id = %s"
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
+    @staticmethod
+    def register_participant(enrollment_id, plugin_id, plugin_scratch):
+        participants = Model.repository.participants
+        participant = participants.create()
 
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, participant_id)
-                result = cursor.fetchall()
-        finally:
-            connection.close()
+        participant.enrollment_id = enrollment_id
+        participant.plugin_id = plugin_id
+        participant.plugin_scratch = plugin_scratch
 
-        if len(result) > 0:
-            participant_tuple = result[0]
-            return Participant.from_tuple(participant_tuple)
-
-        return None
-
-    def is_participant_registered(self, participant_id):
-        return self.get_participant(participant_id) is not None
-
-    def register_participant(self, participant_id, plugin_id, plugin_scratch):
-        if self.is_participant_registered(participant_id):
-            raise ParticipantException("Not unique participant_id")
-
-        sql = "INSERT INTO participant VALUES(%s, %s, %s)"
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
-
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, (participant_id, plugin_id, plugin_scratch))
-                connection.commit()
-                cursor.fetchall()
-        finally:
-            connection.close()
+        return participant.save()

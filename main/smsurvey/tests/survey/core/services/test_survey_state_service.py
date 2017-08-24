@@ -1,9 +1,9 @@
+import inspect
+import os
+import sys
 import unittest
 
 import boto3
-import os
-import inspect
-import sys
 
 c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 p = os.path.dirname(c)
@@ -14,7 +14,7 @@ ppppp = os.path.dirname(pppp)
 sys.path.insert(0, ppppp)
 
 from smsurvey import config
-from smsurvey.core.model.survey.survey_state_machine import SurveyState, SurveyStateOperationException, SurveyStatus
+from core.model.model.survey import SurveyState, SurveyStateOperationException, SurveyStatus
 
 
 class TestSurveyStateService(unittest.TestCase):

@@ -3,16 +3,16 @@ from datetime import datetime
 import pytz
 from apscheduler.schedulers.tornado import TornadoScheduler
 
-from smsurvey.schedule.time_rule.time_rule_service import TimeRuleService
-from smsurvey.schedule.schedule_service import ScheduleService
+from smsurvey.core.services.task_service import TaskService
 from smsurvey.core.services.instance_service import InstanceService
+from smsurvey.schedule.time_rule.time_rule_service import TimeRuleService
 
 schedule = None
 
 
 def instance_start(survey_id):
     print("Creating instance for survey_id [" + str(survey_id) + "]")
-    instance = InstanceService().create_instance(survey_id)
+    instance = InstanceService.create_instance(survey_id)
     print("instance_id [" + str(instance.instance_id) + "] created for survey_id [" + str(survey_id) + "]")
 
 
@@ -25,7 +25,7 @@ def add_job(survey_id, date_time):
 
 
 def load_persisted_tasks():
-    tasks = ScheduleService().get_all_tasks()
+    tasks = TaskService.get_all_tasks()
 
     time_rule_service = TimeRuleService()
 

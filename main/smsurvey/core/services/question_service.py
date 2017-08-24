@@ -1,11 +1,11 @@
-import boto3
 import pickle
 
+import boto3
 from botocore.exceptions import ClientError
 
+from core.model.model import Question
+from core.model.model import QuestionOperationException
 from smsurvey import config
-from smsurvey.core.model.survey.question import Question
-from smsurvey.core.model.survey.question import QuestionOperationException
 
 
 class QuestionService:

@@ -1,8 +1,9 @@
-import unittest
-import boto3
-import os
 import inspect
+import os
 import sys
+import unittest
+
+import boto3
 
 c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 p = os.path.dirname(c)
@@ -13,7 +14,7 @@ ppppp = os.path.dirname(pppp)
 sys.path.insert(0, ppppp)
 
 from smsurvey import config
-from smsurvey.core.model.survey.question import Question
+from core.model.model import Question
 from smsurvey.core.services.question_service import QuestionOperationException
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.utility_scripts import create_question_store

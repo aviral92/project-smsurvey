@@ -1,7 +1,7 @@
-import unittest
-import os
 import inspect
+import os
 import sys
+import unittest
 
 c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 p = os.path.dirname(c)
@@ -11,8 +11,8 @@ pppp = os.path.dirname(ppp)
 ppppp = os.path.dirname(pppp)
 sys.path.insert(0, ppppp)
 
-from smsurvey.core.model.survey.survey_state_machine import SurveyState
-from smsurvey.core.model.survey.survey_state_machine import SurveyStatus
+from core.model.model.survey import SurveyState
+from core.model.model.survey import SurveyStatus
 
 
 class TestSurveyState(unittest.TestCase):

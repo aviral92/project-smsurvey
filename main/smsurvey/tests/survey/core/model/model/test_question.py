@@ -1,7 +1,7 @@
-import unittest
-import os
 import inspect
+import os
 import sys
+import unittest
 
 c = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 p = os.path.dirname(c)
@@ -11,7 +11,7 @@ pppp = os.path.dirname(ppp)
 ppppp = os.path.dirname(pppp)
 sys.path.insert(0, ppppp)
 
-from smsurvey.core.model.survey.question import Question
+from core.model.model import Question
 
 
 class TestQuestion(unittest.TestCase):

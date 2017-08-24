@@ -1,168 +1,72 @@
-import os
-import pymysql
-
-from smsurvey.core.model.survey.state import State, StateException
+from smsurvey.core.model.model import Model
+from smsurvey.core.model.query.where import Where
 
 
 class StateService:
 
-    def __init__(self, database_url=os.environ.get("RDS_URL"), database_username=os.environ.get("RDS_USERNAME"),
-                 database_password=os.environ.get("RDS_PASSWORD")):
-        self.database_url = database_url
-        self.database_username = database_username
-        self.database_password = database_password
-        self.database = "dbase"
+    @staticmethod
+    def get_state(state_id):
+        states = Model.repository.states
+        return states.select(Where(states.id, Where.EQUAL, state_id))
 
-    def get_state(self, state_id):
-        sql = "SELECT * from state_version0 WHERE state_id = %s"
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
+    @staticmethod
+    def create_state(instance_id, question_id, status, priority):
+        states = Model.repository.states
+        state = states.create()
 
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, state_id)
-                result = cursor.fetchall()
-        finally:
-            connection.close()
+        state.instance_id = instance_id
+        state.question_id = question_id
+        state.status = status.value
+        state.priority = priority
 
-        if len(result) > 0:
-            survey_tuple = result[0]
-            return State.from_tuple(survey_tuple)
+        return state.save()
 
-        return None
+    @staticmethod
+    def update_state(state):
+        state.save()
 
-    def create_state(self, instance_id, question_id, status, priority):
-        sql = "INSERT INTO state_version0 (instance_id, question_id, status, priority) VALUES(%s,%s,%s,%s)"
+    @staticmethod
+    def delete_state(state):
+        if StateService.get_state(state.id) is not None:
+            states = Model.repository.states
+            states.delete(Where(states.id, Where.EQUAL, state.id))
 
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
+    @staticmethod
+    def delete_states_for_instances(instance_ids):
+        print("Deleting states for instances" + str(instance_ids))
+        states = Model.repository.states
+        states.delete(Where(states.id, Where.IN, instance_ids))
 
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, (instance_id, question_id, status.value, priority))
-                connection.commit()
-                cursor.fetchall()
-                state_id = cursor.lastrowid
-        finally:
-            connection.close()
+    @staticmethod
+    def get_next_state_in_instance(instance_id, status=None):
+        states = Model.repository.states
 
-        return State(state_id, instance_id, question_id, status, priority)
+        where = Where(states.instance_id, Where.EQUAL, instance_id)
 
-    def update_state(self, state):
-        existing = self.get_state(state.state_id)
+        if status is not None:
+            where = where.AND(states.status, Where.EQUAL, status.value)
 
-        if existing is None:
-            raise StateException("Attempting update state that does not exist")
+        state_list = states.select(where)
 
-        if existing.question_id != state.question_id:
-            raise StateException("Cannot modify question id")
-        if existing.instance_id != state.instance_id:
-            raise StateException("Cannot modify instance id")
-
-        sql = "UPDATE state_version0 SET status = %s, priority = %s WHERE state_id = %s"
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
-
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, (state.status.value, state.priority, state.state_id))
-                connection.commit()
-        finally:
-            connection.close()
-
-    def delete_state(self, state):
-        if self.get_state(state.state_id) is not None:
-            sql = "DELETE FROM state_version0 WHERE state_id = %s"
-
-            connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                         host=self.database_url, database=self.database, charset="utf8")
-
-            try:
-                with connection.cursor() as cursor:
-                    cursor.execute(sql, state.state_id)
-                    connection.commit()
-            finally:
-                connection.close()
-
-    def delete_states_for_instances(self, instance_ids):
-        print("Deleting states for instances " + str(instance_ids))
-        sql = "DELETE FROM state_version0 WHERE instance_id IN %s"
-
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
-
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, [instance_ids])
-                connection.commit()
-        finally:
-            connection.close()
-
-    def get_next_state_in_instance(self, instance_id, status=None):
-
-        if status is None:
-            sql = "SELECT * FROM state_version0 WHERE instance_id = %s"
+        if len(state_list) > 0:
+            lowest_state = state_list[0]
         else:
-            sql = "SELECT * FROM state_version0 WHERE instance_id = %s AND status = %s"
+            return None
 
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
+        for state in state_list:
+            if state.priority < lowest_state.priority:
+                lowest_state = state
 
-        try:
-            with connection.cursor() as cursor:
-                if status is None:
-                    cursor.execute(sql, instance_id)
-                else:
-                    cursor.execute(sql, (instance_id, status.value))
-                result = cursor.fetchall()
-        finally:
-            connection.close()
+        return lowest_state
 
-        if len(result) > 0:
-            lowest_priority = result[0][4]
-            lowest_state = result[0]
+    @staticmethod
+    def get_state_by_instance_and_question(instance_id, question_id):
+        states = Model.repository.states
+        return states.select(Where(states.instance_id, Where.EQUAL, instance_id)
+                             .AND(states.question_id, Where.EQUAL, question_id))
 
-            for state_tuple in result:
-                priority = state_tuple[4]
-                if priority < lowest_priority:
-                    lowest_priority = priority
-                    lowest_state = state_tuple
-
-            return State.from_tuple(lowest_state)
-
-        return None
-
-    def get_state_by_instance_and_question(self, instance_id, question_id):
-        sql = "SELECT * FROM state_version0 WHERE instance_id = %s AND question_id = %s"
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
-
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, (instance_id, question_id))
-                result = cursor.fetchall()
-        finally:
-            connection.close()
-
-        if len(result) > 0:
-            state_tuple = result[0]
-            return State.from_tuple(state_tuple)
-
-    def get_unfinished_states(self, instance_id):
-        sql = "SELECT * FROM state_version0 WHERE instance_id = %s AND status < 500"
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
-
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, instance_id)
-                result = cursor.fetchall()
-        finally:
-            connection.close()
-
-        states = []
-
-        for state_tuple in result:
-            states.append(State.from_tuple(state_tuple))
-
-        return states
+    @staticmethod
+    def get_unfinished_states(instance_id):
+        states = Model.repository.states
+        return states.select(Where(states.instance_id, Where.EQUAL, instance_id)
+                             .AND(states.status, Where.LESS_THAN, 500))
