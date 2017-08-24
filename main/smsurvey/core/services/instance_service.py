@@ -89,34 +89,35 @@ class InstanceService:
             print("Running instance service loop")
             instance_ids = InstanceService.get_current_instance_ids()
 
-            not_started = []
-            in_progress = []
-            finished = []
+            if instance_ids is not None:
+                not_started = []
+                in_progress = []
+                finished = []
 
-            for instance_id in instance_ids:
-                latest = StateService.get_next_state_in_instance(instance_id)
+                for instance_id in instance_ids:
+                    latest = StateService.get_next_state_in_instance(instance_id)
 
-                if latest is None:
-                    not_started.append(instance_id)
-                else:
-                    in_progress.append(instance_id)
+                    if latest is None:
+                        not_started.append(instance_id)
+                    else:
+                        in_progress.append(instance_id)
 
-            for instance_id in in_progress:
-                unfinished = StateService.get_unfinished_states(instance_id)
+                for instance_id in in_progress:
+                    unfinished = StateService.get_unfinished_states(instance_id)
 
-                if len(unfinished) is 0:
-                    finished.append(instance_id)
+                    if len(unfinished) is 0:
+                        finished.append(instance_id)
 
-            if len(finished) > 0:
-                print("Instances that have finished: " + str(finished))
+                if len(finished) > 0:
+                    print("Instances that have finished: " + str(finished))
 
-                InstanceService.delete_instances(finished)
-                StateService.delete_states_for_instances(finished)
+                    InstanceService.delete_instances(finished)
+                    StateService.delete_states_for_instances(finished)
 
-            if len(not_started) > 0:
-                print("Instances that have not started: " + str(not_started))
+                if len(not_started) > 0:
+                    print("Instances that have not started: " + str(not_started))
 
-                for instance_id in not_started:
-                    InstanceService.start_instance(instance_id)
+                    for instance_id in not_started:
+                        InstanceService.start_instance(instance_id)
 
             time.sleep(60)

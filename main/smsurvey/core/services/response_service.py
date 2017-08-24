@@ -3,7 +3,7 @@ import pickle
 import boto3
 from botocore.exceptions import ClientError
 
-from core.model.model.survey import ResponseSet
+from smsurvey.core.model.response_set import ResponseSet
 from smsurvey import config
 
 
