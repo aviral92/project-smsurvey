@@ -12,17 +12,7 @@ from smsurvey.core.services.response_service import ResponseService
 from smsurvey.core.services.state_service import StateService
 from smsurvey.core.services.owner_service import OwnerService
 from smsurvey.core.services.survey_service import SurveyService
-
-
-class Status(Enum):
-    CREATED_START = 100
-    CREATED_MID = 200
-    AWAITING_USER_RESPONSE = 300
-    PROCESSING_USER_RESPONSE = 400
-    TERMINATED_COMPLETE = 500
-    TERMINATED_ERROR = 600
-    TERMINATED_EXCEPTION = 700
-    TERMINATED_TIMEOUT = 800
+from smsurvey.core.model.status import Status
 
 
 def authenticate(response):

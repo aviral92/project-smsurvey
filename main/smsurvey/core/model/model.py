@@ -1,7 +1,6 @@
 import pymysql
 
-from core.model.data_type import DataType
-from smsurvey.core.model.query import dao
+from smsurvey.core.model.data_type import DataType
 from smsurvey.core.model.query.where import Where
 
 

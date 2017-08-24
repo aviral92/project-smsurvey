@@ -3,8 +3,7 @@ import pickle
 import boto3
 from botocore.exceptions import ClientError
 
-from core.model.model import Question
-from core.model.model import QuestionOperationException
+co
 from smsurvey import config
 
 
