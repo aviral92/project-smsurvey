@@ -1,56 +1,51 @@
 import os
-import pymysql
-
 from base64 import b64encode
 
 from smsurvey.core.security import secure
-from smsurvey.core.model.survey.owner import Owner
+from smsurvey.core.model.model import Model
+from smsurvey.core.model.query.where import Where
+
 
 class OwnerService:
 
-    def __init__(self, database_url=os.environ.get("RDS_URL"), database_username=os.environ.get("RDS_USERNAME"),
-                 database_password=os.environ.get("RDS_PASSWORD")):
-        self.database_url = database_url
-        self.database_username = database_username
-        self.database_password = database_password
-        self.database = 'dbase'
+    @staticmethod
+    def get(name, domain):
+        owners = Model.repository.owners
+        return owners.select(Where(owners.name, Where.EQUAL, name).AND(owners.domain, Where.EQUAL, domain))
 
-    def get(self, name, domain):
-        sql = "SELECT * FROM owner WHERE name=%s AND domain=%s"
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, (name, domain))
-                result = cursor.fetchall()
-        finally:
-            connection.close()
+    @staticmethod
+    def get_by_id(owner_id):
+        owners = Model.repository.owners
+        return owners.select(Where(owners.id, Where.EQUAL, owner_id))
 
-        owner_sql = result[0]
-        return Owner.from_tuple(owner_sql)
-
-    def create_owner(self, name, domain, unsafe_password):
-        sql = "INSERT INTO owner VALUES(%s, %s, %s, %s)"
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
-
+    @staticmethod
+    def create_owner(name, domain, unsafe_password):
         salt = b64encode(os.urandom(16)).decode()
         password = secure.encrypt_password(unsafe_password, salt).decode()
 
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, (name, domain, password, salt))
-                connection.commit()
-                cursor.fetchall()
-        finally:
-            connection.close()
+        owners = Model.repository.owners
+        owner = owners.create()
 
-    def does_owner_exist(self, name, domain):
-        return self.get(name, domain) is not None
+        owner.name = name
+        owner.domain = domain
+        owner.password = password
+        owner.salt = salt
 
-    def validate_password(self, name, domain, password):
-        owner = self.get(name, domain)
+        return owner.save()
+
+    @staticmethod
+    def does_owner_exist(name, domain):
+        return OwnerService.get(name, domain) is not None
+
+    @staticmethod
+    def validate_password(name, domain, password):
+        owner = OwnerService.get(name, domain)
 
         if owner is not None:
             test = secure.encrypt_password(password, owner.salt).decode()
             return test == owner.password
+
+    @staticmethod
+    def get_owner_id(owner_name, owner_domain):
+        owner = OwnerService.get(owner_name, owner_domain)
+        return owner.id

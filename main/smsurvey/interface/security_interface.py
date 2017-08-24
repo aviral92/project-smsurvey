@@ -6,11 +6,10 @@ from smsurvey.core.security.secure import SecurityException
 
 
 class CreatePluginHandler(RequestHandler):
-
     def post(self):
         owner = self.get_argument("owner")
         owner_password = self.get_argument("password")
-        plugin_id = self.get_argument("plugin_id")
+        poke_url = self.get_argument("plugin_id")
         permissions = self.get_argument("permissions")
 
         at_index = owner.find("@")
@@ -21,12 +20,13 @@ class CreatePluginHandler(RequestHandler):
             self.flush()
         else:
             try:
-                plugin_service = PluginService()
 
                 owner_name = owner[:at_index]
-                owner_domain = owner[at_index +1:]
+                owner_domain = owner[at_index + 1:]
 
-                token = plugin_service.register_plugin(owner_name, owner_domain, owner_password, plugin_id, permissions)
+                plugin, token = PluginService.register_plugin(owner_name, owner_domain, owner_password, poke_url,
+                                                                permissions)
+
             except SecurityException as e:
                 self.set_status(403, e.message)
                 self.write('{"status":"error","message":"' + e.message + '"}')
@@ -36,22 +36,18 @@ class CreatePluginHandler(RequestHandler):
                 self.write('{"status":"ok","token":"' + token + '"}')
                 self.flush()
 
-
-
     def data_received(self, chunk):
         pass
 
 
 class CreateOwnerHandler(RequestHandler):
-
     def post(self):
         domain = self.get_argument("domain")
         name = self.get_argument("name")
         password = self.get_argument("password")
 
         try:
-            owner_service = OwnerService()
-            owner_service.create_owner(name, domain, password)
+            OwnerService.create_owner(name, domain, password)
         except SecurityException as e:
             self.set_status(400, e.message)
             self.write('{"status":"error","message":"' + e.message + '"}')

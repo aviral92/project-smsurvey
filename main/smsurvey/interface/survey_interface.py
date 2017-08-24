@@ -1,15 +1,28 @@
-import json
 import base64
+import json
 
-from tornado.web import RequestHandler
 from tornado.escape import json_decode
+from tornado.web import RequestHandler
+from enum import Enum
 
-from smsurvey.core.model.survey.state import Status
 from smsurvey.core.services.instance_service import InstanceService
-from smsurvey.core.services.state_service import StateService
+from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.core.services.response_service import ResponseService
-from smsurvey.core.services.plugin_service import PluginService
+from smsurvey.core.services.state_service import StateService
+from smsurvey.core.services.owner_service import OwnerService
+from smsurvey.core.services.survey_service import SurveyService
+
+
+class Status(Enum):
+    CREATED_START = 100
+    CREATED_MID = 200
+    AWAITING_USER_RESPONSE = 300
+    PROCESSING_USER_RESPONSE = 400
+    TERMINATED_COMPLETE = 500
+    TERMINATED_ERROR = 600
+    TERMINATED_EXCEPTION = 700
+    TERMINATED_TIMEOUT = 800
 
 
 def authenticate(response):
@@ -39,9 +52,7 @@ def authenticate(response):
             plugin_id = credentials[hyphen_index + 1: colon_index]
             token = credentials[colon_index + 1:]
 
-            plugin_service = PluginService()
-
-            if plugin_service.validate_plugin(plugin_id, owner_name, owner_domain, token):
+            if PluginService.validate_plugin(plugin_id, owner_name, owner_domain, token):
                 return {
                     "valid": True,
                     "owner_name": owner_name,
@@ -78,9 +89,8 @@ class AllInstancesHandler(RequestHandler):
                 return
 
         if auth_response["valid"]:
-            instance_service = InstanceService()
-            instance_ids = instance_service.get_by_owner(auth_response["owner_name"], auth_response["owner_domain"],
-                                                         survey_id, status)
+            owner_id = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"]).id
+            instance_ids = InstanceService.get_by_owner(owner_id, survey_id, status)
             self.set_status(200)
             self.write('{"status":"success","ids":' + json.dumps(instance_ids) + '}')
 
@@ -103,7 +113,9 @@ class LatestQuestionHandler(RequestHandler):
                 self.write('{"status":"error","message":"No response was expected for this survey"}')
                 self.finish()
             else:
-                owner = InstanceService().get_owner(instance_id)
+                instance = InstanceService.get_instance(instance_id)
+                survey = SurveyService.get_survey(instance.survey_id)
+                owner = OwnerService.get_by_id(survey.owner_id)
                 if owner.name == auth_response['owner_name'] and owner.domain == auth_response["owner_domain"]:
                     question_service = QuestionService()
                     question = question_service.get(state.question_id)
@@ -146,7 +158,9 @@ class LatestQuestionHandler(RequestHandler):
             state = state_service.get_next_state_in_instance(instance_id, Status.AWAITING_USER_RESPONSE)
 
             if state is not None:
-                owner = InstanceService().get_owner(instance_id)
+                instance = InstanceService.get_instance(instance_id)
+                survey = SurveyService.get_survey(instance.survey_id)
+                owner = OwnerService.get_by_id(survey.owner_id)
                 if owner.name == auth_response['owner_name'] and owner.domain == auth_response['owner_domain']:
                     question_id = state.question_id
 
@@ -273,7 +287,9 @@ class AnInstanceHandler(RequestHandler):
                 self.write('{"status":"error","message":"Survey does not exist"}')
                 self.finish()
             else:
-                owner = InstanceService().get_owner(instance_id)
+                instance = InstanceService.get_instance(instance_id)
+                survey = SurveyService.get_survey(instance.survey_id)
+                owner = OwnerService.get_by_id(survey.owner_id)
                 if owner.domain == auth_response["owner_domain"] and owner.name == auth_response["owner_name"]:
                     if state.status == Status.CREATED_START:
                         self.set_status(200)
@@ -313,7 +329,9 @@ class AnInstanceHandler(RequestHandler):
                 state = state_service.get_next_state_in_instance(instance_id, Status.CREATED_START)
 
                 if state is not None:
-                    owner = InstanceService().get_owner(instance_id)
+                    instance = InstanceService.get_instance(instance_id)
+                    survey = SurveyService.get_survey(instance.survey_id)
+                    owner = OwnerService.get_by_id(survey.owner_id)
                     if owner.domain == auth_response["owner_domain"] and owner.name == auth_response["owner_name"]:
                         state.status = Status.AWAITING_USER_RESPONSE
                         state_service.update_state(state)

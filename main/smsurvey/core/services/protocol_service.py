@@ -1,49 +1,19 @@
-import os
-import pymysql
-
-from smsurvey.core.model.survey.protocol import Protocol
+from smsurvey.core.model.model import Model
+from smsurvey.core.model.query.where import Where
 
 
 class ProtocolService:
 
-    def __init__(self, database_url=os.environ.get("RDS_URL"), database_username=os.environ.get("RDS_USERNAME"),
-                 database_password=os.environ.get("RDS_PASSWORD")):
-        self.database_url = database_url
-        self.database_username = database_username
-        self.database_password = database_password
-        self.database = "dbase"
+    @staticmethod
+    def get_protocol(protocol_id):
+        protocols = Model.repository.protocols
+        return protocols.select(Where(protocols.id, Where.EQUAL, protocol_id))
 
-    def get_protocol(self, protocol_id):
-        sql = "SELECT * from protocol WHERE protocol_id = %s"
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
+    @staticmethod
+    def create_protocol(first_question):
+        protocols = Model.repository.protocols
+        protocol = protocols.create()
 
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, protocol_id)
-                result = cursor.fetchall()
-        finally:
-            connection.close()
+        protocol.first_question = first_question
 
-        if len(result) > 0:
-            survey_tuple = result[0]
-            return Protocol.from_tuple(survey_tuple)
-
-        return None
-
-    def create_protocol(self, first_question):
-        sql = "INSERT INTO protocol (first_question) VALUES(%s)"
-
-        connection = pymysql.connect(user=self.database_username, password=self.database_password,
-                                     host=self.database_url, database=self.database, charset="utf8")
-
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(sql, first_question)
-                connection.commit()
-                cursor.fetchall()
-                protocol_id = cursor.lastrowid
-        finally:
-            connection.close()
-
-        return Protocol(protocol_id, first_question)
+        return protocol.save()
