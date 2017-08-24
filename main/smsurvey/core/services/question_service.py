@@ -3,8 +3,7 @@ import pickle
 import boto3
 from botocore.exceptions import ClientError
 
-co
-from smsurvey import config
+s
 
 
 class QuestionService:

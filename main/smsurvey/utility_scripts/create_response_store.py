@@ -64,7 +64,7 @@ def create_cache(t_name):
     print("Cache status: ", t['TableDescription']['TableStatus'])
 
 
-def main(force, local=config.local):
+def create(force, local=config.local):
     global dynamo
     dynamo = get_dynamo(local)
 
@@ -106,5 +106,5 @@ if __name__ == "__main__":
     parser.add_argument("-l", action="store_true", dest="local")
     args = parser.parse_args()
 
-    main(args.force, args.local)
+    create(args.force, args.local)
 

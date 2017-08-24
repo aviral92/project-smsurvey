@@ -8,7 +8,7 @@ p = os.path.dirname(c)
 pp = os.path.dirname(p)
 sys.path.insert(0, pp)
 
-from core.model.model.survey import Question
+from smsurvey.core.model.question import Question
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.core.services.owner_service import OwnerService
 from smsurvey.core.services.plugin_service import PluginService
@@ -187,22 +187,20 @@ def get_twenty_one(sid):
 
 if __name__ == "__main__":
 
-    create_question_store.main(True)
-    create_response_store.main(True)
-    create_time_rule_store.main(True)
+    create_question_store.create(True)
+    create_response_store.create(True)
+    create_time_rule_store.create(True)
 
     question_service = QuestionService()
 
     survey_id = "1"
 
     print("Creating Owner")
-    owner_service = OwnerService()
-    owner_service.create_owner('owner', 'test', 'password')
+    OwnerService.create_owner('owner', 'test', 'password')
     print("Owner created")
 
     print("Creating plugin")
-    plugin_service = PluginService()
-    plugin_id, token = plugin_service.register_plugin("owner", "test", "password",
+    plugin_id, token = PluginService.register_plugin("owner", "test", "password",
                                                       "http://smsurvey-twilio-2028755190.us-east-1.elb.amazonaws.com"
                                                       "/poke/", 50) 
     print("Plugin created")
@@ -256,6 +254,6 @@ if __name__ == "__main__":
 
     first_question = survey_id + "_" + "1"
 
-    protocol = ProtocolService().create_protocol(first_question)
+    protocol = ProtocolService.create_protocol(first_question)
 
     print("Script finished")
