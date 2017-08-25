@@ -19,3 +19,8 @@ class ParticipantService:
         participant.plugin_scratch = plugin_scratch
 
         return participant.save()
+
+    @staticmethod
+    def get_participants_in_enrollment(enrollment_id):
+        participants = Model.repository.participants
+        return participants.select(Where(participants.enrollment_id, Where.EQUAL, enrollment_id))
