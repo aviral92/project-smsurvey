@@ -12,6 +12,8 @@ p = os.path.dirname(c)
 pp = os.path.dirname(p)
 sys.path.insert(0, pp)
 
+from smsurvey import config
+from smsurvey.core.model.model import Model
 from smsurvey.core.services.owner_service import OwnerService
 from smsurvey.core.services.protocol_service import ProtocolService
 from smsurvey.core.services.survey_service import SurveyService
@@ -34,6 +36,9 @@ for phone_number in phone_numbers.split(","):
     })
     i += 1
 
+print("Loading models")
+Model.from_database(config.dao)
+
 print("Generating and inserting surveys")
 
 owner = OwnerService.get("owner", "test")
@@ -44,10 +49,10 @@ enrollment = EnrollmentService.add_enrollment("Test Enrollment", owner.id, datet
 i = 0
 for survey in surveys:
     i += 1
-    survey_id = str(t.time() + i)
 
     ParticipantService.register_participant(enrollment.id, survey["plugin_id"], survey["plugin_scratch"])
-    survey_object = SurveyService.create_survey(owner.id, ProtocolService.get_all_protocols()[0], enrollment.id)
+    survey_object = SurveyService.create_survey(owner.id, ProtocolService.get_all_protocols()[0].id, enrollment.id)
+    survey_id = survey_object.id
 
     starting_from = datetime.now()
     every = 1
@@ -57,8 +62,8 @@ for survey in surveys:
     tr1 = RepeatsDailyTimeRule(starting_from, every, until, run_at1)
     tr2 = RepeatsDailyTimeRule(starting_from, every, until, run_at2)
 
-    time_rule_id1 = TimeRuleService().insert(survey_id, tr1, survey_id + "1")
-    time_rule_id2 = TimeRuleService().insert(survey_id, tr2, survey_id + "2")
+    time_rule_id1 = TimeRuleService().insert(survey_id, tr1, str(survey_id) + "1")
+    time_rule_id2 = TimeRuleService().insert(survey_id, tr2, str(survey_id) + "2")
 
     TaskService.create_task(survey_id, time_rule_id1)
     TaskService.create_task(survey_id, time_rule_id2)

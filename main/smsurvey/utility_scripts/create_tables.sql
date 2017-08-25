@@ -14,7 +14,8 @@ CREATE TABLE owner (
   domain VARCHAR(25) NOT NULL,
   password VARCHAR(200) NOT NULL,
   salt VARCHAR(100) NOT NULL,
-  PRIMARY KEY(id)
+  PRIMARY KEY(id),
+  UNIQUE KEY (name, domain)
 ) CHARACTER SET utf8;
 
 CREATE TABLE plugin (
@@ -31,7 +32,7 @@ CREATE TABLE plugin (
 CREATE TABLE enrollment (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
   name VARCHAR(25) NOT NULL,
-  owner_id INT NOT NULL UNIQUE,
+  owner_id INT NOT NULL,
   opens TIMESTAMP,
   closes TIMESTAMP,
   remove_on TIMESTAMP,
@@ -57,7 +58,7 @@ CREATE TABLE protocol (
 ) CHARACTER SET utf8;
 
 CREATE TABLE survey (
-  id INT NOT NULL UNIQUE,
+  id INT NOT NULL UNIQUE AUTO_INCREMENT,
   protocol_id INT NOT NULL,
   enrollment_id INT NOT NULL,
   owner_id INT NOT NULL,
