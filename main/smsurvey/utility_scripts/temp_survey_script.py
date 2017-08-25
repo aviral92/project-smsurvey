@@ -8,6 +8,8 @@ p = os.path.dirname(c)
 pp = os.path.dirname(p)
 sys.path.insert(0, pp)
 
+from smsurvey import config
+from smsurvey.core.model.model import Model
 from smsurvey.core.model.question import Question
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.core.services.owner_service import OwnerService
@@ -186,6 +188,9 @@ def get_twenty_one(sid):
 
 
 if __name__ == "__main__":
+
+    print("Loading models")
+    Model.from_database(config.dao)
 
     create_question_store.create(True)
     create_response_store.create(True)

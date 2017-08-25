@@ -10,7 +10,7 @@ from smsurvey.core.services.instance_service import InstanceService
 
 
 if __name__ == "__main__":
-    Model.from_database(DAO())
+    Model.from_database(config.DAO)
     process_id = process.fork_processes(config.response_interface_processes + 2, max_restarts=0)
 
     if process_id < config.response_interface_processes:
