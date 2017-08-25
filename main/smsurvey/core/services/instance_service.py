@@ -91,7 +91,7 @@ class InstanceService:
         print("Starting instance " + str(instance_id))
 
         survey = SurveyService.get_survey(instance.survey_id)
-        first_question = ProtocolService.get_protocol(survey.id)
+        first_question = ProtocolService.get_protocol(survey.protocol_id)
 
         StateService.create_state(instance_id, first_question.id, Status.CREATED_START, 0)
 
