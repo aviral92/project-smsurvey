@@ -27,6 +27,10 @@ def handle(request):
     }
 
     r = requests.get(url + "instances?survey_id=" + survey_id + "&status=not_started", headers=headers)
+    if r.status_code == 500:
+        print("Error from system, giving up with request")
+        return
+
     response = json.loads(r.text)
 
     for iid in response['ids']:

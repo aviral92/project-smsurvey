@@ -56,6 +56,7 @@ class StateService:
                 lowest_state = state_list[0]
             else:
                 lowest_state = state_list
+                state_list = [state_list]
         else:
             return None
 
