@@ -23,4 +23,13 @@ class ParticipantService:
     @staticmethod
     def get_participants_in_enrollment(enrollment_id):
         participants = Model.repository.participants
-        return participants.select(Where(participants.enrollment_id, Where.EQUAL, enrollment_id))
+
+        result = participants.select(Where(participants.enrollment_id, Where.EQUAL, enrollment_id))
+
+        if result is None:
+            return None
+
+        if isinstance(result, list):
+            return result
+
+        return [result]
