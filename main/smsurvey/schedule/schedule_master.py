@@ -13,7 +13,7 @@ schedule = None
 def instance_start(survey_id):
     print("Creating instance for survey_id [" + str(survey_id) + "]")
     instance = InstanceService.create_instance(survey_id)
-    print("instance_id [" + str(instance.instance_id) + "] created for survey_id [" + str(survey_id) + "]")
+    print("instance_id [" + str(instance.id) + "] created for survey_id [" + str(survey_id) + "]")
 
 
 def add_job(survey_id, date_time):
@@ -21,7 +21,7 @@ def add_job(survey_id, date_time):
 
     if schedule is not None:
         schedule.add_job(instance_start, 'date', run_date=date_time, args=[survey_id])
-        print(survey_id + " scheduled for " + date_time.strftime("%Y-%m-%d %H:%M:%S %Z"))
+        print(str(survey_id) + " scheduled for " + date_time.strftime("%Y-%m-%d %H:%M:%S %Z"))
 
 
 def load_persisted_tasks():

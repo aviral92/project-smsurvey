@@ -57,8 +57,8 @@ for survey in surveys:
     starting_from = datetime.now()
     every = 1
     until = starting_from + timedelta(days=100)
-    run_at1 = time(tzinfo=pytz.utc).replace(hour=10, minute=25, second=0, microsecond=0)
-    run_at2 = time(tzinfo=pytz.utc).replace(hour=10, minute=30, second=0, microsecond=0)
+    run_at1 = time(tzinfo=pytz.utc).replace(hour=19, minute=0, second=0, microsecond=0)
+    run_at2 = time(tzinfo=pytz.utc).replace(hour=19, minute=10, second=0, microsecond=0)
     tr1 = RepeatsDailyTimeRule(starting_from, every, until, run_at1)
     tr2 = RepeatsDailyTimeRule(starting_from, every, until, run_at2)
 

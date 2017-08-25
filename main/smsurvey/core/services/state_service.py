@@ -32,13 +32,16 @@ class StateService:
             states.delete(Where(states.id, Where.EQUAL, state.id))
 
     @staticmethod
-    def delete_states_for_instances(instance_ids):
-        print("Deleting states for instances" + str(instance_ids))
+    def delete_states_for_instances(instances):
         states = Model.repository.states
-        states.delete(Where(states.id, Where.IN, instance_ids))
+
+        instance_ids = [instance.id for instance in instances]
+
+        states.delete(Where(states.instance_id, Where.IN, instance_ids))
 
     @staticmethod
-    def get_next_state_in_instance(instance_id, status=None):
+    def get_next_state_in_instance(instance, status=None):
+        instance_id = instance.id
         states = Model.repository.states
 
         where = Where(states.instance_id, Where.EQUAL, instance_id)
@@ -66,7 +69,17 @@ class StateService:
                              .AND(states.question_id, Where.EQUAL, question_id))
 
     @staticmethod
-    def get_unfinished_states(instance_id):
+    def get_unfinished_states(instance):
+        instance_id = instance.id
         states = Model.repository.states
-        return states.select(Where(states.instance_id, Where.EQUAL, instance_id)
+
+        result = states.select(Where(states.instance_id, Where.EQUAL, instance_id)
                              .AND(states.status, Where.LESS_THAN, 500))
+
+        if result is None:
+            return None
+
+        if isinstance(result, list):
+            return result
+
+        return [result]
