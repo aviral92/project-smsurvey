@@ -1,10 +1,12 @@
 import time
+import pytz
+
+from datetime import datetime
 
 from smsurvey.core.model.status import Status
 from smsurvey.core.model.model import Model
 from smsurvey.core.model.query.where import Where
 from smsurvey.core.model.query.inner_join import InnerJoin
-
 from smsurvey.core.services.participant_service import ParticipantService
 from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.protocol_service import ProtocolService
@@ -24,11 +26,15 @@ class InstanceService:
         instance = instances.create()
 
         instance.survey_id = survey_id
+        instance.created = datetime.now(tz=pytz.utc)
         return instance.save()
 
     @staticmethod
-    def delete_instances(instance_ids):
+    def delete_instances(to_delete):
         instances = Model.repository.instances
+
+        instance_ids = [instance.id for instance in to_delete]
+
         instances.delete(Where(instances.id, Where.IN, instance_ids))
 
     @staticmethod
@@ -65,15 +71,24 @@ class InstanceService:
         return None
 
     @staticmethod
-    def get_current_instance_ids():
+    def get_current_instances():
         instances = Model.repository.instances
-        return instances.select()
+
+        result = instances.select()
+
+        if result is None:
+            return None
+
+        if isinstance(result, list):
+            return result
+
+        return [result]
 
     @staticmethod
-    def start_instance(instance_id):
+    def start_instance(instance):
+        instance_id = instance.id
         print("Starting instance " + str(instance_id))
 
-        instance = InstanceService.get_instance(instance_id)
         survey = SurveyService.get_survey(instance.survey_id)
         first_question = ProtocolService.get_protocol(survey.survey_id)
 
@@ -87,26 +102,27 @@ class InstanceService:
         print("Starting instance service loop")
         while True:
             print("Running instance service loop")
-            instance_ids = InstanceService.get_current_instance_ids()
+            instances = InstanceService.get_current_instances()
 
-            if instance_ids is not None:
+            if instances is not None:
+
                 not_started = []
                 in_progress = []
                 finished = []
 
-                for instance_id in instance_ids:
-                    latest = StateService.get_next_state_in_instance(instance_id)
+                for instance in instances:
+                    latest = StateService.get_next_state_in_instance(instance)
 
                     if latest is None:
-                        not_started.append(instance_id)
+                        not_started.append(instance)
                     else:
-                        in_progress.append(instance_id)
+                        in_progress.append(instance)
 
-                for instance_id in in_progress:
-                    unfinished = StateService.get_unfinished_states(instance_id)
+                for instance in in_progress:
+                    unfinished = StateService.get_unfinished_states(instance)
 
-                    if len(unfinished) is 0:
-                        finished.append(instance_id)
+                    if unfinished is None or len(unfinished) is 0:
+                        finished.append(instance)
 
                 if len(finished) > 0:
                     print("Instances that have finished: " + str(finished))
@@ -115,9 +131,9 @@ class InstanceService:
                     StateService.delete_states_for_instances(finished)
 
                 if len(not_started) > 0:
-                    print("Instances that have not started: " + str(not_started))
+                    print("Starting" + str(len(not_started)) + " instances")
 
-                    for instance_id in not_started:
-                        InstanceService.start_instance(instance_id)
+                    for instance in not_started:
+                        InstanceService.start_instance(instance)
 
             time.sleep(60)

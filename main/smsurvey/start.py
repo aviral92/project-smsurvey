@@ -20,7 +20,7 @@ if __name__ == "__main__":
     elif process_id < config.response_interface_processes + 1:
         schedule_master.start_schedule()
     else:
-        InstanceService().run_loop()
+        InstanceService.run_loop()
 
     try:
         IOLoop.current().start()
