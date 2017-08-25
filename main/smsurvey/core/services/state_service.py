@@ -51,7 +51,7 @@ class StateService:
 
         state_list = states.select(where)
 
-        if len(state_list) > 0:
+        if state_list is not None:
             lowest_state = state_list[0]
         else:
             return None

@@ -7,6 +7,7 @@ from smsurvey.core.model.status import Status
 from smsurvey.core.model.model import Model
 from smsurvey.core.model.query.where import Where
 from smsurvey.core.model.query.inner_join import InnerJoin
+from smsurvey.core.services.enrollment_service import EnrollmentService
 from smsurvey.core.services.participant_service import ParticipantService
 from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.protocol_service import ProtocolService
@@ -90,12 +91,19 @@ class InstanceService:
         print("Starting instance " + str(instance_id))
 
         survey = SurveyService.get_survey(instance.survey_id)
-        first_question = ProtocolService.get_protocol(survey.survey_id)
+        first_question = ProtocolService.get_protocol(survey.id)
 
-        StateService.create_state(instance_id, first_question, Status.CREATED_START, 0)
+        StateService.create_state(instance_id, first_question.id, Status.CREATED_START, 0)
 
-        participant = ParticipantService.get_participant(survey.participant_id)
-        PluginService.poke(participant.plugin_id, survey.survey_id)
+        participants = ParticipantService.get_participants_in_enrollment(survey.enrollment_id)
+
+        plugin_ids = set()
+
+        for participant in participants:
+            plugin_ids.add(participant.plugin_id)
+
+        for plugin_id in plugin_ids:
+            PluginService.poke(plugin_id, survey.id)
 
     @staticmethod
     def run_loop():
@@ -131,7 +139,7 @@ class InstanceService:
                     StateService.delete_states_for_instances(finished)
 
                 if len(not_started) > 0:
-                    print("Starting" + str(len(not_started)) + " instances")
+                    print("Starting " + str(len(not_started)) + " instances")
 
                     for instance in not_started:
                         InstanceService.start_instance(instance)
