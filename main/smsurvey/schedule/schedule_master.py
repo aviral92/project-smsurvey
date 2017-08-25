@@ -41,7 +41,7 @@ def load_persisted_tasks():
             if dt > datetime.now(pytz.utc):
                 add_job(task.survey_id, dt)
             else:
-                print(dt.strftime("%Y-%m-%d %H:%M:%S %Z") + " is in the past for survey " + task.survey_id)
+                print(dt.strftime("%Y-%m-%d %H:%M:%S %Z") + " is in the past for survey " + str(task.survey_id))
 
 
 def start_schedule():

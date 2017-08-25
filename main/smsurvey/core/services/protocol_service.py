@@ -12,7 +12,13 @@ class ProtocolService:
     @staticmethod
     def get_all_protocols():
         protocols = Model.repository.protocols
-        return protocols.select()
+
+        result = protocols.select()
+
+        if isinstance(result, list):
+            return result
+        else:
+            return [result]
 
     @staticmethod
     def create_protocol(first_question):

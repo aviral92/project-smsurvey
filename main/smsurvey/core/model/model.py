@@ -2,6 +2,7 @@ import pymysql
 
 from smsurvey.core.model.data_type import DataType
 from smsurvey.core.model.query.where import Where
+from smsurvey.core.model.query.inner_join import InnerJoin
 
 
 class Model:
@@ -60,7 +61,21 @@ class Model:
 
             return cls(table_name, columns)
 
-        def select(self, inner_join=None, where=None):
+        def select(self, param1=None, param2=None):
+
+            inner_join = None
+            where = None
+
+            if isinstance(param1, Where):
+                where = param1
+            elif isinstance(param1, InnerJoin):
+                inner_join = param1
+
+            if isinstance(param2, Where):
+                where = param2
+            elif isinstance(param2, InnerJoin):
+                inner_join = param2
+
             sql = "SELECT * FROM " + self.table_name
             connection = Model.dao.get_connection()
 

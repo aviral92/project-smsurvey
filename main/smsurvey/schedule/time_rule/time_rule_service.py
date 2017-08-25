@@ -60,16 +60,16 @@ class TimeRuleService:
             TableName=self.cache_name,
             Item={
                 'survey_id': {
-                    'S': survey_id
+                    'S': str(survey_id)
                 },
                 'time_rule_id': {
-                    'S': time_rule_id
+                    'S': str(time_rule_id)
                 },
                 'type': {
-                    'S': time_rule.get_type()
+                    'S': str(time_rule.get_type())
                 },
                 'params': {
-                    'S': params
+                    'S': str(params)
                 }
             }
         )
