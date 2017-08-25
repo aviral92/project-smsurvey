@@ -27,7 +27,7 @@ class PluginService:
             owner = OwnerService.get_by_id(plugin.owner_id)
             if owner_name == owner.name and owner_domain == owner.domain:
                 test = secure.encrypt_password(token, plugin.salt).decode()
-                return test == plugin.token
+                return test == plugin.secret_token
 
         return False
 

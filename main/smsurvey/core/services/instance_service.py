@@ -7,7 +7,6 @@ from smsurvey.core.model.status import Status
 from smsurvey.core.model.model import Model
 from smsurvey.core.model.query.where import Where
 from smsurvey.core.model.query.inner_join import InnerJoin
-from smsurvey.core.services.enrollment_service import EnrollmentService
 from smsurvey.core.services.participant_service import ParticipantService
 from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.protocol_service import ProtocolService
