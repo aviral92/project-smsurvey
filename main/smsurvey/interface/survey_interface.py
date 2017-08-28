@@ -80,7 +80,9 @@ class AllInstancesHandler(RequestHandler):
 
         if auth_response["valid"]:
             owner_id = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"]).id
-            instance_ids = InstanceService.get_by_owner(owner_id, survey_id, status)
+            instances = InstanceService.get_by_owner(owner_id, survey_id, status)
+            instance_ids = [instance.id for instance in instances]
+
             self.set_status(200)
             self.write('{"status":"success","ids":' + json.dumps(instance_ids) + '}')
 
