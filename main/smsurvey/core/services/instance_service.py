@@ -43,11 +43,12 @@ class InstanceService:
         surveys = Model.repository.surveys
 
         if survey_id is None:
-            instance_list = instances.select(InnerJoin(surveys, instances.survey_id, InnerJoin.EQUAL, surveys.id),
-                             Where(surveys.owner_id, Where.EQUAL, owner_id))
+            instance_list = instances.select(InnerJoin(instances, surveys, instances.survey_id, InnerJoin.EQUAL,
+                                                       surveys.id), Where(surveys.owner_id, Where.EQUAL, owner_id))
         else:
-            instance_list = instances.select(InnerJoin(surveys, instances.survey_id, InnerJoin.EQUAL, surveys.id),
-                             Where(surveys.owner_id, Where.EQUAL, owner_id).AND(surveys.id, Where.EQUAL, survey_id))
+            instance_list = instances.select(InnerJoin(instances, surveys, instances.survey_id, InnerJoin.EQUAL,
+                                                       surveys.id), Where(surveys.owner_id, Where.EQUAL, owner_id)
+                                             .AND(surveys.id, Where.EQUAL, survey_id))
 
         if status is None:
             return instance_list
@@ -66,7 +67,7 @@ class InstanceService:
         instance = InstanceService.get_instance(instance_id)
 
         if instance is not None:
-           return instance.survey_id
+            return instance.survey_id
 
         return None
 

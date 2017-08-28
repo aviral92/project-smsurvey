@@ -57,7 +57,7 @@ class Model:
 
             for column_description in description:
                 column_name = column_description[0]
-                columns[column_name] = cls.__Column.from_tuple(column_description)
+                columns[column_name] = cls.__Column.from_tuple(table_name, column_description)
 
             return cls(table_name, columns)
 
@@ -236,14 +236,15 @@ class Model:
 
         class __Column:
 
-            def __init__(self, column_name, data_type, unique, default):
+            def __init__(self, table_name, column_name, data_type, unique, default):
+                self.table_name = table_name
                 self.column_name = column_name
                 self.data_type = data_type
                 self.unique = unique
                 self.default = default
 
             @classmethod
-            def from_tuple(cls, column_tuple):
+            def from_tuple(cls, table_name, column_tuple):
                 column_name = column_tuple[0]
                 required = column_tuple[2] == 'NO' and column_tuple[5].find('auto_increment') == -1
                 data_type = DataType.from_db(column_tuple[1], required)
@@ -255,4 +256,4 @@ class Model:
 
                 default = column_tuple[4]
 
-                return cls(column_name, data_type, unique, default)
+                return cls(table_name, column_name, data_type, unique, default)
