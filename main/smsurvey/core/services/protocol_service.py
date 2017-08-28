@@ -21,10 +21,10 @@ class ProtocolService:
             return [result]
 
     @staticmethod
-    def create_protocol(first_question):
+    def create_protocol(owner_id):
         protocols = Model.repository.protocols
         protocol = protocols.create()
 
-        protocol.first_question = first_question
+        protocol.owner_id = owner_id
 
         return protocol.save()

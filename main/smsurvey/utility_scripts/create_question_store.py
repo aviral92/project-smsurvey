@@ -27,7 +27,7 @@ def create_cache(t_name):
         TableName=t_name,
         AttributeDefinitions=[
             {
-                'AttributeName': 'survey_id',
+                'AttributeName': 'protocol_id',
                 'AttributeType': 'S'
             },
             {
@@ -37,7 +37,7 @@ def create_cache(t_name):
         ],
         KeySchema=[
             {
-                'AttributeName': 'survey_id',
+                'AttributeName': 'protocol_id',
                 'KeyType': 'HASH'
             },
             {
