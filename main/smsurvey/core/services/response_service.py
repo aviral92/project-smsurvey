@@ -22,8 +22,8 @@ class ResponseService:
             response = self.dynamo.get_item(
                 TableName=self.cache_name,
                 Key={
-                    'survey_id': {'S': survey_id},
-                    'instance_id': {'S': instance_id}
+                    'survey_id': {'S': str(survey_id)},
+                    'instance_id': {'S': str(instance_id)}
                 }
             )
         except ClientError as e:
@@ -47,10 +47,10 @@ class ResponseService:
             TableName=self.cache_name,
             Item={
                 'survey_id': {
-                    'S': survey_id
+                    'S': str(survey_id)
                 },
                 'instance_id': {
-                    'S': instance_id
+                    'S': str(instance_id)
                 },
                 'responses': {
                     'B': pickle.dumps(response.response_dict)

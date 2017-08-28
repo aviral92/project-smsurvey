@@ -97,15 +97,14 @@ class LatestQuestionHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            state_service = StateService()
-            state = state_service.get_next_state_in_instance(instance_id, Status.AWAITING_USER_RESPONSE)
+            instance = InstanceService.get_instance(instance_id)
+            state = StateService.get_next_state_in_instance(instance, Status.AWAITING_USER_RESPONSE)
 
             if state is None:
                 self.set_status(410)
                 self.write('{"status":"error","message":"No response was expected for this survey"}')
                 self.finish()
             else:
-                instance = InstanceService.get_instance(instance_id)
                 survey = SurveyService.get_survey(instance.survey_id)
                 owner = OwnerService.get_by_id(survey.owner_id)
                 if owner.name == auth_response['owner_name'] and owner.domain == auth_response["owner_domain"]:
@@ -146,11 +145,11 @@ class LatestQuestionHandler(RequestHandler):
                 self.flush()
                 return
 
-            state_service = StateService()
-            state = state_service.get_next_state_in_instance(instance_id, Status.AWAITING_USER_RESPONSE)
+            instance = InstanceService.get_instance(instance_id)
+            instance_id = instance.id  # Ensure that id is of right type
+            state = StateService.get_next_state_in_instance(instance, Status.AWAITING_USER_RESPONSE)
 
             if state is not None:
-                instance = InstanceService.get_instance(instance_id)
                 survey = SurveyService.get_survey(instance.survey_id)
                 owner = OwnerService.get_by_id(survey.owner_id)
                 if owner.name == auth_response['owner_name'] and owner.domain == auth_response['owner_domain']:
@@ -161,20 +160,20 @@ class LatestQuestionHandler(RequestHandler):
 
                     if question is not None:
                         if question.final:
-                            state.status = Status.TERMINATED_COMPLETE
-                            state_service.update_state(state)
+                            state.status = Status.TERMINATED_COMPLETE.value
+                            StateService.update_state(state)
 
                             self.set_status(200)
                             self.write('{"status":"success","response_accepted":"False","reason":"Survey has finished"}')
                             self.flush()
                         else:
-                            state.status = Status.PROCESSING_USER_RESPONSE
-                            state_service.update_state(state)
+                            state.status = Status.PROCESSING_USER_RESPONSE.value
+                            StateService.update_state(state)
 
                             new_questions = question.process(response)
                             if new_questions == 'INV_RESP':
-                                state.status = Status.AWAITING_USER_RESPONSE
-                                state_service.update_state(state)
+                                state.status = Status.AWAITING_USER_RESPONSE.value
+                                StateService.update_state(state)
 
                                 self.set_status(200)
                                 self.write('{"status":"success","response_accepted":"False","reason":"Invalid Response","pass_along_message":"'
@@ -183,22 +182,21 @@ class LatestQuestionHandler(RequestHandler):
                             else:
                                 response_service = ResponseService()
                                 variable_name = question.variable_name
-                                instance_service = InstanceService()
-                                survey_id = instance_service.get_survey_id(instance_id)
+                                survey_id = instance.survey_id
                                 response_service.insert_response(survey_id, instance_id, variable_name, response)
 
                                 if new_questions is not None:
                                     for new_question in new_questions:
-                                        state_service.create_state(state.instance_id, new_question[0],
-                                                                   Status.CREATED_MID, new_question[1])
+                                        StateService.create_state(instance_id, new_question[0],
+                                                                  Status.CREATED_MID, new_question[1])
 
-                                state.status = Status.TERMINATED_COMPLETE
-                                state_service.update_state(state)
+                                state.status = Status.TERMINATED_COMPLETE.value
+                                StateService.update_state(state)
 
-                                new_state = state_service.get_next_state_in_instance(instance_id, Status.CREATED_MID)
+                                new_state = StateService.get_next_state_in_instance(instance_id, Status.CREATED_MID)
 
-                                new_state.status = Status.AWAITING_USER_RESPONSE
-                                state_service.update_state(new_state)
+                                new_state.status = Status.AWAITING_USER_RESPONSE.value
+                                StateService.update_state(new_state)
 
                                 self.set_status(200)
                                 self.write('{"status":"success","response_accepted":"True"}')
@@ -228,8 +226,9 @@ class AQuestionHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response['valid']:
-            state_service = StateService()
-            state = state_service.get_state_by_instance_and_question(instance_id, question_id)
+            instance = InstanceService.get_instance(instance_id)
+            instance_id = instance.id
+            state = StateService.get_state_by_instance_and_question(instance, question_id)
 
             if state is None:
                 self.set_status(404)
@@ -248,7 +247,7 @@ class AQuestionHandler(RequestHandler):
 
                     if state.status == Status.TERMINATED_COMPLETE:
                         response_service = ResponseService()
-                        survey_id = InstanceService().get_survey_id(instance_id)
+                        survey_id = instance.survey_id
                         response_set = response_service.get_response_set(survey_id, instance_id)
                         response = response_set.get_response(question.variable_name)
 
@@ -271,15 +270,14 @@ class AnInstanceHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            state_service = StateService()
-            state = state_service.get_next_state_in_instance(instance_id)
+            instance = InstanceService.get_instance(instance_id)
+            state = StateService.get_next_state_in_instance(instance)
 
             if state is None:
                 self.set_status(404)
                 self.write('{"status":"error","message":"Survey does not exist"}')
                 self.finish()
             else:
-                instance = InstanceService.get_instance(instance_id)
                 survey = SurveyService.get_survey(instance.survey_id)
                 owner = OwnerService.get_by_id(survey.owner_id)
                 if owner.domain == auth_response["owner_domain"] and owner.name == auth_response["owner_name"]:
@@ -324,7 +322,7 @@ class AnInstanceHandler(RequestHandler):
                     survey = SurveyService.get_survey(instance.survey_id)
                     owner = OwnerService.get_by_id(survey.owner_id)
                     if owner.domain == auth_response["owner_domain"] and owner.name == auth_response["owner_name"]:
-                        state.status = Status.AWAITING_USER_RESPONSE
+                        state.status = Status.AWAITING_USER_RESPONSE.value
                         StateService.update_state(state)
                         self.set_status(200)
                         self.write('{"status":"success","status":"STARTED"}')
