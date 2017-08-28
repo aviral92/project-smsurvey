@@ -187,7 +187,7 @@ class LatestQuestionHandler(RequestHandler):
 
                                 if new_questions is not None:
                                     for new_question in new_questions:
-                                        StateService.create_state(instance_id, new_question[0],
+                                        StateService.create_state(instance_id, new_question[0][1],
                                                                   Status.CREATED_MID, new_question[1])
 
                                 state.status = Status.TERMINATED_COMPLETE.value

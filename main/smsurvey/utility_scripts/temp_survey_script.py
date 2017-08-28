@@ -23,63 +23,63 @@ from smsurvey.utility_scripts import create_time_rule_store
 
 def get_one_p(sid):
     return {
-        '0': [[sid + "_4", 1]],
-        '1': [[sid + "_2", 1], [sid + "_6", 2]],
-        '2': [[sid + "_3", 1], [sid + "_11", 2]],
-        '3': [[sid + "_2", 1], [sid + "_3", 2], [sid + "_16", 3]]
+        '0': [[(sid, 4), 1]],
+        '1': [[(sid, 2), 1], [(sid, 6), 2]],
+        '2': [[(sid, 3), 1], [(sid, 11), 2]],
+        '3': [[(sid, 2), 1], [(sid, 3), 2], [(sid, 16), 3]]
     }
 
 
 def get_four_p(sid):
-    return [[sid + "_5", 5]]
+    return [[(sid, 5), 5]]
 
 
 def get_six_p(sid):
-    return [[sid + "_7", 1]]
+    return [[(sid, 7), 1]]
 
 
 def get_seven_p(sid):
-    return [[sid + "_8", 1]]
+    return [[(sid, 8), 1]]
 
 
 def get_eight_p(sid):
-    return [[sid + "_10", 5]]
+    return [[(sid, 10), 5]]
 
 
 def get_eleven_p(sid):
-    return [[sid + "_12", 1]]
+    return [[(sid, 12), 1]]
 
 
 def get_twelve_p(sid):
-    return [[sid + "_13", 1]]
+    return [[(sid, 13), 1]]
 
 
 def get_thirteen_p(sid):
-    return [[sid + "_14", 1]]
+    return [[(sid, 14), 1]]
 
 
 def get_fourteen_p(sid):
-    return [[sid + "_15", 5]]
+    return [[(sid, 15), 5]]
 
 
 def get_sixteen_p(sid):
-    return [[sid + "_17", 1]]
+    return [[(sid, 17), 1]]
 
 
 def get_seventeen_p(sid):
-    return [[sid + "_18", 1]]
+    return [[(sid, 18), 1]]
 
 
 def get_eighteen_p(sid):
-    return [[sid + "_19", 1]]
+    return [[(sid, 19), 1]]
 
 
 def get_nineteen_p(sid):
-    return [[sid + "_20", 1]]
+    return [[(sid, 20), 1]]
 
 
 def get_twenty_p(sid):
-    return[[sid + "_21", 5]]
+    return[[(sid, 21), 5]]
 
 
 def get_one(sid):
@@ -235,26 +235,26 @@ if __name__ == "__main__":
     print("Questions generated")
 
     print("Inserting questions")
-    question_service.insert(survey_id + "_" + "1", one)
-    question_service.insert(survey_id + "_" + "2", two)
-    question_service.insert(survey_id + "_" + "3", three)
-    question_service.insert(survey_id + "_" + "4", four)
-    question_service.insert(survey_id + "_" + "5", five)
-    question_service.insert(survey_id + "_" + "6", six)
-    question_service.insert(survey_id + "_" + "7", seven)
-    question_service.insert(survey_id + "_" + "8", eight)
-    question_service.insert(survey_id + "_" + "10", ten)
-    question_service.insert(survey_id + "_" + "11", eleven)
-    question_service.insert(survey_id + "_" + "12", twelve)
-    question_service.insert(survey_id + "_" + "13", thirteen)
-    question_service.insert(survey_id + "_" + "14", fourteen)
-    question_service.insert(survey_id + "_" + "15", fifteen)
-    question_service.insert(survey_id + "_" + "16", sixteen)
-    question_service.insert(survey_id + "_" + "17", seventeen)
-    question_service.insert(survey_id + "_" + "18", eighteen)
-    question_service.insert(survey_id + "_" + "19", nineteen)
-    question_service.insert(survey_id + "_" + "20", twenty)
-    question_service.insert(survey_id + "_" + "21", twenty_one)
+    question_service.insert(survey_id, 1, one)
+    question_service.insert(survey_id, 2, two)
+    question_service.insert(survey_id, 3, three)
+    question_service.insert(survey_id, 4, four)
+    question_service.insert(survey_id, 5, five)
+    question_service.insert(survey_id, 6, six)
+    question_service.insert(survey_id, 7, seven)
+    question_service.insert(survey_id, 8, eight)
+    question_service.insert(survey_id, 10, ten)
+    question_service.insert(survey_id, 11, eleven)
+    question_service.insert(survey_id, 12, twelve)
+    question_service.insert(survey_id, 13, thirteen)
+    question_service.insert(survey_id, 14, fourteen)
+    question_service.insert(survey_id, 15, fifteen)
+    question_service.insert(survey_id, 16, sixteen)
+    question_service.insert(survey_id, 17, seventeen)
+    question_service.insert(survey_id, 18, eighteen)
+    question_service.insert(survey_id, 19, nineteen)
+    question_service.insert(survey_id, 20, twenty)
+    question_service.insert(survey_id, 21, twenty_one)
     print("Questions inserted")
 
     first_question = survey_id + "_1"
