@@ -12,7 +12,7 @@ class Where:
     }
 
     def __init__(self, column, comparison_operator, value, chained=None):
-        self.column_name = column.column_name
+        self.column_name = column.table_name + '.' + column.column_name
         self.comparison_operator = comparison_operator
         self.value = value
         self.chained = chained
