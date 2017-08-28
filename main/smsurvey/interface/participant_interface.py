@@ -3,6 +3,7 @@ import json
 
 from tornado.web import RequestHandler
 
+from smsurvey.core.services.instance_service import InstanceService
 from smsurvey.core.services.survey_service import SurveyService
 from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.participant_service import ParticipantService
@@ -57,30 +58,32 @@ def authenticate(response):
 
 class ParticipantHandler(RequestHandler):
 
-    # GET /participants?survey_id=<SURVEY_ID> <- Should return participant for survey_id
+    # GET /participants?survey_id=<SURVEY_ID>&instance_id=<INSTANCE_ID> <- Should return participant for instance_id
     def get(self):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
             survey_id = self.get_argument("survey_id")
+            instance_id = self.get_argument("instance_id")
 
+            instance = InstanceService.get_instance(instance_id)
             survey = SurveyService.get_survey(survey_id)
 
-            if survey is None:
+            if instance is None or survey is None:
                 response = {
                     "status": "error",
-                    "message": "Survey ID is invalid"
+                    "message": "Invalid instance or survey ID"
                 }
 
                 self.set_status(400)
                 self.write(json.dumps(response))
                 self.flush()
             else:
-                owner_id = SurveyService.get_survey(survey_id).owner_id
+                owner_id = survey.owner_id
                 owner = OwnerService.get_by_id(owner_id)
                 if owner.name == auth_response["owner_name"] and owner.domain == auth_response["owner_domain"]:
 
-                    participant = ParticipantService.get_participant(survey.participant_id)
+                    participant = ParticipantService.get_participant(instance.participant_id)
 
                     response = {
                         "status": "success",

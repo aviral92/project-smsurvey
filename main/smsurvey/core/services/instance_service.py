@@ -21,13 +21,28 @@ class InstanceService:
         return instances.select(Where(instances.id, Where.EQUAL, instance_id))
 
     @staticmethod
-    def create_instance(survey_id):
-        instances = Model.repository.instances
-        instance = instances.create()
+    def create_instances(survey_id):
+        # Get survey
+        surveys = Model.repository.surveys
+        survey = surveys.select(Where(surveys.id, Where.E, survey_id))
 
-        instance.survey_id = survey_id
-        instance.created = datetime.now(tz=pytz.utc)
-        return instance.save()
+        # Get all participants in enrollment
+        participants = Model.repository.participants
+        participant_list = participants.select(Where(participants.enrollment_id, Where.E, survey.enrollment_id))
+
+        if not isinstance(participant_list, list):
+            participant_list = [participant_list]
+
+        instances = Model.repository.instances
+        returnable = []
+        for participant in participant_list:
+            instance = instances.create()
+            instance.survey_id = survey_id
+            instance.participant_id = participant.id
+            instance.created = datetime.now(tz=pytz.utc)
+            returnable.append(instance.save())
+
+        return returnable
 
     @staticmethod
     def delete_instances(to_delete):
@@ -54,10 +69,14 @@ class InstanceService:
             return instance_list
         else:
             final_list = []
-            for instance in instance_list:
-                state = StateService.get_next_state_in_instance(instance.id, status)
 
-                if state is not None and status == state.status:
+            if not isinstance(instance_list, list):
+                instance_list = [instance_list]
+
+            for instance in instance_list:
+                state = StateService.get_next_state_in_instance(instance, status)
+
+                if state is not None and status.value == state.status:
                     final_list.append(instance)
 
             return final_list

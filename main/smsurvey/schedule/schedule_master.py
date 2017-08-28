@@ -11,9 +11,10 @@ schedule = None
 
 
 def instance_start(survey_id):
-    print("Creating instance for survey_id [" + str(survey_id) + "]")
-    instance = InstanceService.create_instance(survey_id)
-    print("instance_id [" + str(instance.id) + "] created for survey_id [" + str(survey_id) + "]")
+    print("Creating instances for survey_id [" + str(survey_id) + "]")
+    instances = InstanceService.create_instances(survey_id)
+    instance_ids = [instance.id for instance in instances]
+    print("instance_id [" + str(instance_ids) + "] created for survey_id [" + str(survey_id) + "]")
 
 
 def add_job(survey_id, date_time):
