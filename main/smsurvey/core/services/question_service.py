@@ -18,12 +18,12 @@ class QuestionService:
 
         self.cache_name = cache_name
 
-    def insert(self, survey_id, question_number, question, safe=True):
+    def insert(self, protocol_id, question_number, question, safe=True):
         if not issubclass(type(question), Question):
             raise QuestionOperationException("Object is not a survey question")
 
         if safe:
-            if self.get(survey_id, question_number) is not None:
+            if self.get(protocol_id, question_number) is not None:
                 raise QuestionOperationException("Question with this ID already exists in cache")
 
         dumped = pickle.dumps(question)
@@ -35,7 +35,7 @@ class QuestionService:
                     'S': str(question_number)
                 },
                 'survey_id': {
-                    'S': str(survey_id)
+                    'S': str(protocol_id)
                 },
                 'question': {
                     'B': dumped
@@ -43,14 +43,14 @@ class QuestionService:
             }
         )
 
-    def get(self, survey_id, question_number):
+    def get(self, protocol_id, question_number):
 
         try:
             response = self.dynamo.get_item(
                 TableName=self.cache_name,
                 Key={
-                    'question_number': {'S': question_number},
-                    'survey_id': {'S': survey_id}
+                    'question_number': {'S': str(question_number)},
+                    'survey_id': {'S': str(protocol_id)}
                 }
             )
         except ClientError as e:

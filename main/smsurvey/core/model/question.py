@@ -3,9 +3,9 @@ import pickle
 
 class Question:
 
-    def __init__(self, survey_id, question_text, variable_name, processor, free_input=False, invalid_message="",
+    def __init__(self, protocol_id, question_text, variable_name, processor, free_input=False, invalid_message="",
                  final=False):
-        self.survey_id = survey_id
+        self.protocol_id = protocol_id
         self.question_text = question_text
         self.variable_name = variable_name
         self.free_input = free_input

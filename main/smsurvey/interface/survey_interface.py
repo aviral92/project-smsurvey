@@ -109,7 +109,7 @@ class LatestQuestionHandler(RequestHandler):
                 owner = OwnerService.get_by_id(survey.owner_id)
                 if owner.name == auth_response['owner_name'] and owner.domain == auth_response["owner_domain"]:
                     question_service = QuestionService()
-                    question = question_service.get(instance.survey_id, state.question_id)
+                    question = question_service.get(survey.protocol_id, state.question_id)
 
                     if question is not None:
                         self.set_status(200)
@@ -156,7 +156,7 @@ class LatestQuestionHandler(RequestHandler):
                     question_number = state.question_number
 
                     question_service = QuestionService()
-                    question = question_service.get(survey.id, question_number)
+                    question = question_service.get(survey.protocol_id, question_number)
 
                     if question is not None:
                         if question.final:
@@ -235,8 +235,9 @@ class AQuestionHandler(RequestHandler):
                 self.write('{"status":"error","message":"Question or survey does not exist"}')
                 self.finish()
             else:
+                survey = SurveyService.get_survey(instance.survey_id)
                 question_service = QuestionService()
-                question = question_service.get(instance.survey_id, state.question_id)
+                question = question_service.get(survey.protocol_id, state.question_id)
 
                 if question is None:
                     self.set_status(404)

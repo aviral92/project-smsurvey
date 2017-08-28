@@ -201,7 +201,7 @@ if __name__ == "__main__":
     survey_id = "1"
 
     print("Creating Owner")
-    OwnerService.create_owner('owner', 'test', 'password')
+    owner = OwnerService.create_owner('owner', 'test', 'password')
     print("Owner created")
 
     print("Creating plugin")
@@ -257,8 +257,6 @@ if __name__ == "__main__":
     question_service.insert(survey_id, 21, twenty_one)
     print("Questions inserted")
 
-    first_question = survey_id + "_1"
-
-    protocol = ProtocolService.create_protocol(first_question)
+    protocol = ProtocolService.create_protocol(owner.id)
 
     print("Script finished")

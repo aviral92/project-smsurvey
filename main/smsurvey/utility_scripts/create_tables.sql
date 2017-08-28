@@ -53,8 +53,9 @@ CREATE TABLE participant (
 
 CREATE TABLE protocol (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
-  first_question VARCHAR(100) NOT NULL,
-  PRIMARY KEY(id)
+  owner_id INT NOT NULL,
+  PRIMARY KEY(id),
+  FOREIGN KEY (owner_id) REFERENCES owner (id)
 ) CHARACTER SET utf8;
 
 CREATE TABLE survey (
