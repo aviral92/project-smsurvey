@@ -317,16 +317,15 @@ class AnInstanceHandler(RequestHandler):
                 return
 
             if action == 'start':
-                state_service = StateService()
-                state = state_service.get_next_state_in_instance(instance_id, Status.CREATED_START)
+                instance = InstanceService.get_instance(instance_id)
+                state = StateService.get_next_state_in_instance(instance, Status.CREATED_START)
 
                 if state is not None:
-                    instance = InstanceService.get_instance(instance_id)
                     survey = SurveyService.get_survey(instance.survey_id)
                     owner = OwnerService.get_by_id(survey.owner_id)
                     if owner.domain == auth_response["owner_domain"] and owner.name == auth_response["owner_name"]:
                         state.status = Status.AWAITING_USER_RESPONSE
-                        state_service.update_state(state)
+                        StateService.update_state(state)
                         self.set_status(200)
                         self.write('{"status":"success","status":"STARTED"}')
                         self.flush()

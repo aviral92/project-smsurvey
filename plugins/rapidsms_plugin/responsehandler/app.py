@@ -65,7 +65,8 @@ class SurveyStarter:
         requests.post(url + 'instances/' + str(instance_id), json.dumps(data), headers=headers)
 
         #get participant for survey
-        participant_request = requests.get(url + "participants?survey_id=" + str(survey_id), headers=headers)
+        params = "?survey_id=" + str(survey_id) + "&instance_id=" + str(instance_id)
+        participant_request = requests.get(url + "participants" + params, headers=headers)
         participant = json.loads(participant_request.text)
         participant_number = participant["participant"]
 
