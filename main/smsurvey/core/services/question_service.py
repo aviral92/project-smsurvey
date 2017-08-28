@@ -18,15 +18,12 @@ class QuestionService:
 
         self.cache_name = cache_name
 
-    def insert(self, question_id, question, safe=True):
+    def insert(self, survey_id, question_number, question, safe=True):
         if not issubclass(type(question), Question):
             raise QuestionOperationException("Object is not a survey question")
 
-        if question_id.find("_") is -1:
-            raise QuestionOperationException("Invalid question key")
-
         if safe:
-            if self.get(question_id) is not None:
+            if self.get(survey_id, question_number) is not None:
                 raise QuestionOperationException("Question with this ID already exists in cache")
 
         dumped = pickle.dumps(question)
@@ -34,11 +31,11 @@ class QuestionService:
         self.dynamo.put_item(
             TableName=self.cache_name,
             Item={
-                'question_id': {
-                    'S': question_id
+                'question_number': {
+                    'S': str(question_number)
                 },
                 'survey_id': {
-                    'S': question_id[0:question_id.find("_")]
+                    'S': str(survey_id)
                 },
                 'question': {
                     'B': dumped
