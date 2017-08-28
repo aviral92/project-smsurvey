@@ -90,7 +90,7 @@ CREATE TABLE instance (
 CREATE TABLE state (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
   instance_id INT NOT NULL,
-  question_id VARCHAR(100) NOT NULL,
+  question_number VARCHAR(100) NOT NULL,
   status INTEGER NOT NULL,
   priority TINYINT DEFAULT 0 NOT NULL,
   PRIMARY KEY(id),

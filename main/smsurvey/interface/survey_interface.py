@@ -109,7 +109,7 @@ class LatestQuestionHandler(RequestHandler):
                 owner = OwnerService.get_by_id(survey.owner_id)
                 if owner.name == auth_response['owner_name'] and owner.domain == auth_response["owner_domain"]:
                     question_service = QuestionService()
-                    question = question_service.get(state.question_id)
+                    question = question_service.get(instance.survey_id, state.question_id)
 
                     if question is not None:
                         self.set_status(200)
@@ -153,10 +153,10 @@ class LatestQuestionHandler(RequestHandler):
                 survey = SurveyService.get_survey(instance.survey_id)
                 owner = OwnerService.get_by_id(survey.owner_id)
                 if owner.name == auth_response['owner_name'] and owner.domain == auth_response['owner_domain']:
-                    question_id = state.question_id
+                    question_number = state.question_number
 
                     question_service = QuestionService()
-                    question = question_service.get(question_id)
+                    question = question_service.get(survey.id, question_number)
 
                     if question is not None:
                         if question.final:
@@ -220,15 +220,15 @@ class LatestQuestionHandler(RequestHandler):
 
 
 class AQuestionHandler(RequestHandler):
-    # GET /instances/[instance-id]/[question-id] <- Should return me the question text for that question id,
+    # GET /instances/[instance-id]/[question-number] <- Should return me the question text for that question id,
     #  plus any response if that response has been provided
-    def get(self, instance_id, question_id):
+    def get(self, instance_id, question_number):
         auth_response = authenticate(self)
 
         if auth_response['valid']:
             instance = InstanceService.get_instance(instance_id)
             instance_id = instance.id
-            state = StateService.get_state_by_instance_and_question(instance, question_id)
+            state = StateService.get_state_by_instance_and_question(instance, question_number)
 
             if state is None:
                 self.set_status(404)
@@ -236,7 +236,7 @@ class AQuestionHandler(RequestHandler):
                 self.finish()
             else:
                 question_service = QuestionService()
-                question = question_service.get(state.question_id)
+                question = question_service.get(instance.survey_id, state.question_id)
 
                 if question is None:
                     self.set_status(404)

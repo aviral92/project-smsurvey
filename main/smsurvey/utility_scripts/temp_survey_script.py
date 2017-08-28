@@ -257,7 +257,7 @@ if __name__ == "__main__":
     question_service.insert(survey_id + "_" + "21", twenty_one)
     print("Questions inserted")
 
-    first_question = survey_id + "_" + "1"
+    first_question = survey_id + "_1"
 
     protocol = ProtocolService.create_protocol(first_question)
 

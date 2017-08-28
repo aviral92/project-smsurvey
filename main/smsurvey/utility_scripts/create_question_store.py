@@ -31,7 +31,7 @@ def create_cache(t_name):
                 'AttributeType': 'S'
             },
             {
-                'AttributeName': 'question_id',
+                'AttributeName': 'question_number',
                 'AttributeType': 'S'
             }
         ],
@@ -41,7 +41,7 @@ def create_cache(t_name):
                 'KeyType': 'HASH'
             },
             {
-                'AttributeName': 'question_id',
+                'AttributeName': 'question_number',
                 'KeyType': 'RANGE'
             }
         ],

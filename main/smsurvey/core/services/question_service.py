@@ -46,17 +46,13 @@ class QuestionService:
             }
         )
 
-    def get(self, question_id):
-        if question_id.find("_") is -1:
-            raise QuestionOperationException("Invalid question key")
-
-        survey_id = question_id[0:question_id.find("_")]
+    def get(self, survey_id, question_number):
 
         try:
             response = self.dynamo.get_item(
                 TableName=self.cache_name,
                 Key={
-                    'question_id': {'S': question_id},
+                    'question_number': {'S': question_number},
                     'survey_id': {'S': survey_id}
                 }
             )
