@@ -56,17 +56,13 @@ for survey in surveys:
 
     starting_from = datetime.now()
     every = 1
-    until = starting_from + timedelta(days=100)
+    until = starting_from + timedelta(days=1)
     run_at1 = time(tzinfo=pytz.utc).replace(hour=19, minute=0, second=0, microsecond=0)
-    run_at2 = time(tzinfo=pytz.utc).replace(hour=19, minute=10, second=0, microsecond=0)
     tr1 = RepeatsDailyTimeRule(starting_from, every, until, run_at1)
-    tr2 = RepeatsDailyTimeRule(starting_from, every, until, run_at2)
 
     time_rule_id1 = TimeRuleService().insert(survey_id, tr1, str(survey_id) + "1")
-    time_rule_id2 = TimeRuleService().insert(survey_id, tr2, str(survey_id) + "2")
 
     TaskService.create_task(survey_id, time_rule_id1)
-    TaskService.create_task(survey_id, time_rule_id2)
 
 print("Surveys inserted and generated")
 
