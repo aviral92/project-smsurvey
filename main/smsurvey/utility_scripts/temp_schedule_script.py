@@ -25,17 +25,6 @@ from smsurvey.schedule.time_rule.time_rule_service import TimeRuleService
 
 phone_numbers = os.environ.get("PHONE_NUMBERS")
 
-surveys = []
-i = 1
-for phone_number in phone_numbers.split(","):
-    surveys.append({
-        "instance_id": str(i),
-        "participant_id": str(t.time() + i),
-        "plugin_id": 1,
-        "plugin_scratch": phone_number
-    })
-    i += 1
-
 print("Loading models")
 Model.from_database(config.dao)
 
@@ -46,17 +35,17 @@ enrollment = EnrollmentService.add_enrollment("Test Enrollment", owner.id, datet
                                               datetime.now(tz=pytz.utc).replace(year=2018),
                                               datetime.now(tz=pytz.utc).replace(year=2019))
 
-i = 0
-
 for phone_number in phone_numbers.split(","):
     ParticipantService.register_participant(enrollment.id, 1, phone_number)
+
+print(ProtocolService.get_all_protocols())
 
 survey = SurveyService.create_survey(owner.id, ProtocolService.get_all_protocols()[0].id, enrollment.id)
 
 starting_from = datetime.now()
 every = 1
 until = starting_from + timedelta(days=1)
-run_at1 = time(tzinfo=pytz.utc).replace(hour=17, minute=0, second=0, microsecond=0)
+run_at1 = time(tzinfo=pytz.utc).replace(hour=16, minute=35, second=0, microsecond=0)
 tr = RepeatsDailyTimeRule(starting_from, every, until, run_at1)
 time_rule_id = TimeRuleService().insert(survey.id, tr, str(survey.id) + "1")
 TaskService.create_task(survey.id, time_rule_id)
