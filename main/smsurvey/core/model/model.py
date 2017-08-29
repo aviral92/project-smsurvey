@@ -93,7 +93,7 @@ class Model:
 
                     if len(results) == 1 and not force_list:
                         return self.__ModelInstance.from_dict(self, results[0])
-                    elif len(results) > 1:
+                    elif len(results) > 1 or force_list :
                         instances = []
 
                         for result in results:
