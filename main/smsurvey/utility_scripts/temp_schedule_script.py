@@ -36,7 +36,7 @@ enrollment = EnrollmentService.add_enrollment("Test Enrollment", owner.id, datet
                                               datetime.now(tz=pytz.utc).replace(year=2019))
 
 for phone_number in phone_numbers.split(","):
-    ParticipantService.register_participant(enrollment.id, 1, phone_number)
+    ParticipantService.register_participant(enrollment.id, 1, phone_number, "owner", "test")
 
 print(ProtocolService.get_all_protocols())
 

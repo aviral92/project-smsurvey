@@ -1,7 +1,6 @@
 from tornado import process
 from tornado.ioloop import IOLoop
 
-from smsurvey.core.model.query.dao import DAO
 from smsurvey.core.model.model import Model
 from smsurvey.schedule import schedule_master
 from smsurvey.interface import interfaces_master

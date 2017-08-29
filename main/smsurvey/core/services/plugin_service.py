@@ -56,6 +56,8 @@ class PluginService:
 
                 return plugin.save(), token
 
+        raise secure.SecurityException("Invalid owner credentials")
+
     @staticmethod
     def poke(plugin_id, survey_id):
         plugin = PluginService.get_plugin(plugin_id)

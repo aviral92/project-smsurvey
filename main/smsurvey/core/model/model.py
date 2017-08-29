@@ -1,5 +1,6 @@
 import pymysql
 
+from smsurvey.config import logger
 from smsurvey.core.model.data_type import DataType
 from smsurvey.core.model.query.where import Where
 from smsurvey.core.model.query.inner_join import InnerJoin
@@ -12,6 +13,7 @@ class Model:
 
     @classmethod
     def from_database(cls, _dao):
+        logger.info("Loading model from database")
         cls.dao = _dao
 
         show_table_sql = "SHOW TABLES;"
@@ -89,6 +91,8 @@ class Model:
 
                     cursor.execute(sql)
 
+                    logger.debug("Executing sql: %s", sql)
+
                     results = cursor.fetchall()
 
                     if len(results) == 1 and not force_list:
@@ -115,6 +119,8 @@ class Model:
                         cursor.execute(sql + self.table_name)
                     else:
                         cursor.execute(sql + self.table_name + " WHERE " + where.build())
+
+                    logger.debug("Executing sql: %s", sql)
 
                     connection.commit()
             finally:
@@ -169,6 +175,8 @@ class Model:
                 columns, values = self.get_column_tuples()
                 sql = "INSERT INTO " + self.model.table_name + " " + columns + " VALUES %s"
 
+                logger.debug("Executing sql: %s", sql)
+
                 connection = Model.dao.get_connection()
 
                 try:
@@ -192,6 +200,8 @@ class Model:
 
                 sql = "UPDATE " + self.model.table_name + " SET " + instr + " WHERE id = %s"
 
+                logger.debug("Executing sql: %s", sql)
+
                 connection = Model.dao.get_connection()
 
                 try:
@@ -203,8 +213,6 @@ class Model:
                     connection.close()
 
                 return self.model.select(Where(self.model.id, Where.EQUAL, updated_row_id))
-
-
 
             @staticmethod
             def parse_value(value):
