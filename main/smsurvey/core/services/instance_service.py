@@ -3,13 +3,13 @@ import pytz
 
 from datetime import datetime
 
+from smsurvey.config import logger
 from smsurvey.core.model.status import Status
 from smsurvey.core.model.model import Model
 from smsurvey.core.model.query.where import Where
 from smsurvey.core.model.query.inner_join import InnerJoin
 from smsurvey.core.services.participant_service import ParticipantService
 from smsurvey.core.services.plugin_service import PluginService
-from smsurvey.core.services.protocol_service import ProtocolService
 from smsurvey.core.services.state_service import StateService
 from smsurvey.core.services.survey_service import SurveyService
 
@@ -91,8 +91,6 @@ class InstanceService:
         instances = Model.repository.instances
         return instances.select(force_list=True)
 
-
-
     @staticmethod
     def start_instance(instance):
         instance_id = instance.id
@@ -114,12 +112,13 @@ class InstanceService:
 
     @staticmethod
     def run_loop():
-        print("Starting instance service loop")
+        logger.info("Starting instance service loop")
         while True:
-            print("Running instance service loop")
+            logger.info("Running instance service loop")
             instances = InstanceService.get_current_instances()
 
             if instances is not None:
+                logger.info("%d instances existing", len(instances))
 
                 not_started = []
                 in_progress = []
@@ -139,16 +138,21 @@ class InstanceService:
                     if unfinished is None or len(unfinished) is 0:
                         finished.append(instance)
 
+                logger.info("%d instances not started, %d instances in progress, %d instances awaiting purge",
+                            len(not_started), len(in_progress), len(finished))
+
                 if len(finished) > 0:
-                    print("Instances that have finished: " + str(finished))
+                    logger.info("Purging instances: %s", str(finished))
 
                     InstanceService.delete_instances(finished)
                     StateService.delete_states_for_instances(finished)
 
                 if len(not_started) > 0:
-                    print("Starting " + str(len(not_started)) + " instances")
+                    logger.info("Starting instances: %s", str(not_started))
 
                     for instance in not_started:
                         InstanceService.start_instance(instance)
+            else:
+                logger.info("No instances exist")
 
-            time.sleep(60)
+            time.sleep(30)

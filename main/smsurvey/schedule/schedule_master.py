@@ -3,6 +3,8 @@ from datetime import datetime
 import pytz
 from apscheduler.schedulers.tornado import TornadoScheduler
 
+
+from smsurvey.config import logger
 from smsurvey.core.services.task_service import TaskService
 from smsurvey.core.services.instance_service import InstanceService
 from smsurvey.schedule.time_rule.time_rule_service import TimeRuleService
@@ -11,10 +13,10 @@ schedule = None
 
 
 def instance_start(survey_id):
-    print("Creating instances for survey_id [" + str(survey_id) + "]")
+    logger.info("Creating instances for survey_id %s", str(survey_id))
     instances = InstanceService.create_instances(survey_id)
     instance_ids = [instance.id for instance in instances]
-    print("instance_id [" + str(instance_ids) + "] created for survey_id [" + str(survey_id) + "]")
+    logger.info("instance_ids %s created for survey_id %s", str(instance_ids), str(survey_id))
 
 
 def add_job(survey_id, date_time):
@@ -22,7 +24,7 @@ def add_job(survey_id, date_time):
 
     if schedule is not None:
         schedule.add_job(instance_start, 'date', run_date=date_time, args=[survey_id])
-        print(str(survey_id) + " scheduled for " + date_time.strftime("%Y-%m-%d %H:%M:%S %Z"))
+        logger.info("%s scheduled for %s", str(survey_id), date_time.strftime("%Y-%m-%d %H:%M:%S %Z"))
 
 
 def load_persisted_tasks():
@@ -42,17 +44,25 @@ def load_persisted_tasks():
             if dt > datetime.now(pytz.utc):
                 add_job(task.survey_id, dt)
             else:
-                print(dt.strftime("%Y-%m-%d %H:%M:%S %Z") + " is in the past for survey " + str(task.survey_id))
+                logger.warning("%s is in the past for survey %s", dt.strftime("%Y-%m-%d %H:%M:%S %Z"),
+                               str(task.survey_id))
+
+
+def load_maintenance_jobs():
+    logger.info("Loading ")
 
 
 def start_schedule():
     global schedule
     if schedule is None:
-        print("Starting schedule")
+        logger.info("Launching scheduler")
         schedule = TornadoScheduler()
         schedule.start()
-        print("Hydrating schedule")
+        logger.info("Hydrating schedule with surveys")
         load_persisted_tasks()
-        print("Schedule running")
+        logger.info("Loading maintenance jobs into schedule")
+
+        logger.info("Schedule running")
+
     else:
-        print("Schedule was already running")
+        logger.info("Schedule was already running")

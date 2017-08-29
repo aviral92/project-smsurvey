@@ -1,5 +1,6 @@
 from tornado.web import Application, RequestHandler
 
+from smsurvey.config import logger
 from smsurvey.interface.survey_interface import AllInstancesHandler
 from smsurvey.interface.survey_interface import LatestQuestionHandler
 from smsurvey.interface.survey_interface import AQuestionHandler
@@ -31,6 +32,7 @@ def start_interface(port):
 
     try:
         instance.listen(port)
-        print("Survey Response Interface Handler listening on " + str(port))
+        logger.info("Survey Response Interface Handler listening on " + str(port))
     except OSError:
-        print(str(port) + " already bound")
+        logger.error(str(port) + " already bound, terminating process")
+        exit(1)
