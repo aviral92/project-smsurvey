@@ -49,14 +49,10 @@ class StateService:
         if status is not None:
             where = where.AND(states.status, Where.EQUAL, status.value)
 
-        state_list = states.select(where)
+        state_list = states.select(where, force_list=True)
 
-        if state_list is not None:
-            if isinstance(state_list, list):
-                lowest_state = state_list[0]
-            else:
-                lowest_state = state_list
-                state_list = [state_list]
+        if len(state_list) > 0:
+            lowest_state = state_list[0]
         else:
             return None
 
@@ -77,13 +73,6 @@ class StateService:
         instance_id = instance.id
         states = Model.repository.states
 
-        result = states.select(Where(states.instance_id, Where.EQUAL, instance_id)
-                             .AND(states.status, Where.LESS_THAN, 500))
+        return states.select(Where(states.instance_id, Where.EQUAL, instance_id)
+                             .AND(states.status, Where.LESS_THAN, 500), force_list=True)
 
-        if result is None:
-            return None
-
-        if isinstance(result, list):
-            return result
-
-        return [result]

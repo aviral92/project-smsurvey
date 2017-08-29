@@ -16,4 +16,4 @@ class TaskService:
     @staticmethod
     def get_all_tasks():
         tasks = Model.repository.tasks
-        return tasks.select()
+        return tasks.select(force_list=True)
