@@ -109,11 +109,11 @@ class LatestQuestionHandler(RequestHandler):
                 owner = OwnerService.get_by_id(survey.owner_id)
                 if owner.name == auth_response['owner_name'] and owner.domain == auth_response["owner_domain"]:
                     question_service = QuestionService()
-                    question = question_service.get(survey.protocol_id, state.question_id)
+                    question = question_service.get(survey.protocol_id, state.question_number)
 
                     if question is not None:
                         self.set_status(200)
-                        self.write('{"status":"success","question_id":"' + state.question_id
+                        self.write('{"status":"success","question_number":"' + state.question_number
                                    + '","question_text":"' + question.question_text + '","survey_end":"'
                                    + str(question.final) + '"}')
                         self.flush()
@@ -193,7 +193,7 @@ class LatestQuestionHandler(RequestHandler):
                                 state.status = Status.TERMINATED_COMPLETE.value
                                 StateService.update_state(state)
 
-                                new_state = StateService.get_next_state_in_instance(instance_id, Status.CREATED_MID)
+                                new_state = StateService.get_next_state_in_instance(instance, Status.CREATED_MID)
 
                                 new_state.status = Status.AWAITING_USER_RESPONSE.value
                                 StateService.update_state(new_state)
@@ -237,7 +237,7 @@ class AQuestionHandler(RequestHandler):
             else:
                 survey = SurveyService.get_survey(instance.survey_id)
                 question_service = QuestionService()
-                question = question_service.get(survey.protocol_id, state.question_id)
+                question = question_service.get(survey.protocol_id, state.question_number)
 
                 if question is None:
                     self.set_status(404)

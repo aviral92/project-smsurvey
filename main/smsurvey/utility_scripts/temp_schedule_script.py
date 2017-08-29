@@ -47,22 +47,19 @@ enrollment = EnrollmentService.add_enrollment("Test Enrollment", owner.id, datet
                                               datetime.now(tz=pytz.utc).replace(year=2019))
 
 i = 0
-for survey in surveys:
-    i += 1
 
-    ParticipantService.register_participant(enrollment.id, survey["plugin_id"], survey["plugin_scratch"])
-    survey_object = SurveyService.create_survey(owner.id, ProtocolService.get_all_protocols()[0].id, enrollment.id)
-    survey_id = survey_object.id
+for phone_number in phone_numbers.split(","):
+    ParticipantService.register_participant(enrollment.id, 1, phone_number)
 
-    starting_from = datetime.now()
-    every = 1
-    until = starting_from + timedelta(days=1)
-    run_at1 = time(tzinfo=pytz.utc).replace(hour=19, minute=0, second=0, microsecond=0)
-    tr1 = RepeatsDailyTimeRule(starting_from, every, until, run_at1)
+survey = SurveyService.create_survey(owner.id, ProtocolService.get_all_protocols()[0].id, enrollment.id)
 
-    time_rule_id1 = TimeRuleService().insert(survey_id, tr1, str(survey_id) + "1")
-
-    TaskService.create_task(survey_id, time_rule_id1)
+starting_from = datetime.now()
+every = 1
+until = starting_from + timedelta(days=1)
+run_at1 = time(tzinfo=pytz.utc).replace(hour=17, minute=0, second=0, microsecond=0)
+tr = RepeatsDailyTimeRule(starting_from, every, until, run_at1)
+time_rule_id = TimeRuleService().insert(survey.id, tr, str(survey.id) + "1")
+TaskService.create_task(survey.id, time_rule_id)
 
 print("Surveys inserted and generated")
 
