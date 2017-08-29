@@ -10,12 +10,12 @@ class StateService:
         return states.select(Where(states.id, Where.EQUAL, state_id))
 
     @staticmethod
-    def create_state(instance_id, question_id, status, priority):
+    def create_state(instance_id, question_number, status, priority):
         states = Model.repository.states
         state = states.create()
 
         state.instance_id = instance_id
-        state.question_id = question_id
+        state.question_number = question_number
         state.status = status.value
         state.priority = priority
 

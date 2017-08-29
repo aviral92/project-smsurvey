@@ -34,7 +34,7 @@ class QuestionService:
                 'question_number': {
                     'S': str(question_number)
                 },
-                'survey_id': {
+                'protocol_id': {
                     'S': str(protocol_id)
                 },
                 'question': {
@@ -50,7 +50,7 @@ class QuestionService:
                 TableName=self.cache_name,
                 Key={
                     'question_number': {'S': str(question_number)},
-                    'survey_id': {'S': str(protocol_id)}
+                    'protocol_id': {'S': str(protocol_id)}
                 }
             )
         except ClientError as e:
