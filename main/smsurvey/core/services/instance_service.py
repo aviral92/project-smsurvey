@@ -28,10 +28,8 @@ class InstanceService:
 
         # Get all participants in enrollment
         participants = Model.repository.participants
-        participant_list = participants.select(Where(participants.enrollment_id, Where.E, survey.enrollment_id))
-
-        if not isinstance(participant_list, list):
-            participant_list = [participant_list]
+        participant_list = participants.select(Where(participants.enrollment_id, Where.E, survey.enrollment_id),
+                                               force_list=True)
 
         instances = Model.repository.instances
         returnable = []
@@ -59,19 +57,17 @@ class InstanceService:
 
         if survey_id is None:
             instance_list = instances.select(InnerJoin(instances, surveys, instances.survey_id, InnerJoin.EQUAL,
-                                                       surveys.id), Where(surveys.owner_id, Where.EQUAL, owner_id))
+                                                       surveys.id), Where(surveys.owner_id, Where.EQUAL, owner_id),
+                                             force_list=True)
         else:
             instance_list = instances.select(InnerJoin(instances, surveys, instances.survey_id, InnerJoin.EQUAL,
                                                        surveys.id), Where(surveys.owner_id, Where.EQUAL, owner_id)
-                                             .AND(surveys.id, Where.EQUAL, survey_id))
+                                             .AND(surveys.id, Where.EQUAL, survey_id), force_list=True)
 
         if status is None:
             return instance_list
         else:
             final_list = []
-
-            if not isinstance(instance_list, list):
-                instance_list = [instance_list]
 
             for instance in instance_list:
                 state = StateService.get_next_state_in_instance(instance, status)
@@ -93,16 +89,9 @@ class InstanceService:
     @staticmethod
     def get_current_instances():
         instances = Model.repository.instances
+        return instances.select(force_list=True)
 
-        result = instances.select()
 
-        if result is None:
-            return None
-
-        if isinstance(result, list):
-            return result
-
-        return [result]
 
     @staticmethod
     def start_instance(instance):

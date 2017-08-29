@@ -61,7 +61,7 @@ class Model:
 
             return cls(table_name, columns)
 
-        def select(self, param1=None, param2=None):
+        def select(self, param1=None, param2=None, force_list=False):
 
             inner_join = None
             where = None
@@ -91,7 +91,7 @@ class Model:
 
                     results = cursor.fetchall()
 
-                    if len(results) == 1:
+                    if len(results) == 1 and not force_list:
                         return self.__ModelInstance.from_dict(self, results[0])
                     elif len(results) > 1:
                         instances = []
@@ -101,7 +101,7 @@ class Model:
 
                         return instances
 
-                    return None
+                    return [] if force_list else None
             finally:
                 connection.close()
 
