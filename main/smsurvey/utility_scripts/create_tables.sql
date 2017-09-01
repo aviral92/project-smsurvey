@@ -33,9 +33,9 @@ CREATE TABLE enrollment (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
   name VARCHAR(25) NOT NULL,
   owner_id INT NOT NULL,
-  opens TIMESTAMP,
-  closes TIMESTAMP,
-  remove_on TIMESTAMP,
+  open_date TIMESTAMP,
+  close_date TIMESTAMP,
+  expiry_date TIMESTAMP,
   PRIMARY KEY(id),
   FOREIGN KEY (owner_id) REFERENCES owner (id) ON DELETE CASCADE
 ) CHARACTER SET utf8;

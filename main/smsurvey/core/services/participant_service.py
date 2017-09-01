@@ -9,21 +9,19 @@ from smsurvey.core.services.owner_service import OwnerService
 class ParticipantService:
 
     @staticmethod
-    def get_participant(participant_id, owner_name, owner_domain):
-            participants = Model.repository.participants
-            participant = participants.select(Where(participants.id, Where.EQUAL, participant_id))
+    def get_participant(participant_id):
+        participants = Model.repository.participants
+        participant = participants.select(Where(participants.id, Where.EQUAL, participant_id))
 
-            if participant is None:
-                return None
+        if participant is None:
+            return None
 
-            if EnrollmentService.is_owned_by(participant.enrollment_id, OwnerService.get(owner_name, owner_domain)):
-                if EnrollmentService.is_enrollment_open(participant.enrollment_id):
-                    return participant
+        if EnrollmentService.is_enrollment_open(participant.enrollment_id):
+            return participant
 
-                else:
-                    raise secure.SecurityException("Participant no longer accessible")
-            else:
-                raise secure.SecurityException("Owner does not have access to this participant")
+        else:
+            raise secure.SecurityException("Participant no longer accessible")
+
 
     @staticmethod
     def register_participant(enrollment_id, plugin_id, plugin_scratch, owner_name, owner_domain):
@@ -50,6 +48,11 @@ class ParticipantService:
                     raise secure.SecurityException("Owner is not valid for enrollment or plugin")
             else:
                 raise secure.SecurityException("Plugin is not valid")
+
+    @staticmethod
+    def delete_participant(participant_id):
+        participants = Model.repository.participants
+        participants.delete(Where(participants.id, Where.E, participant_id))
 
     @staticmethod
     def get_participants_in_enrollment(enrollment_id):
