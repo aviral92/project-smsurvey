@@ -26,32 +26,41 @@ class TimeRule(metaclass=ABCMeta):
 
 class NoRepeatTimeRule(TimeRule):
 
-    def __init__(self, run_time):
-        self.run_time = run_time
+    def __init__(self, run_times):
+        self.run_times = run_times
 
     @staticmethod
     def from_params(params):
-        return NoRepeatTimeRule(parser.parse(params))
+        run_times = []
+        for param in params.split('&'):
+            run_times.append(parser.parse(param))
+
+        return NoRepeatTimeRule(run_times)
 
     @property
     def to_params(self):
-        return self.run_time.strftime("%Y-%m-%d %H:%M:%S %Z")
+
+        params = ""
+        for run_time in self.run_times:
+            params += run_time.strftime("%Y-%m-%d %H:%M:%S %Z") + "&"
+
+        return params[:-1]
 
     @staticmethod
     def get_type():
         return "no-repeat"
 
     def get_date_times(self):
-        return [self.run_time]
+        return self.run_times
 
 
 class RepeatsDailyTimeRule(TimeRule):
 
-    def __init__(self, starting_from, every, until, run_at):
+    def __init__(self, starting_from, every, until, run_times):
         self.starting_from = starting_from
         self.every = every
         self.until = until
-        self.run_at = run_at
+        self.run_times = run_times
 
     @staticmethod
     def from_params(params):
@@ -59,13 +68,23 @@ class RepeatsDailyTimeRule(TimeRule):
         starting_from = parser.parse(p[0])
         every = int(p[1])
         until = parser.parse(p[2])
-        run_at = parser.parse(p[3])
-        return RepeatsDailyTimeRule(starting_from, every, until, run_at)
+        run_times = []
+
+        for run_time in p[3].split("&"):
+            run_times.append(parser.parse(run_time))
+
+        return RepeatsDailyTimeRule(starting_from, every, until, run_times)
 
     @property
     def to_params(self):
+
+        run_times = ""
+
+        for run_time in self.run_times:
+            run_times += run_time.strftime("%H:%M:%S %Z") + "&"
+
         return self.starting_from.strftime("%Y-%m-%d %Z") + "~" + str(self.every) + "~" \
-               + self.until.strftime("%Y-%m-%d %Z") + "~" + self.run_at.strftime("%H:%M:%S %Z")
+               + self.until.strftime("%Y-%m-%d %Z") + "~" + run_times[:-1]
 
     @staticmethod
     def get_type():
@@ -73,25 +92,28 @@ class RepeatsDailyTimeRule(TimeRule):
 
     def get_date_times(self):
 
-        first_run = self.starting_from.replace(hour=self.run_at.hour, minute=self.run_at.minute,
-                                               second=self.run_at.second)
-        date_times = [first_run]
+        date_times = []
 
-        number_of_days = (self.until - self.starting_from).days
+        for run_at in self.run_times:
+            first_run = self.starting_from.replace(hour=run_at.hour, minute=run_at.minute,
+                                               second=run_at.second)
+            date_times_day = [first_run]
+            number_of_days = (self.until - self.starting_from).days
+            for i in range(self.every, number_of_days, self.every):
+                date_times_day.append(first_run + timedelta(days=i))
 
-        for i in range(self.every, number_of_days, self.every):
-            date_times.append(first_run + timedelta(days=i))
+            date_times += date_times_day
 
         return date_times
 
 
 class RepeatsMonthlyDate(TimeRule):
 
-    def __init__(self, every, days_of_month, until, run_at):
+    def __init__(self, every, days_of_month, until, run_times):
         self.every = every
         self.days_of_month = days_of_month
         self.until = until
-        self.run_at = run_at
+        self.run_times = run_times
 
     @staticmethod
     def from_params(params):
@@ -99,13 +121,19 @@ class RepeatsMonthlyDate(TimeRule):
         every = int(p[0])
         days_of_month = [int(day) for day in p[1].split(',')]
         until = parser.parse(p[2])
-        run_at = parser.parse(p[3])
-        return RepeatsMonthlyDate(every, days_of_month, until, run_at)
+        run_times = [parser.parse(run_at) for run_at in p[3].split('&')]
+        return RepeatsMonthlyDate(every, days_of_month, until, run_times)
 
     @property
     def to_params(self):
+
+        run_times = ""
+
+        for run_at in self.run_times:
+            run_times += run_at.strftime("%H:%M:%S %Z") + '&'
+
         return str(self.every) + "~" + str(self.days_of_month)[1:-1] + "~" + self.until.strftime("%Y-%m-%d %Z") + "~" \
-            + self.run_at.strftime("%H:%M:%S %Z")
+            + run_times[:-1]
 
     @staticmethod
     def get_type():
@@ -114,22 +142,23 @@ class RepeatsMonthlyDate(TimeRule):
     def get_date_times(self):
         date_times = []
 
-        for day in self.days_of_month:
-            first_run = datetime.now().replace(day=day, hour=self.run_at.hour, minute=self.run_at.minute,
-                                               second=self.run_at.second)
-            date_times += list(rrule.rrule(rrule.MONTHLY, dtstart=first_run, until=self.until))
+        for run_at in self.run_times:
+            for day in self.days_of_month:
+                first_run = datetime.now().replace(day=day, hour=run_at.hour, minute=run_at.minute,
+                                                   second=run_at.second)
+                date_times += list(rrule.rrule(rrule.MONTHLY, dtstart=first_run, until=self.until))
 
         return date_times
 
 
 class RepeatsMonthlyDay(TimeRule):
 
-    def __init__(self, every, param1, day_of_week, until, run_at):
+    def __init__(self, every, param1, day_of_week, until, run_times):
         self.every = every
         self.param1 = param1
         self.day_of_week = day_of_week
         self.until = until
-        self.run_at = run_at
+        self.run_times = run_times
 
     @staticmethod
     def from_params(params):
@@ -138,13 +167,19 @@ class RepeatsMonthlyDay(TimeRule):
         param1 = p[1]
         day_of_week = int(p[2])
         until = parser.parse(p[3])
-        run_at = parser.parse(p[4])
-        return RepeatsMonthlyDay(every, param1, day_of_week, until, run_at)
+        run_times = [parser.parse(run_at) for run_at in p[4].split('&')]
+        return RepeatsMonthlyDay(every, param1, day_of_week, until, run_times)
 
     @property
     def to_params(self):
+
+        run_times = ""
+
+        for run_at in self.run_times:
+            run_times += run_at.strftime("%H:%M:%S %Z") + '&'
+
         return str(self.every) + "~" + self.param1 + "~" + str(self.day_of_week) + "~" \
-               + self.until.strftime("%Y-%m-%d %Z") + "~" + self.run_at.strftime("%H:%M:%S %Z")
+               + self.until.strftime("%Y-%m-%d %Z") + "~" + run_times[:-1]
 
     @staticmethod
     def get_type():
@@ -164,8 +199,10 @@ class RepeatsMonthlyDay(TimeRule):
         }
 
         for i in range(1, number_of_months + 1, self.every):
-            date_times.append(switch[self.param1](i).replace(hour=self.run_at.hour, minute=self.run_at.minute,
-                                                             second=self.run_at.second))
+            day = switch[self.param1](1)
+
+            for run_at in self.run_times:
+                date_times.append(day.replace(hour=run_at.hour, minute=run_at.minute, second=run_at.second))
 
         return date_times
 
@@ -196,10 +233,10 @@ class RepeatsMonthlyDay(TimeRule):
 
 class RepeatsWeekly(TimeRule):
 
-    def __init__(self, every, days, run_at, starting_from, until):
+    def __init__(self, every, days, run_times, starting_from, until):
         self.every = every
         self.days = days
-        self.run_at = run_at
+        self.run_times = run_times
         self.starting_from = starting_from
         self.until = until
 
@@ -208,14 +245,20 @@ class RepeatsWeekly(TimeRule):
         p = params.split("~")
         every = int(p[0])
         days = [int(day) for day in p[1].split(',')]
-        run_at = parser.parse(p[2])
+        run_times = [parser.parse(run_at) for run_at in p[2].split('&')]
         starting_from = parser.parse(p[3])
         until = parser.parse(p[4])
-        return RepeatsWeekly(every, days, run_at, starting_from, until)
+        return RepeatsWeekly(every, days, run_times, starting_from, until)
 
     @property
     def to_params(self):
-        return str(self.every) + "~" + str(self.days)[1:-1] + "~" + self.run_at.strftime("%H:%M:%S %Z") \
+
+        run_times = ""
+
+        for run_at in self.run_times:
+            run_times += run_at.strftime("%H:%M:%S %Z") + '&'
+
+        return str(self.every) + "~" + str(self.days)[1:-1] + "~" + run_times[:-1] \
             + "~" + self.starting_from.strftime("%Y-%m-%d") + "~" + self.until.strftime("%Y-%m-%d %Z")
 
     @staticmethod
@@ -234,7 +277,9 @@ class RepeatsWeekly(TimeRule):
 
             for day_of_week in self.days:
                 d -= timedelta(days=d.weekday() - day_of_week)
-                d = d.replace(hour=self.run_at.hour, minute=self.run_at.minute, second=self.run_at.second)
-                date_times.append(d)
+
+                for run_at in self.run_times:
+                    d = d.replace(hour=run_at.hour, minute=run_at.minute, second=run_at.second)
+                    date_times.append(d)
 
         return date_times
