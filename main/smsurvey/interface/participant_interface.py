@@ -45,7 +45,7 @@ def authenticate(response):
                 }
             else:
                 response.set_status(403)
-                response.write('{"status":"error","message":"Do not have authorization to R/W survey"}')
+                response.write('{"status":"error","message":"Do not have authorization retrieve participant information}')
                 response.flush()
 
     else:

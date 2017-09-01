@@ -32,6 +32,15 @@ class PluginService:
         return False
 
     @staticmethod
+    def is_owned_by(plugin_id, owner_id):
+        plugin = PluginService.get_plugin(plugin_id)
+
+        if plugin is None:
+            return False
+
+        return plugin.owner_id == owner_id
+
+    @staticmethod
     def is_plugin_registered(plugin_id):
         return PluginService.get_plugin(plugin_id) is not None
 
