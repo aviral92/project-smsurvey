@@ -16,7 +16,9 @@ $(document).ready(function(){
            dataType: "json",
            error: function(jqxhr) {
                alert(jqxhr["responseJSON"]["reason"]);
-               window.location.href="http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/login.html"
+               Cookies.remove("session_id");
+               Cookies.remove("username");
+               window.location.href="http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/login.html"
            }
        });
    }
@@ -67,6 +69,9 @@ $(document).ready(function(){
            "http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/logout",
            to_send
        );
+
+       Cookies.remove("session_id");
+       Cookies.remove("username");
 
        $.ajax({
            url: "http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/logout",

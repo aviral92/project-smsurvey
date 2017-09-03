@@ -11,9 +11,8 @@ from smsurvey.core.services.plugin_service import PluginService
 class PluginsRequestHandler(RequestHandler):
 
     def get(self):
-        data = json_decode(self.request.body)
 
-        session_id = data["session_id"]
+        session_id = self.get_argument("session_id")
 
         owner_id = secure.get_session_owner_id(session_id)
 
