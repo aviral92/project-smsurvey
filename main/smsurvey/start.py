@@ -1,3 +1,5 @@
+import argparse
+
 from tornado import process
 from tornado.ioloop import IOLoop
 
@@ -9,6 +11,11 @@ from smsurvey.core.services.instance_service import InstanceService
 
 
 if __name__ == "__main__":
+
+    ap = argparse.ArgumentParser("SMSurvey")
+    ap.add_argument('-n', '--no_loop', help="Disables the instance service loop")
+    args = ap.parse_args()
+
     Model.from_database(config.DAO)
     process_id = process.fork_processes(config.response_interface_processes + 2, max_restarts=0)
 
@@ -19,7 +26,8 @@ if __name__ == "__main__":
     elif process_id < config.response_interface_processes + 1:
         schedule_master.start_schedule()
     else:
-        InstanceService.run_loop()
+        if not args.no_loop:
+            InstanceService.run_loop()
 
     try:
         IOLoop.current().start()
