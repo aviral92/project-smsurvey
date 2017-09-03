@@ -57,6 +57,9 @@ def get_session_owner_id(session_id):
     sessions = Model.repository.sessions
     session = sessions.select(Where(sessions.id, Where.E, session_id))
 
+    if session is None:
+        return None
+
     return session.owner_id
 
 class SecurityException(Exception):

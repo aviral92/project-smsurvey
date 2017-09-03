@@ -20,24 +20,26 @@ $(document).ready(function(){
        );
    }
 
-   $.getJSON(
-       "http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/plugins?session_id=" + Cookies.get("session_id"),
-       function(plugins, status) {
-           if (status === 'success') {
-               $.each(plugins, function(index, plugin){
-                   var onclick = '$("#page-wrapper-plugin").attr("src", "' + plugin["url"] + '/config"); ' +
-                       '$("#page-wrapper-home").hide(); ' +
-                       '$("#page-wrapper-plugin").show(); ' +
-                       '$("#a_home").html("Console -> ' + plugin["name"] + '");';
-                   var html = '<li><a href="#" onclick="' + onclick + '"><i class="fa ' + plugin["icon"] +
-                       ' fa-fw></i> ' + plugin["name"] + '"</a></li>';
 
-                   $('#side-menu').prepend(html);
-               });
+   if (typeof Cookies.get('session_id') !== 'undefined') {
+        $.getJSON(
+            "http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/plugins?session_id=" + Cookies.get("session_id"),
+            function(plugins, status) {
+                if (status === 'success') {
+                    $.each(plugins, function(index, plugin){
+                        var onclick = '$("#page-wrapper-plugin").attr("src", "' + plugin["url"] + '/config"); ' +
+                            '$("#page-wrapper-home").hide(); ' +
+                            '$("#page-wrapper-plugin").show(); ' +
+                            '$("#a_home").html("Console -> ' + plugin["name"] + '");';
+                        var html = '<li><a href="#" onclick="' + onclick + '"><i class="fa ' + plugin["icon"] +
+                            ' fa-fw></i> ' + plugin["name"] + '"</a></li>';
 
-           }
-       }
-   );
+                        $('#side-menu').prepend(html);
+                       });
+                }
+            }
+       );
+   }
 
    $('#a_home').click(function() {
        $("#page-wrapper-plugin").hide();
