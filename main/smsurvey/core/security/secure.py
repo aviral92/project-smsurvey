@@ -24,7 +24,7 @@ def create_session(owner_id):
     one = os.urandom(16)
     two = os.urandom(16)
 
-    session_id = str(binascii.hexlify(hashlib.pbkdf2_hmac('sha512', one, two, 100000)))
+    session_id = binascii.hexlify(hashlib.pbkdf2_hmac('sha512', one, two, 100000)).decode()
     sessions = Model.repository.sessions
     session = sessions.create()
     session.id = session_id
@@ -61,6 +61,7 @@ def get_session_owner_id(session_id):
         return None
 
     return session.owner_id
+
 
 class SecurityException(Exception):
 

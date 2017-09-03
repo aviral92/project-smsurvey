@@ -22,7 +22,7 @@ class PluginService:
     @staticmethod
     def get_by_owner_id(owner_id):
         plugins = Model.repository.plugins
-        return plugins.select(Where(plugins.owner_id, Where.E, owner_id), false_list=True)
+        return plugins.select(Where(plugins.owner_id, Where.E, owner_id), force_list=True)
 
     @staticmethod
     def validate_plugin(plugin_id, owner_name, owner_domain, token):
