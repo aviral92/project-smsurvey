@@ -24,7 +24,7 @@ $(document).ready(function() {
            error: function(jqxhr) {
                alert(jqxhr["responseJSON"]["reason"]);
            }
-    });
+       });
     });
 
 });
