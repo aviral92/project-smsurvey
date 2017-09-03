@@ -153,3 +153,4 @@ ENV/
 public/static/
 public/media/
 *-env/
+!/web/dist/

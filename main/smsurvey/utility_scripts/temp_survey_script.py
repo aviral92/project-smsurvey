@@ -205,9 +205,9 @@ if __name__ == "__main__":
     print("Owner created")
 
     print("Creating plugin")
-    plugin_id, token = PluginService.register_plugin("owner", "test", "password",
-                                                      "http://smsurvey-twilio-2028755190.us-east-1.elb.amazonaws.com"
-                                                      "/poke/", 50) 
+    plugin_id, token = PluginService.register_plugin("SMS", "owner", "test", "password",
+                                                     "http://smsurvey-twilio-2028755190.us-east-1.elb.amazonaws.com",
+                                                     "fa-phone-square", 50)
     print("Plugin created")
     print("token = " + token)
 

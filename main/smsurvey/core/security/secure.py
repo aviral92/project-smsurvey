@@ -1,6 +1,12 @@
 import hashlib
 import os
 import binascii
+import pytz
+
+from datetime import datetime, timedelta
+
+from smsurvey.core.model.model import Model
+from smsurvey.core.model.query.where import Where
 
 
 def encrypt_password(not_safe, salt=os.urandom(16)):
@@ -13,6 +19,45 @@ def encrypt_password(not_safe, salt=os.urandom(16)):
     bin_pass = hashlib.pbkdf2_hmac('sha512', not_safe, salt, 100000)
     return binascii.hexlify(bin_pass)
 
+
+def create_session(owner_id):
+    one = os.urandom(16)
+    two = os.urandom(16)
+
+    session_id = str(binascii.hexlify(hashlib.pbkdf2_hmac('sha512', one, two, 100000)))
+    sessions = Model.repository.sessions
+    session = sessions.create()
+    session.id = session_id
+    session.owner_id = owner_id
+    session.expires = datetime.now(tz=pytz.utc) + timedelta(days=7)
+
+    return session.save()
+
+
+def delete_session(session_id):
+    sessions = Model.repository.sessions
+    sessions.delete(Where(sessions.id, Where.E, session_id))
+
+
+def session_valid(owner_id, session_id):
+    sessions = Model.repository.sessions
+    session = sessions.select(Where(sessions.id, Where.E, session_id))
+
+    if session is None:
+        return False
+
+    if datetime.now(tz=pytz.utc) > session.expires:
+        sessions.delete(Where(sessions.id, Where.E, session_id))
+        return False
+
+    return session.owner_id == owner_id
+
+
+def get_session_owner_id(session_id):
+    sessions = Model.repository.sessions
+    session = sessions.select(Where(sessions.id, Where.E, session_id))
+
+    return session.owner_id
 
 class SecurityException(Exception):
 
