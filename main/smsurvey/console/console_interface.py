@@ -1,6 +1,7 @@
 import json
 
 from tornado.web import RequestHandler
+from tornado.escape import json_decode
 
 from smsurvey.core.security import secure
 from smsurvey.core.services.owner_service import OwnerService
@@ -10,7 +11,9 @@ from smsurvey.core.services.plugin_service import PluginService
 class PluginsRequestHandler(RequestHandler):
 
     def get(self):
-        session_id = self.get_argument("session_id")
+        data = json_decode(self.request.body)
+
+        session_id = data["session_id"]
 
         owner_id = secure.get_session_owner_id(session_id)
 

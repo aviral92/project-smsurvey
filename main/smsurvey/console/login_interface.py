@@ -1,6 +1,8 @@
 import json
+import tornado
 
 from tornado.web import RequestHandler
+from tornado.escape import json_decode
 
 from smsurvey.core.security import secure
 from smsurvey.core.services.owner_service import OwnerService
@@ -9,9 +11,10 @@ from smsurvey.core.services.owner_service import OwnerService
 class LoginHandler(RequestHandler):
 
     def post(self):
+        data = json_decode(self.request.body)
 
-        username = self.get_argument("username")
-        password = self.get_argument("password")
+        username = data["username"]
+        password = data["password"]
 
         splitter = username.find('@')
 
@@ -55,7 +58,9 @@ class LoginHandler(RequestHandler):
 class LogoutHandler(RequestHandler):
 
     def post(self):
-        session_id = self.get_argument("session_id")
+        data = json_decode(self.request.body)
+
+        session_id = data["session_id"]
 
         secure.delete_session(session_id)
 
@@ -75,8 +80,10 @@ class CheckLoginHandler(RequestHandler):
 
     def post(self):
 
-        username = self.get_argument("username")
-        session_id = self.get_argument("session_id")
+        data = json_decode(self.request.body)
+
+        username = data["username"]
+        session_id = data["session_id"]
 
         splitter = username.find('@')
 

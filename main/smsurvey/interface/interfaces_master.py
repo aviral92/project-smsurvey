@@ -39,7 +39,7 @@ def start_interface(port):
         (r"/console/plugins", PluginsRequestHandler),
         (r"/healthcheck", HealthCheckHandler),
         (r"/(.*)", StaticFileHandler,
-         {"path": "static/console/", "default_filename": "index.html"})
+         {"path": "smsurvey/static/console/", "default_filename": "index.html"})
     ])
 
     try:
