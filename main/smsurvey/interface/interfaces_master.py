@@ -1,4 +1,4 @@
-from tornado.web import Application, RequestHandler
+from tornado.web import Application, RequestHandler, StaticFileHandler
 
 from smsurvey.config import logger
 from smsurvey.interface.survey_interface import AllInstancesHandler, LatestQuestionHandler, AQuestionHandler,\
@@ -6,6 +6,8 @@ from smsurvey.interface.survey_interface import AllInstancesHandler, LatestQuest
 from smsurvey.interface.participant_interface import ParticipantHandler
 from smsurvey.interface.enrollment_interface import AllEnrollmentsHandler, AnEnrollmentHandler,\
     AnEnrollmentAllParticipantsHandler, AnEnrollmentAParticipantHandler
+from smsurvey.console.login_interface import LoginHandler, LogoutHandler, CheckLoginHandler
+from smsurvey.console.console_interface import PluginsRequestHandler
 
 
 class HealthCheckHandler(RequestHandler):
@@ -31,7 +33,13 @@ def start_interface(port):
         (r"/enrollments/(\d*)", AnEnrollmentHandler),
         (r"/enrollments/(\d*)/enrolled", AnEnrollmentAllParticipantsHandler),
         (r"/enrollments/(\d*)/(\d*)", AnEnrollmentAParticipantHandler),
-        (r"/healthcheck", HealthCheckHandler)
+        (r"/console/login", LoginHandler),
+        (r"/console/logout", LogoutHandler),
+        (r"/console/check_login", CheckLoginHandler),
+        (r"/console/plugins", PluginsRequestHandler),
+        (r"/healthcheck", HealthCheckHandler),
+        (r"/(.*)", StaticFileHandler,
+         {"path": "static/console/", "default_filename": "index.html"})
     ])
 
     try:

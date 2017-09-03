@@ -20,11 +20,13 @@ CREATE TABLE owner (
 
 CREATE TABLE plugin (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
+  name VARCHAR(50) NOT NULL,
   owner_id INT NOT NULL,
   secret_token VARCHAR(200) NOT NULL,
   salt VARCHAR(100) NOT NULL,
   permissions INTEGER NOT NULL,
-  poke_url VARCHAR(255) NOT NULL,
+  url VARCHAR(255) NOT NULL,
+  icon VARCHAR(25),
   PRIMARY KEY(id),
   FOREIGN KEY(owner_id) REFERENCES owner(id) ON DELETE CASCADE
 ) CHARACTER SET utf8;
@@ -63,6 +65,7 @@ CREATE TABLE survey (
   protocol_id INT NOT NULL,
   enrollment_id INT NOT NULL,
   owner_id INT NOT NULL,
+  enable_notes BOOL NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (enrollment_id) REFERENCES enrollment (id) ON DELETE CASCADE,
   FOREIGN KEY (owner_id) REFERENCES owner (id) ON DELETE CASCADE,
@@ -96,4 +99,12 @@ CREATE TABLE state (
   priority TINYINT DEFAULT 0 NOT NULL,
   PRIMARY KEY(id),
   FOREIGN KEY(instance_id) REFERENCES instance(id) ON DELETE CASCADE
+) CHARACTER SET utf8;
+
+CREATE TABLE sessions (
+  id VARCHAR(100) NOT NULL UNIQUE,
+  owner_id INT NOT NULL,
+  expires TIMESTAMP NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (owner_id) REFERENCES owner (id) ON DELETE CASCADE
 ) CHARACTER SET utf8;

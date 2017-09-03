@@ -20,6 +20,11 @@ class PluginService:
         return plugins.select(Where(plugins.id, Where.EQUAL, plugin_id))
 
     @staticmethod
+    def get_by_owner_id(owner_id):
+        plugins = Model.repository.plugins
+        return plugins.select(Where(plugins.owner_id, Where.E, owner_id), false_list=True)
+
+    @staticmethod
     def validate_plugin(plugin_id, owner_name, owner_domain, token):
         plugin = PluginService.get_plugin(plugin_id)
 
@@ -45,7 +50,7 @@ class PluginService:
         return PluginService.get_plugin(plugin_id) is not None
 
     @staticmethod
-    def register_plugin(owner_name, owner_domain, owner_password, poke_url, permissions):
+    def register_plugin(name, owner_name, owner_domain, owner_password, url, icon, permissions):
         if OwnerService.does_owner_exist(owner_name, owner_domain):
             if OwnerService.validate_password(owner_name, owner_domain, owner_password):
 
@@ -57,11 +62,13 @@ class PluginService:
                 plugins = Model.repository.plugins
                 plugin = plugins.create()
 
+                plugin.name = name
                 plugin.owner_id = owner_id
                 plugin.secret_token = salted_token
                 plugin.salt = salt_for_token
                 plugin.permissions = permissions
-                plugin.poke_url = poke_url
+                plugin.icon = icon
+                plugin.url = url
 
                 return plugin.save(), token
 
@@ -76,4 +83,4 @@ class PluginService:
             'survey_id': survey_id
         }
 
-        requests.post(plugin.poke_url, json.dumps(data))
+        requests.post(plugin.url + "/poke", json.dumps(data))
