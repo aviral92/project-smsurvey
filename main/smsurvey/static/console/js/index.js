@@ -1,3 +1,16 @@
+var permissions_lookup = [
+    ["", "", "READ PARTICIPANT", "WRITE PARTICIPANT", "READ/WRITE PARTICIPANT"],
+    ["", "", "READ ENROLLMENT", "WRITE ENROLLMENT", "READ/WRITE ENROLLMENT"],
+    ["", "", "READ PROTOCOL", "WRITE PROTOCOL", "READ/WRITE PROTOCOL"],
+    ["", "", "READ QUESTION", "WRITE QUESTION", "READ/WRITE QUESTION"],
+    ["", "", "READ RESPONSE", "WRITE RESPONSE", "READ/WRITE RESPONSE"],
+    ["", "", "READ NOTE", "WRITE NOTE", "READ/WRITE NOTE"],
+    ["", "", "READ SURVEY", "WRITE SURVEY", "READ/WRITE SURVEY"],
+    ["", "", "READ TASK", "WRITE TASK", "READ/WRITE TASK"],
+    ["", "", "READ PLUGIN", "WRITE PLUGIN", "READ/WRITE PLUGIN"],
+    ["", "", "READ OWNER", "WRITE OWNER", "READ/WRITE OWNER"]
+];
+
 $(document).ready(function(){
 
    if (typeof Cookies.get('session_id') === 'undefined' || typeof Cookies.get('username') === 'undefined') {
@@ -41,8 +54,8 @@ $(document).ready(function(){
 
                $.each(plugins, function(index, plugin){
 
-                   var html = '<li><a href="#" onclick="plugin_onclick(' + plugin + ')"><i class="fa ' + plugin["icon"] +
-                       ' fa-fw></i> ' + plugin["name"] + '"</a></li>';
+                   var html = "<li><a href='#' onclick='plugin_onclick(" + JSON.stringify(plugin) + ")'><i class='fa " + plugin["icon"] +
+                       " fa-fw'></i> " + plugin["name"] + "</a></li>";
 
                    $('#side-menu').prepend(html);
                });
@@ -55,7 +68,8 @@ $(document).ready(function(){
 
    $('#a_home').click(function() {
        $("#page-wrapper-plugin").hide();
-       $("page-wrapper-home").show();
+       $("#page-wrapper-manage-plugins").hide();
+       $("#page-wrapper-home").show();
 
        $("#a_home").html("Console")
    });
@@ -78,10 +92,95 @@ $(document).ready(function(){
        window.location.href="http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/login.html"
 
    });
+
+   $('#a_manage_plugins').click(function() {
+       $("#page-wrapper-home").hide();
+       $("#page-wrapper-plugin").hide();
+
+       var to_send = {
+           "session_id": Cookies.get("session_id")
+       };
+
+       $.ajax({
+           url: "http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/plugins",
+           type: "GET",
+           data: to_send,
+           dataType: "json",
+           success: function(data){
+
+               var plugins = data["plugins"];
+
+               $.each(plugins, function(index, plugin){
+                   var html = "<td>" + plugin['name'] + "</td>";
+                   html += "<td><button class='btn btn-info btn-xs' onclick='get_permissions(" + JSON.stringify(plugin) + " alert)'>View Permissions</button></td>";
+                   html += "<td><button class='btn btn-danger btn-xs' onclick='remove_plugin(" + JSON.stringify(plugin) +")'>Remove Plugin</button></td>";
+
+                   $("#tbody_plugins").append(html);
+               });
+            },
+           error: function(jqxhr) {
+               alert(jqxhr["responseJSON"]["reason"]);
+           }
+       });
+
+       $("#page-wrapper-manage-plugins").show();
+   });
+
+   $("#btn_add_plugin").click(function() {
+
+   });
 });
+
+function remove_plugin(plugin) {
+    if (confirm("Are you sure? Removing a plugin without properly disassociating everything can have unintended consequences")) {
+        var to_send = {
+            "session_id": Cookies.get("session_id"),
+            "plugin_id": plugin["id"]
+        };
+
+        $.ajax({
+            url: "http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/plugins",
+            type: "DELETE",
+            data: to_send,
+            dataType: "json",
+            success: function(){
+                location.reload()
+            },
+            error: function(jqxhr) {
+               alert(jqxhr["responseJSON"]["reason"]);
+            }
+       });
+    }
+}
 
 function plugin_onclick(plugin) {
     $("#page-wrapper-home").hide();
+    $("#page-wrapper-manage-plugins").hide();
     $("#page-wrapper-plugin").attr("src",  plugin["url"] + '/config').show();
     ("#a_home").html("Console -> " + plugin["name"]);
+}
+
+function get_permissions(plugin, callback) {
+    $.ajax({
+        url: plugin["url"] + "/permissions",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            var permissions = data["permissions"].split('').map(Number);
+
+            var message = "";
+
+            $.each(permissions, function(index, permission){
+                if (permission !== 1) {
+                    message += index + " - " + permissions_lookup[index][permission] + "\n";
+                }
+
+            });
+
+            callback(message);
+        },
+        fail: function() {
+            alert("Unable to retrieve permissions from plugin");
+        }
+    });
 }

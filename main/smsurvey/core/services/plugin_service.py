@@ -50,29 +50,29 @@ class PluginService:
         return PluginService.get_plugin(plugin_id) is not None
 
     @staticmethod
-    def register_plugin(name, owner_name, owner_domain, owner_password, url, icon, permissions):
-        if OwnerService.does_owner_exist(owner_name, owner_domain):
-            if OwnerService.validate_password(owner_name, owner_domain, owner_password):
+    def register_plugin(name, owner_id, url, icon, permissions):
 
-                owner_id = OwnerService.get_owner_id(owner_name, owner_domain)
-                token = secure.encrypt_password(owner_domain + owner_name + str(time.time())).decode()
-                salt_for_token = b64encode(os.urandom(16)).decode()
-                salted_token = secure.encrypt_password(token, salt_for_token).decode()
+        token = secure.encrypt_password(owner_id + str(time.time())).decode()
+        salt_for_token = b64encode(os.urandom(16)).decode()
+        salted_token = secure.encrypt_password(token, salt_for_token).decode()
 
-                plugins = Model.repository.plugins
-                plugin = plugins.create()
+        plugins = Model.repository.plugins
+        plugin = plugins.create()
 
-                plugin.name = name
-                plugin.owner_id = owner_id
-                plugin.secret_token = salted_token
-                plugin.salt = salt_for_token
-                plugin.permissions = permissions
-                plugin.icon = icon
-                plugin.url = url
+        plugin.name = name
+        plugin.owner_id = owner_id
+        plugin.secret_token = salted_token
+        plugin.salt = salt_for_token
+        plugin.permissions = permissions
+        plugin.icon = icon
+        plugin.url = url
 
-                return plugin.save(), token
+        return plugin.save(), token
 
-        raise secure.SecurityException("Invalid owner credentials")
+    @staticmethod
+    def delete_plugin(plugin_id):
+        plugins = Model.repository.plugins
+        plugins.delete(Where(plugins.id, Where.E, plugin_id))
 
     @staticmethod
     def poke(plugin_id, survey_id):

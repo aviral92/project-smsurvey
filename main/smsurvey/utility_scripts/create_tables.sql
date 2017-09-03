@@ -25,7 +25,7 @@ CREATE TABLE plugin (
   owner_id INT NOT NULL,
   secret_token VARCHAR(200) NOT NULL,
   salt VARCHAR(100) NOT NULL,
-  permissions INTEGER NOT NULL,
+  permissions VARCHAR(10) NOT NULL,
   url VARCHAR(255) NOT NULL,
   icon VARCHAR(25),
   PRIMARY KEY(id),
