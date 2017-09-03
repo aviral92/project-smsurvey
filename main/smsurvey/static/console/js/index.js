@@ -35,13 +35,13 @@ $(document).ready(function(){
            type: "GET",
            data: to_send,
            dataType: "json",
-           success: function(data, status){
+           success: function(data){
+
+               var plugins = data["plugins"];
+
                $.each(plugins, function(index, plugin){
-                   var onclick = '$("#page-wrapper-plugin").attr("src", "' + plugin["url"] + '/config"); ' +
-                       '$("#page-wrapper-home").hide(); ' +
-                       '$("#page-wrapper-plugin").show(); ' +
-                       '$("#a_home").html("Console -> ' + plugin["name"] + '");';
-                   var html = '<li><a href="#" onclick="' + onclick + '"><i class="fa ' + plugin["icon"] +
+
+                   var html = '<li><a href="#" onclick="plugin_onclick(' + plugin + ')"><i class="fa ' + plugin["icon"] +
                        ' fa-fw></i> ' + plugin["name"] + '"</a></li>';
 
                    $('#side-menu').prepend(html);
@@ -65,11 +65,6 @@ $(document).ready(function(){
             "session_id": Cookies.get('session_id')
         };
 
-       $.post(
-           "http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/logout",
-           to_send
-       );
-
        Cookies.remove("session_id");
        Cookies.remove("username");
 
@@ -84,3 +79,9 @@ $(document).ready(function(){
 
    });
 });
+
+function plugin_onclick(plugin) {
+    $("#page-wrapper-home").hide();
+    $("#page-wrapper-plugin").attr("src",  plugin["url"] + '/config').show();
+    ("#a_home").html("Console -> " + plugin["name"]);
+}
