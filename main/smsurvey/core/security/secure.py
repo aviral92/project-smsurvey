@@ -26,6 +26,7 @@ def create_session(owner_id):
 
     session_id = binascii.hexlify(hashlib.pbkdf2_hmac('sha512', one, two, 100000)).decode()
     sessions = Model.repository.sessions
+    sessions.delete(Where(sessions.owner_id, Where.E, owner_id))
     session = sessions.create()
     session.id = session_id
     session.owner_id = owner_id

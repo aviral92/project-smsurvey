@@ -1,9 +1,9 @@
 import json
-import tornado
 
 from tornado.web import RequestHandler
 from tornado.escape import json_decode
 
+from smsurvey.config import logger
 from smsurvey.core.security import secure
 from smsurvey.core.services.owner_service import OwnerService
 
@@ -11,8 +11,10 @@ from smsurvey.core.services.owner_service import OwnerService
 class LoginHandler(RequestHandler):
 
     def post(self):
-        data = json_decode(self.request.body)
 
+        logger.debug("Attempt to login")
+
+        data = json_decode(self.request.body)
         username = data["username"]
         password = data["password"]
 
@@ -37,7 +39,8 @@ class LoginHandler(RequestHandler):
 
                 response = {
                     "status": "success",
-                    "session_id": session.id
+                    "session_id": session.id,
+                    "username": username
                 }
 
             else:
@@ -48,7 +51,9 @@ class LoginHandler(RequestHandler):
                     "reason": "Username and password do not match"
                 }
 
-        self.write(json.dumps(response))
+        response_json = json.dumps(response)
+        logger.debug(response_json)
+        self.write(response_json)
         self.flush()
 
     def data_received(self, chunk):
@@ -62,6 +67,8 @@ class LogoutHandler(RequestHandler):
 
         session_id = data["session_id"]
 
+        logger.debug("Logging out session %s", session_id)
+
         secure.delete_session(session_id)
 
         response = {
@@ -69,7 +76,10 @@ class LogoutHandler(RequestHandler):
         }
 
         self.set_status(200)
-        self.write(json.dumps(response))
+
+        response_json = json.dumps(response)
+        logger.debug(response_json)
+        self.write(response_json)
         self.flush()
 
     def data_received(self, chunk):
@@ -79,6 +89,8 @@ class LogoutHandler(RequestHandler):
 class CheckLoginHandler(RequestHandler):
 
     def post(self):
+
+        logger.debug("Attempting to verify a session")
 
         data = json_decode(self.request.body)
 
@@ -112,7 +124,9 @@ class CheckLoginHandler(RequestHandler):
                     "reason": "Invalid or out of date session"
                 }
 
-        self.write(json.dumps(response))
+        response_json = json.dumps(response)
+        logger.debug(response_json)
+        self.write(response_json)
         self.flush()
 
     def data_received(self, chunk):

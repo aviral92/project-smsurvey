@@ -92,6 +92,7 @@ class Model:
                     cursor.execute(sql)
 
                     logger.debug("Executing sql: %s", sql)
+                    logger.debug("PyMySQL sql: %s", cursor.mogrify(sql))
 
                     results = cursor.fetchall()
 
@@ -121,6 +122,9 @@ class Model:
                         cursor.execute(sql + self.table_name + " WHERE " + where.build())
 
                     logger.debug("Executing sql: %s", sql)
+
+                    logger.debug("Executing sql: %s", sql)
+                    logger.debug("PyMySQL sql: %s", cursor.mogrify(sql))
 
                     connection.commit()
             finally:
@@ -175,13 +179,14 @@ class Model:
                 columns, values = self.get_column_tuples()
                 sql = "INSERT INTO " + self.model.table_name + " " + columns + " VALUES %s"
 
-                logger.debug("Executing sql: %s", sql)
-
                 connection = Model.dao.get_connection()
 
                 try:
                     with connection.cursor() as cursor:
                         cursor.execute(sql, [values])
+
+                        logger.debug("Executing sql: %s", sql)
+                        logger.debug("PyMySQL sql: %s", cursor.mogrify(sql))
 
                         connection.commit()
                         new_row_id = cursor.lastrowid
@@ -200,13 +205,16 @@ class Model:
 
                 sql = "UPDATE " + self.model.table_name + " SET " + instr + " WHERE id = %s"
 
-                logger.debug("Executing sql: %s", sql)
 
                 connection = Model.dao.get_connection()
 
                 try:
                     with connection.cursor() as cursor:
                         cursor.execute(sql, self.__dict__['id'])
+
+                        logger.debug("Executing sql: %s", sql)
+                        logger.debug("PyMySQL sql: %s", cursor.mogrify(sql))
+
                         connection.commit()
                         updated_row_id = cursor.lastrowid
                 finally:
