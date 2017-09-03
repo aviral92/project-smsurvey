@@ -2,8 +2,8 @@ $(document).ready(function() {
 
     $("#btn_login").click(function(){
         var to_send = {
-            "username": $("#username").value,
-            "password": $("#password").value
+            "username": $("#username").val(),
+            "password": $("#password").val()
         };
 
        $.ajax({
@@ -21,8 +21,8 @@ $(document).ready(function() {
                    alert(data['message']);
                }
             },
-           fail: function(jqxhr) {
-               alert(jqxhr["responseJSON"]["reason"])
+           error: function(jqxhr) {
+               alert(jqxhr["responseJSON"]["reason"]);
            }
     });
     });
