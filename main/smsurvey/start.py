@@ -13,7 +13,7 @@ from smsurvey.core.services.instance_service import InstanceService
 if __name__ == "__main__":
 
     ap = argparse.ArgumentParser("SMSurvey")
-    ap.add_argument('-n', '--no_loop', help="Disables the instance service loop")
+    ap.add_argument('-n', '--no_loop', action="store_true", help="Disables the instance service loop")
     args = ap.parse_args()
 
     Model.from_database(config.DAO)

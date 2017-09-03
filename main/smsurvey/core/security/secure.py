@@ -32,7 +32,7 @@ def create_session(owner_id):
     session.owner_id = owner_id
     session.expires = datetime.now(tz=pytz.utc) + timedelta(days=7)
 
-    return session.save()
+    return session.save(id_override=session_id)
 
 
 def delete_session(session_id):
