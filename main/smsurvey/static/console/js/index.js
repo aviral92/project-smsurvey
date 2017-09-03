@@ -1,7 +1,7 @@
 $(document).ready(function(){
 
    if (typeof Cookies.get('session_id') === 'undefined' || typeof Cookies.get('username') === 'undefined') {
-       window.location.href="http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/login"
+       window.location.href="http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/login.html"
    } else {
        var to_send = {
             "session_id": Cookies.get('session_id'),
@@ -13,7 +13,7 @@ $(document).ready(function(){
            to_send,
            function(data, status) {
                if (status !== 'success') {
-                   window.location.href="http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/login"
+                   window.location.href="http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/login.html"
                }
            },
            "json"
@@ -58,7 +58,7 @@ $(document).ready(function(){
            to_send
        );
 
-       window.location.href="http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/login"
+       window.location.href="http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/login.html"
 
    });
 });
