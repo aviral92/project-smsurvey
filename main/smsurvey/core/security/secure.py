@@ -1,7 +1,6 @@
 import hashlib
 import os
 import binascii
-import pytz
 
 from datetime import datetime, timedelta
 
@@ -30,7 +29,7 @@ def create_session(owner_id):
     session = sessions.create()
     session.id = session_id
     session.owner_id = owner_id
-    session.expires = datetime.now(tz=pytz.utc) + timedelta(days=7)
+    session.expires = datetime.now() + timedelta(days=7)
 
     return session.save(id_override=session_id)
 
@@ -47,7 +46,7 @@ def session_valid(owner_id, session_id):
     if session is None:
         return False
 
-    if datetime.now(tz=pytz.utc) > session.expires:
+    if datetime.now() > session.expires:
         sessions.delete(Where(sessions.id, Where.E, session_id))
         return False
 
