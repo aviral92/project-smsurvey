@@ -33,5 +33,5 @@ urlpatterns = [
     # Interface implementation
     url(r'poke/', poke_handler.handle),
     url(r'info/', info_handler.handle),
-    url(r'register/', register_handler)
+    url(r'register/', register_handler.handle)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
