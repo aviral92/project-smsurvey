@@ -13,7 +13,7 @@ pp = os.path.dirname(p)
 ppp = os.path.dirname(pp)
 sys.path.insert(0, ppp)
 
-from plugins.rapidsms_plugin.responsehandler import poke_handler
+from plugins.rapidsms_plugin.responsehandler import poke_handler, info_handler, register_handler
 
 
 urlpatterns = [
@@ -30,5 +30,8 @@ urlpatterns = [
     url(r'^backend/twilio/', include('rtwilio.urls')),
     # Third party URLs
     url(r'^selectable/', include('selectable.urls')),
-    url(r'poke/', poke_handler.handle)
+    # Interface implementation
+    url(r'poke/', poke_handler.handle),
+    url(r'info/', info_handler.handle),
+    url(r'register/', register_handler)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

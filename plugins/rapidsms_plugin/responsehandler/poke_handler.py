@@ -8,10 +8,8 @@ from .app import SurveyStarter
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-token = os.environ.get("SEC_TOKEN")
-owner = os.environ.get("OWNER_NAME")
-domain = os.environ.get("OWNER_DOMAIN")
-url = os.environ.get("SYSTEM_URL")
+from responsehandler.models import OwnerModel
+
 
 
 @csrf_exempt
@@ -19,7 +17,14 @@ def handle(request):
     body = json.loads(request.body.decode())
     plugin_id = str(body['plugin_id'])
     survey_id = str(body['survey_id'])
-    a = owner + "@" + domain + "-" + plugin_id + ":" + token
+
+    owner = OwnerModel.objects.get(plugin_id=plugin_id)
+
+    owner_id = str(owner.owner_id)
+    token = str(owner.token)
+    url = str(owner.url)
+
+    a = owner_id + "-" + plugin_id + ":" + token
 
     b64 = base64.b64encode(a.encode()).decode()
     headers = {
@@ -34,6 +39,6 @@ def handle(request):
     response = json.loads(r.text)
 
     for iid in response['ids']:
-        SurveyStarter.start_survey(survey_id, iid)
+        SurveyStarter.start_survey(plugin_id, owner_id, token, url, survey_id, iid)
 
     return HttpResponse()

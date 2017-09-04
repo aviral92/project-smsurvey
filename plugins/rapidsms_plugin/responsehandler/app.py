@@ -6,19 +6,8 @@ import os
 from rapidsms.router import send, lookup_connections
 from rapidsms.apps.base import AppBase
 
-from responsehandler.models import ParticipantModel
+from responsehandler.models import ParticipantModel, OwnerModel
 
-token = os.environ.get("SEC_TOKEN")
-owner = os.environ.get("OWNER_NAME")
-domain = os.environ.get("OWNER_DOMAIN")
-plugin_id = os.environ.get("PLUGIN_ID")
-a = owner + "@" + domain + "-" + plugin_id + ":" + token
-url = os.environ.get("SYSTEM_URL")
-b64 = base64.b64encode(a.encode()).decode()
-
-headers = {
-    "Authorization": "Basic " + b64
-}
 
 
 class ResponseRespond(AppBase):
@@ -26,7 +15,22 @@ class ResponseRespond(AppBase):
     def handle(self, msg):
         p = msg.connection.identity
 
-        instance_id = str(ParticipantModel.objects.get(phone_number=p).instance_id)
+        participant = ParticipantModel.objects.get(phone_numer=p)
+        instance_id = str(participant.instance_id)
+        owner_id = participant.owner_id
+
+        owner = OwnerModel.objects.get(owner_id=owner_id)
+        url = str(owner.url)
+        token = str(owner.token)
+        plugin_id = str(owner.plugin_id)
+        owner_id = str(owner_id)
+
+        a = owner_id + "-" + plugin_id + ":" + token
+        b64 = base64.b64encode(a.encode()).decode()
+
+        headers = {
+            "Authorization": "Basic " + b64
+        }
 
         data = {
             "response": msg.text
@@ -56,10 +60,17 @@ class ResponseRespond(AppBase):
 class SurveyStarter:
 
     @staticmethod
-    def start_survey(survey_id, instance_id):
+    def start_survey(plugin_id, owner_id, token, url, survey_id, instance_id):
         # make call to start survey
         data = {
             'action': 'start'
+        }
+
+        a = owner_id + "-" + plugin_id + ":" + token
+        b64 = base64.b64encode(a.encode()).decode()
+
+        headers = {
+            "Authorization": "Basic " + b64
         }
 
         requests.post(url + 'instances/' + str(instance_id), json.dumps(data), headers=headers)
@@ -75,9 +86,10 @@ class SurveyStarter:
         if p is not None:
             p.delete()
 
-        p = ParticipantModel(instance_id=instance_id, phone_number=participant_number)
-
+        p = ParticipantModel(instance_id=instance_id, phone_number=participant_number, owner_id=int(owner_id))
         p.save()
+
+
         print(participant_number + " assigned to survey " + survey_id)
 
         first_question = requests.get(url + 'instances/' + str(instance_id) + "/latest", headers=headers)
