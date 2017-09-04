@@ -22,6 +22,7 @@ class PluginsRequestHandler(RequestHandler):
 
             for plugin in p:
                 plugins.append({
+                    'id': plugin.id,
                     'name': plugin.name,
                     'url': plugin.url,
                     'icon': plugin.icon

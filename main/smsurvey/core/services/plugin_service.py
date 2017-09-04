@@ -52,7 +52,7 @@ class PluginService:
     @staticmethod
     def register_plugin(name, owner_id, url, icon, permissions):
 
-        token = secure.encrypt_password(owner_id + str(time.time())).decode()
+        token = secure.encrypt_password(str(owner_id) + str(time.time())).decode()
         salt_for_token = b64encode(os.urandom(16)).decode()
         salted_token = secure.encrypt_password(token, salt_for_token).decode()
 
