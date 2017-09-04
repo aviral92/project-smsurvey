@@ -97,6 +97,8 @@ $(document).ready(function(){
        $("#page-wrapper-home").hide();
        $("#page-wrapper-plugin").hide();
 
+       $("#a_home").html("Console -> Manage Plugins");
+
        var to_send = {
            "session_id": Cookies.get("session_id")
        };
@@ -115,7 +117,7 @@ $(document).ready(function(){
                $.each(plugins, function(index, plugin){
                    html += "<tr><td>"+ plugin['id'] + "</td>";
                    html += "<td>" + plugin['name'] + "</td>";
-                   html += "<td><button class='btn btn-info btn-xs' onclick='get_permissions(" + JSON.stringify(plugin) + " alert)'>View Permissions</button></td>";
+                   html += "<td><button class='btn btn-info btn-xs' onclick='get_permissions(" + JSON.stringify(plugin) + ", alert)'>View Permissions</button></td>";
                    html += "<td><button class='btn btn-danger btn-xs' onclick='remove_plugin(" + JSON.stringify(plugin) +")'>Remove Plugin</button></td></tr>";
                });
 
@@ -165,7 +167,7 @@ function plugin_onclick(plugin) {
 
 function get_permissions(plugin, callback) {
     $.ajax({
-        url: plugin["url"] + "/permissions",
+        url: "http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/plugins/" + plugin["id"] + "/permissions",
         type: "GET",
         dataType: "json",
         success: function(data) {
@@ -182,8 +184,8 @@ function get_permissions(plugin, callback) {
 
             callback(message);
         },
-        fail: function() {
-            alert("Unable to retrieve permissions from plugin");
+        fail: function(message) {
+            alert(JSON.stringify(message));
         }
     });
 }
