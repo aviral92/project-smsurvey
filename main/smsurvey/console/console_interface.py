@@ -1,4 +1,5 @@
 import json
+import requests
 
 from tornado.web import RequestHandler
 
@@ -109,6 +110,75 @@ class PluginsRequestHandler(RequestHandler):
                 "status": "error",
                 "message": "Invalid session"
             }
+
+        response_json = json.dumps(response)
+        logger.debug(response_json)
+        self.write(response_json)
+        self.flush()
+
+    def data_received(self, chunk):
+        pass
+
+
+class PluginPermissionsHandler(RequestHandler):
+
+    def get(self, plugin_id):
+        logger.debug("Requesting permissions from a registered plugin")
+        plugin = PluginService.get_plugin(plugin_id)
+
+        if plugin is None:
+            self.set_status(410)
+
+            response = {
+                "status": "error",
+                "message": "invalid plugin id"
+            }
+        else:
+            self.set_status(200)
+            response = {
+                "status": "success",
+                "permissions": plugin.permissions
+            }
+
+        response_json = json.dumps(response)
+        logger.debug(response_json)
+        self.write(response_json)
+        self.flush()
+
+    def data_received(self, chunk):
+        pass
+
+
+class UnregisteredPluginPermissionsHandler(RequestHandler):
+
+    def get(self, plugin_url):
+        logger.debug("Requesting permissions of an unregistered plugin")
+
+        r = requests.get(plugin_url)
+
+        if r.status_code != 200:
+            self.set_status(400)
+            response = {
+                "status": "error",
+                "message": "Something went wrong in the request to the plugin"
+            }
+        else:
+            try:
+                r = r.json()
+
+                permissions = r["permissions"]
+
+                self.set_status(200)
+                response = {
+                    "status": "success",
+                    "permissions": permissions
+                }
+            except ValueError as e:
+                self.set_status(400)
+                response = {
+                    "status": "error",
+                    "message": "Plugin did not respond to request as expected"
+                }
 
         response_json = json.dumps(response)
         logger.debug(response_json)
