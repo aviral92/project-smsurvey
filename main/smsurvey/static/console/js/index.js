@@ -110,13 +110,16 @@ $(document).ready(function(){
 
                var plugins = data["plugins"];
 
-               $.each(plugins, function(index, plugin){
-                   var html = "<td>" + plugin['name'] + "</td>";
-                   html += "<td><button class='btn btn-info btn-xs' onclick='get_permissions(" + JSON.stringify(plugin) + " alert)'>View Permissions</button></td>";
-                   html += "<td><button class='btn btn-danger btn-xs' onclick='remove_plugin(" + JSON.stringify(plugin) +")'>Remove Plugin</button></td>";
+               var html = "";
 
-                   $("#tbody_plugins").append(html);
+               $.each(plugins, function(index, plugin){
+                   html += "<tr><td>"+ plugin['id'] + "</td>";
+                   html += "<td>" + plugin['name'] + "</td>";
+                   html += "<td><button class='btn btn-info btn-xs' onclick='get_permissions(" + JSON.stringify(plugin) + " alert)'>View Permissions</button></td>";
+                   html += "<td><button class='btn btn-danger btn-xs' onclick='remove_plugin(" + JSON.stringify(plugin) +")'>Remove Plugin</button></td></tr>";
                });
+
+               $("#tbody_plugins").html(html);
             },
            error: function(jqxhr) {
                alert(jqxhr["responseJSON"]["reason"]);
@@ -147,7 +150,7 @@ function remove_plugin(plugin) {
                 location.reload()
             },
             error: function(jqxhr) {
-               alert(jqxhr["responseJSON"]["reason"]);
+               alert(JSON.stringify(jqxhr));
             }
        });
     }
@@ -157,7 +160,7 @@ function plugin_onclick(plugin) {
     $("#page-wrapper-home").hide();
     $("#page-wrapper-manage-plugins").hide();
     $("#page-wrapper-plugin").attr("src",  plugin["url"] + '/config').show();
-    ("#a_home").html("Console -> " + plugin["name"]);
+    $("#a_home").html("Console -> " + plugin["name"]);
 }
 
 function get_permissions(plugin, callback) {
