@@ -1,8 +1,10 @@
+import os
+
 from django.shortcuts import render
+from django.views.decorators.clickjacking import xframe_options_exempt
 
-# Create your views here.
 
-
+@xframe_options_exempt
 def config(request):
     """
     View function of the config page
@@ -13,5 +15,5 @@ def config(request):
     return render(
         request,
         "config.html",
-        context={}
+        context={"phone_number": os.environ.get("TWILIO_NUM")}
     )

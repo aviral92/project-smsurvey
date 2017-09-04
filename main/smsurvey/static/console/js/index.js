@@ -72,7 +72,7 @@ $(document).ready(function () {
         $("#page-wrapper-add-plugin").hide();
         $("#page-wrapper-home").show();
 
-        $("#a_home").html("Console")
+        $("#a_home").html("<i class=\"fa fa-desktop fa-fw \"></i> Console")
     });
 
     $('#a_logout').click(function () {
@@ -99,7 +99,7 @@ $(document).ready(function () {
         $("#page-wrapper-plugin").hide();
         $("#page-wrapper-add-plugin").hide();
 
-        $("#a_home").html("Console -> Manage Plugins");
+        $("#a_home").html("<i class=\"fa fa-desktop fa-fw \"></i> Console -> <i class=\"fa fa-cubes fa-fw \"></i> Manage Plugins");
 
         var to_send = {
             "session_id": Cookies.get("session_id")
@@ -139,7 +139,7 @@ $(document).ready(function () {
         $("#page-wrapper-home").hide();
         $("#page-wrapper-add-plugin").show();
 
-        $("#a_home").html("Console -> Manage Plugins -> Add New Plugin")
+        $("#a_home").html("<i class=\"fa fa-desktop fa-fw \"></i> Console -> <i class=\"fa fa-cubes fa-fw \"></i> Manage Plugins -> <i class=\"fa fa-cube fa-fw \"></i> Add New Plugin")
     });
 
     $("#btn_cancel_add").click(function () {
@@ -147,7 +147,7 @@ $(document).ready(function () {
         $("#page-wrapper-plugin").hide();
         $("#page-wrapper-add-plugin").hide();
         $("#page-wrapper-manage-plugins").show();
-        $("#a_home").html("Console -> Manage Plugins");
+        $("#a_home").html("<i class=\"fa fa-desktop fa-fw \"></i> Console -> <i class=\"fa fa-cubes fa-fw \"></i> Manage Plugins");
     });
 
     $("#btn_add_plugin").click(function () {
@@ -183,7 +183,7 @@ function plugin_onclick(plugin) {
     $("#page-wrapper-manage-plugins").hide();
     $("#page-wrapper-plugin").attr("src", plugin["url"] + '/config').show();
     $("#page-wrapper-add-plugin").hide();
-    $("#a_home").html("Console -> " + plugin["name"]);
+    $("#a_home").html("<i class=\"fa fa-desktop fa-fw \"></i> Console -> <i class=\"fa " + plugin["icon"] + " fa-fw \"></i>" + plugin["name"]);
 }
 
 function get_permissions(registered, plugin, callback) {
