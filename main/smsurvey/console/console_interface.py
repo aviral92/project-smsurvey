@@ -1,7 +1,9 @@
 import json
 import requests
+import os
 
 from tornado.web import RequestHandler
+from tornado.escape import json_decode
 
 from smsurvey.config import logger
 from smsurvey.core.security import secure
@@ -83,29 +85,72 @@ class PluginsRequestHandler(RequestHandler):
         self.flush()
 
     def post(self):
-        session_id = self.get_argument("session_id")
-        plugin_name = self.get_argument("plugin_name")
-        plugin_icon = self.get_argument("plugin_icon", None)
-        plugin_url = self.get_argument("plugin_url")
-        plugin_permissions = self.get_argument("plugin_permissions")
+        data = json_decode(self.request.body)
+
+        session_id = data["session_id"]
+        plugin_url = data["plugin_url"]
 
         logger.debug("Attempting to register plugin to owner of session %s", session_id)
         owner_id = secure.get_session_owner_id(session_id)
         logger.debug("Owner of session is %s", owner_id)
 
         if owner_id is not None:
-            plugin, token = PluginService.register_plugin(plugin_name, owner_id, plugin_url, plugin_icon,
-                                                          plugin_permissions)
 
-            self.set_status(200)
-            response = {
-                "status": "success",
-                "owner_id": owner_id,
-                "token": token
-            }
+            r = requests.get(plugin_url + "/info")
+
+            if r.status_code != 200:
+                self.set_status(400)
+                response = {
+                    "status": "error",
+                    "message": "Something went wrong in the request to the plugin"
+                }
+            else:
+                try:
+                    r = r.json()
+
+                    plugin_name = r["name"]
+                    plugin_permissions = r["permissions"]
+                    plugin_icon = r["icon"]
+
+                    plugin, token = PluginService.register_plugin(plugin_name, owner_id, plugin_url, plugin_icon,
+                                                                  plugin_permissions)
+
+                    data = {
+                        "owner_id": owner_id,
+                        "plugin_id": plugin.id,
+                        "token": token,
+                        "url": os.environ.get("SYSTEM_URL")
+                    }
+
+                    p = requests.post(plugin_url + "/register", data)
+
+                    p = p.json
+
+                    if p.status_code == 200 and "status" in p and p["status"] == "success":
+                        self.set_status(200)
+                        response = {
+                            "status": "success"
+                        }
+                    elif p.status_code != 200:
+                        self.set_status(400)
+                        response = {
+                            "status": "error",
+                            "message": "Plugin raised error on registration"
+                        }
+                    else:
+                        self.set_status(400)
+                        response = {
+                            "status": "error",
+                            "message": "Plugin did not respond to request as expected"
+                        }
+                except ValueError:
+                    self.set_status(400)
+                    response = {
+                        "status": "error",
+                        "message": "Plugin did not respond to request as expected"
+                    }
         else:
             self.set_status(401)
-
             response = {
                 "status": "error",
                 "message": "Invalid session"
@@ -154,7 +199,7 @@ class UnregisteredPluginPermissionsHandler(RequestHandler):
     def get(self, plugin_url):
         logger.debug("Requesting permissions of an unregistered plugin")
 
-        r = requests.get(plugin_url)
+        r = requests.get(plugin_url + "/info")
 
         if r.status_code != 200:
             self.set_status(400)
@@ -173,7 +218,7 @@ class UnregisteredPluginPermissionsHandler(RequestHandler):
                     "status": "success",
                     "permissions": permissions
                 }
-            except ValueError as e:
+            except ValueError:
                 self.set_status(400)
                 response = {
                     "status": "error",
