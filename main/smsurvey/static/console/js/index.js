@@ -152,27 +152,7 @@ $(document).ready(function () {
 
     $("#btn_add_plugin").click(function () {
         var plugin_url = $("#input_plugin_url").val();
-
-        if (get_permissions(false, plugin_url, confirm)) {
-            var to_send = {
-                "session_id": Cookies.get('session_id'),
-                "plugin_url": plugin_url
-            };
-
-            $.ajax({
-                url: "http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/plugins",
-                type: "POST",
-                data: JSON.stringify(to_send),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function() {
-                    location.reload()
-                },
-                error: function (message) {
-                    alert(JSON.stringify(message));
-                }
-            });
-        }
+        get_permissions(false, plugin_url, confirm_permissions)
     });
 });
 
@@ -234,4 +214,27 @@ function get_permissions(registered, plugin, callback) {
             alert(JSON.stringify(message));
         }
     });
+}
+
+function confirm_permissions(message) {
+    if (confirm(message)) {
+        var to_send = {
+                "session_id": Cookies.get('session_id'),
+                "plugin_url": plugin_url
+            };
+
+            $.ajax({
+                url: "http://project-smsurvey-lb-1432717712.us-east-1.elb.amazonaws.com/console/plugins",
+                type: "POST",
+                data: JSON.stringify(to_send),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function() {
+                    location.reload()
+                },
+                error: function (message) {
+                    alert(JSON.stringify(message));
+                }
+            });
+    }
 }
