@@ -83,4 +83,4 @@ class PluginService:
             'survey_id': survey_id
         }
 
-        requests.post(plugin.url + "/poke", json.dumps(data))
+        requests.post(plugin.url + "/poke/", json.dumps(data))

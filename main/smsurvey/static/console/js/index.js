@@ -217,6 +217,9 @@ function get_permissions(registered, plugin, callback) {
 }
 
 function confirm_permissions(message) {
+
+    var plugin_url = $("#input_plugin_url").val();
+
     if (confirm(message)) {
         var to_send = {
                 "session_id": Cookies.get('session_id'),
