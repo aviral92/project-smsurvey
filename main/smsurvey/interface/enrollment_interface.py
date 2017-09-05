@@ -4,6 +4,7 @@ import json
 from dateutil import parser
 from tornado.web import RequestHandler
 
+from config import logger
 from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.owner_service import OwnerService
 from smsurvey.core.services.enrollment_service import EnrollmentService
@@ -57,6 +58,7 @@ class AllEnrollmentsHandler(RequestHandler):
 
     # GET /enrollments - return all authorized enrollments
     def get(self):
+        logger.debug("User attempting to retrieve all enrollments")
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
@@ -100,12 +102,15 @@ class AllEnrollmentsHandler(RequestHandler):
             }
             self.set_status(401)
 
-        self.write(json.dumps(response))
+        response_json = json.dumps(response)
+        logger.debug(response_json)
+        self.write(response_json)
         self.flush()
 
 
     # POST /enrollments - add a new enrollment
     def post(self):
+        logger.debug("Adding new enrollment")
 
         name = self.get_argument("name")
         open_date = self.get_argument("open_date", None)
@@ -141,7 +146,9 @@ class AllEnrollmentsHandler(RequestHandler):
             }
             self.set_status(401)
 
-        self.write(json.dumps(response))
+        response_json = json.dumps(response)
+        logger.debug(response_json)
+        self.write(response_json)
         self.flush()
 
     def data_received(self, chunk):
@@ -152,6 +159,7 @@ class AnEnrollmentHandler(RequestHandler):
 
     # GET /enrollments/<enrollment-id> - returns meta data about enrollment
     def get(self, enrollment_id):
+        logger.debug("Getting metadata about an enrollment")
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
@@ -162,9 +170,9 @@ class AnEnrollmentHandler(RequestHandler):
 
                 enrollment_dict = {
                     "id": enrollment.id,
-                    "open_date": enrollment.open_date.strftime('%Y-%m-%d %Z'),
-                    "close_date": enrollment.close_date.strftime('%Y-%m-%d %Z'),
-                    "expiry_date": enrollment.expiry_date.strftime('%Y-%m-%d %Z')
+                    "open_date": enrollment.open_date.strftime('%Y-%m-%d'),
+                    "close_date": enrollment.close_date.strftime('%Y-%m-%d'),
+                    "expiry_date": enrollment.expiry_date.strftime('%Y-%m-%d')
                 }
 
                 response = {
@@ -179,11 +187,14 @@ class AnEnrollmentHandler(RequestHandler):
                 }
                 self.set_status(401)
 
-            self.write(json.dumps(response))
+            response_json = json.dumps(response)
+            logger.debug(response_json)
+            self.write(response_json)
             self.flush()
 
     # POST /enrollments/<enrollment-id> - updates meta data about enrollment
     def post(self, enrollment_id):
+        logger.debug("Updating metadata about an enrollment")
 
         name = self.get_argument("name", None)
         open_date = self.get_argument("open_date", None)
@@ -223,13 +234,16 @@ class AnEnrollmentHandler(RequestHandler):
                 }
                 self.set_status(401)
 
-            self.write(json.dumps(response))
+            response_json = json.dumps(response)
+            logger.debug(response_json)
+            self.write(response_json)
             self.flush()
 
 
 
     # DELETE /enrollments/<enrollment-id> - deletes an enrollment and all enrolled participants
     def delete(self, enrollment_id):
+        logger.debug("Removing an enrollment")
         auth_response = authenticate(self)
 
         if auth_response['valid']:
@@ -251,7 +265,9 @@ class AnEnrollmentHandler(RequestHandler):
                     "message": "Owner does not have authorization to administer this enrollment"
                 }
 
-            self.write(json.dumps(response))
+            response_json = json.dumps(response)
+            logger.debug(response_json)
+            self.write(response_json)
             self.flush()
 
     def data_received(self, chunk):
@@ -262,6 +278,7 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
 
     # GET /enrollments/<enrollment-id>/enrolled - returns the list of enrolled participants
     def get(self, enrollment_id):
+        logger.debug("Getting list of enrolled participants")
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
@@ -283,12 +300,15 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
                 }
                 self.set_status(401)
 
-            self.write(json.dumps(response))
+            response_json = json.dumps(response)
+            logger.debug(response_json)
+            self.write(response_json)
             self.flush()
 
     # POST /enrollments/<enrollment-id>/enrolled - adds participant to enrollment
     def post(self, enrollment_id):
 
+        logger.debug("Adding participant to enrollment")
         plugin_id = self.get_argument("plugin_id")
         plugin_scratch = self.get_argument("plugin_scratch")
 
@@ -326,7 +346,9 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
 
                 self.set_status(401)
 
-            self.write(json.dumps(response))
+            response_json = json.dumps(response)
+            logger.debug(response_json)
+            self.write(response_json)
             self.flush()
 
     def data_received(self, chunk):
@@ -337,6 +359,7 @@ class AnEnrollmentAParticipantHandler(RequestHandler):
 
     # GET /enrollments/<enrollment-id>/<participant-id> - retrieves participant info
     def get(self, enrollment_id, participant_id):
+        logger.debug("Retrieving participant info")
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
@@ -386,11 +409,14 @@ class AnEnrollmentAParticipantHandler(RequestHandler):
                     "message": "Owner does not have authorization to administer enrollment"
                 }
 
-            self.write(json.dumps(response))
+            response_json = json.dumps(response)
+            logger.debug(response_json)
+            self.write(response_json)
             self.flush()
 
     # DELETE /enrollments/<enrollment-id>/<participant-id> - deletes participant from the enrollment
     def delete(self, enrollment_id, participant_id):
+        logger.debug("Removing participant from enrollment")
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
@@ -420,7 +446,9 @@ class AnEnrollmentAParticipantHandler(RequestHandler):
                 }
                 self.set_status(401)
 
-            self.write(json.dumps(response))
+            response_json = json.dumps(response)
+            logger.debug(response_json)
+            self.write(response_json)
             self.flush()
 
     def data_received(self, chunk):

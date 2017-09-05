@@ -55,7 +55,6 @@ function show_metadata(enrollment_id) {
             method: "GET",
             dataType: "json",
             success: function(data) {
-                alert(data);
                 prepare_wizard_existing(data);
                 $("#config_home").hide();
                 $("#config_wizard").show();
