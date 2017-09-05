@@ -51,7 +51,7 @@
                             {% for enrollment in enrollments %}
                             <tr>
                                 <td>{{ enrollment.name }}</td>
-                                <td>{{ enrollment.participant_count }}</td>
+                                <td>{{ enrollment.participants }}</td>
                                 <td>
                                     <button onclick="show_metadata({{ enrollment.id }})" class="btn btn-info btn-xs">
                                         Metadata
