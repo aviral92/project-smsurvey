@@ -1,9 +1,13 @@
 import requests
 import base64
 import json
+import pytz
+
+from dateutil import parser
 
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.utils.timezone import make_aware
 
 from enrollments.models import OwnerModel, EnrollmentModel
 
@@ -31,7 +35,7 @@ def config(request):
 
     try:
         r = requests.get(url + "/enrollments", headers=headers)
-        enrollments = json.loads(r.text)
+        enrollments = json.loads(r.text)["enrollments"]
 
         for enrollment in enrollments:
             e = EnrollmentModel.objects.filter(enrollment_id=enrollment['id']).first()
@@ -39,9 +43,24 @@ def config(request):
             if e is not None:
                 e.delete()
 
+            if enrollment['open_date'] is not None:
+                open_date = make_aware(parser.parse(enrollment['open_date']), timezone=pytz.utc)
+            else:
+                open_date = None
+
+            if enrollment['close_date'] is not None:
+                close_date = make_aware(parser.parse(enrollment["close_date"]), timezone=pytz.utc)
+            else:
+                close_date = None
+
+            if enrollment['expiry_date'] is not None:
+                expiry_date = make_aware(parser.parse(enrollment["expiry_date"]), timezone=pytz.utc)
+            else:
+                expiry_date = None
+
             e = EnrollmentModel(owner_id=owner_id, plugin_id=plugin_id, enrollment_id=enrollment['id'],
-                                enrollment_name=enrollment['name'], open_date=enrollment['open_date'],
-                                close_date=enrollment['close_date'], expiry_date=enrollment['expiry_date'])
+                                enrollment_name=enrollment['name'], open_date=open_date,
+                                close_date=close_date, expiry_date=expiry_date)
             e.save()
     except:
         return render(
@@ -59,6 +78,7 @@ def config(request):
             "enrollments/config.html",
             context={
                 "status": "success",
-                "enrollments": enrollments
+                "enrollments": enrollments,
+                "plugin_id": plugin_id
             }
         )
