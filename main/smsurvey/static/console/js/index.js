@@ -181,7 +181,7 @@ function remove_plugin(plugin) {
 function plugin_onclick(plugin) {
     $("#page-wrapper-home").hide();
     $("#page-wrapper-manage-plugins").hide();
-    $("#page-wrapper-plugin").attr("src", plugin["url"] + '/config').show();
+    $("#page-wrapper-plugin").attr("src", plugin["url"] + '/config?plugin_id=' + plugin["id"]).show();
     $("#page-wrapper-add-plugin").hide();
     $("#a_home").html("<i class=\"fa fa-desktop fa-fw \"></i> Console -> <i class=\"fa " + plugin["icon"] + " fa-fw \"></i>" + plugin["name"]);
 }
