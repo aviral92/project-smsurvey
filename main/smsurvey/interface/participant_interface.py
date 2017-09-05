@@ -83,7 +83,7 @@ class ParticipantHandler(RequestHandler):
                 owner = OwnerService.get_by_id(owner_id)
                 if owner.name == auth_response["owner_name"] and owner.domain == auth_response["owner_domain"]:
 
-                    participant = ParticipantService.get_participant(instance.participant_id)
+                    participant = ParticipantService.get_participant(instance.participant_i)
 
                     response = {
                         "status": "success",

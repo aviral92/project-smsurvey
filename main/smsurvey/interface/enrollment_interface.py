@@ -22,27 +22,23 @@ def authenticate(response):
     if auth.startswith("Basic"):
         base64enc = auth[6:]
         credentials = base64.b64decode(base64enc).decode()
-        at_index = credentials.find("@")
         hyphen_index = credentials.find("-")
         colon_index = credentials.find(":")
 
-        if colon_index is -1 or hyphen_index is -1 or at_index is -1:
+        if colon_index is -1 or hyphen_index is -1:
             response.set_status(401)
             response.write('{"status":"error","message":"Invalid Authorization header"}')
             response.flush()
         else:
-            owner = credentials[:hyphen_index]
-            owner_name = owner[:at_index]
-            owner_domain = owner[at_index + 1:]
+            owner_id = credentials[:hyphen_index]
 
             plugin_id = credentials[hyphen_index + 1: colon_index]
             token = credentials[colon_index + 1:]
 
-            if PluginService.validate_plugin(plugin_id, owner_name, owner_domain, token):
+            if PluginService.validate_plugin(plugin_id, owner_id, token):
                 return {
                     "valid": True,
-                    "owner_domain": owner_domain,
-                    "owner_name": owner_name
+                    "owner_id": owner_id
                 }
             else:
                 response.set_status(403)
@@ -64,12 +60,13 @@ class AllEnrollmentsHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            owner = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"])
-            enrollments = EnrollmentService.get_by_owner(owner.id)
+            enrollments = EnrollmentService.get_by_owner(auth_response["owner_id"])
 
             response = {
                 "status": "success",
-                "enrollments": [enrollment.id for enrollment in enrollments]
+                "enrollments": [{"id": e.id, "name": e.name, "open_date": e.open_date, "close_date": e.close_date,
+                                 "expiry_date": e.expiry_date,
+                                 "participants": EnrollmentService.participant_count(e.id)} for e in enrollments]
             }
             self.set_status(200)
         else:
@@ -104,7 +101,7 @@ class AllEnrollmentsHandler(RequestHandler):
             if expiry_date is not None:
                 expiry_date = parser.parse(expiry_date)
 
-            owner = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"])
+            owner = OwnerService.get_by_id(auth_response["owner_id"])
             enrollment = EnrollmentService.add_enrollment(name, owner.id, open_date, close_date, expiry_date)
 
             response = {
@@ -134,7 +131,7 @@ class AnEnrollmentHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            owner = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"])
+            owner = OwnerService.get_by_id(auth_response["owner_id"])
             enrollment = EnrollmentService.get(enrollment_id)
 
             if enrollment.owner_id == owner.id:
@@ -172,7 +169,7 @@ class AnEnrollmentHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response['valid']:
-            owner = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"])
+            owner = OwnerService.get_by_id(auth_response["owner_id"])
             enrollment = EnrollmentService.get(enrollment_id)
 
             if enrollment.owner_id == owner.id:
@@ -212,7 +209,7 @@ class AnEnrollmentHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response['valid']:
-            owner = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"])
+            owner = OwnerService.get_by_id(auth_response["owner_id"])
             enrollment = EnrollmentService.get(enrollment_id)
 
             if enrollment is None or owner.id == enrollment.owner_id:
@@ -244,7 +241,7 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            owner = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"])
+            owner = OwnerService.get_by_id(auth_response["owner_id"])
             enrollment = EnrollmentService.get(enrollment_id)
 
             if owner.id == enrollment.owner_id:
@@ -265,7 +262,6 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
             self.write(json.dumps(response))
             self.flush()
 
-
     # POST /enrollments/<enrollment-id>/enrolled - adds participant to enrollment
     def post(self, enrollment_id):
 
@@ -275,7 +271,7 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            owner = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"])
+            owner = OwnerService.get_by_id(auth_response["owner_id"])
 
             if PluginService.is_owned_by(plugin_id, owner.id):
                 enrollment = EnrollmentService.get(enrollment_id)
@@ -320,7 +316,7 @@ class AnEnrollmentAParticipantHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            owner = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"])
+            owner = OwnerService.get_by_id(auth_response["owner_id"])
             enrollment = EnrollmentService.get(enrollment_id)
 
             if owner.id == enrollment.owner_id:
@@ -374,7 +370,7 @@ class AnEnrollmentAParticipantHandler(RequestHandler):
         auth_response = authenticate(self)
 
         if auth_response["valid"]:
-            owner = OwnerService.get(auth_response["owner_name"], auth_response["owner_domain"])
+            owner = OwnerService.get_by_id(auth_response["owner_id"])
             enrollment = EnrollmentService.get(enrollment_id)
 
             if owner.id == enrollment.owner_id:

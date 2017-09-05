@@ -152,3 +152,4 @@ ENV/
 public/static/
 public/media/
 *-env/
+/plugins/enrollment_plugin/db.sqlite3

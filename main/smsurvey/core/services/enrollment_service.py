@@ -52,3 +52,9 @@ class EnrollmentService:
     def is_owned_by(enrollment_id, owner_id):
         enrollment = EnrollmentService.get(enrollment_id)
         return enrollment.owner_id == owner_id
+
+    @staticmethod
+    def participant_count(enrollment_id):
+        participants = Model.repository.participants
+        p = participants.select(Where(participants.enrollment_id, Where.E, enrollment_id), force_list=True)
+        return len(p)
