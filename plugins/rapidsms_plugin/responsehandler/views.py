@@ -14,6 +14,6 @@ def config(request):
 
     return render(
         request,
-        "config.html",
+        "rapidsms/config.html",
         context={"phone_number": os.environ.get("TWILIO_NUM")}
     )

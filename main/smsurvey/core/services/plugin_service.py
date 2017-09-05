@@ -25,12 +25,12 @@ class PluginService:
         return plugins.select(Where(plugins.owner_id, Where.E, owner_id), force_list=True)
 
     @staticmethod
-    def validate_plugin(plugin_id, owner_name, owner_domain, token):
+    def validate_plugin(plugin_id, owner_id, token):
         plugin = PluginService.get_plugin(plugin_id)
+        owner = OwnerService.get_by_id(owner_id)
 
-        if plugin is not None:
-            owner = OwnerService.get_by_id(plugin.owner_id)
-            if owner_name == owner.name and owner_domain == owner.domain:
+        if plugin and owner is not None:
+            if plugin.owner_id == owner.id:
                 test = secure.encrypt_password(token, plugin.salt).decode()
                 return test == plugin.secret_token
 

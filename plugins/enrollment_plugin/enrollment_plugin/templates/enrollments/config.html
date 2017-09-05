@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="{% static 'vendor/metisMenu/metisMenu.min.css' %}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{% static 'dist/css/sb-admin-2.css' %}" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+</head>
+<body style="background: white">
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header"><i class="fa fa-child fa-fw"></i> Enrollments</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<div id="config_home" style="display:none">
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="panel panel-info">
+
+                <div class="panel-body">
+                    <button id="btn_new_enrollment" class="btn btn-primary btn-block">Create Enrollment</button>
+
+                    <br/>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th># Participants</th>
+                                <th>Metadata</th>
+                                <th>Remove</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for enrollment in enrollments %}
+                            <tr>
+                                <td>{{ enrollment['name'] }}</td>
+                                <td>{{ enrollment['participant_count'] }}</td>
+                                <td>
+                                    <button onclick="show_metadata({{ enrollment['id'] }})" class="btn btn-info btn-xs">
+                                        Metadata
+                                    </button>
+                                </td>
+                                <td>
+                                    <button onclick="remove_enrollment({{ enrollment['id'] }})"
+                                            class="btn btn-danger btn-xs">Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="config_wizard">
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="panel panel-info">
+
+                <div class="panel-body">
+                    <fieldset>
+                        <div class="form-group">
+                            <label>ID: </label> <span id="span_id"></span><br />
+                            <label>URL: </label><span id="span_url"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="tb_name">Name: </label>
+                            <input id="tb_name" class="form-control" value="Test Enrollment" placeholder="Name for Enrollment"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="dp_open">Open Date:</label>
+                            <input id="dp_open" type="date" />
+                            <br />
+                            <label for="dp_close">Close Date:</label>
+                            <input id="dp_close" type="date" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cb_expires">Expires: </label>
+                            <input id="cb_expires" type="checkbox">
+                            <br />
+                            <label for="dp_expires">Expiry Date:</label>
+                            <input id="dp_expires" type="date"/>
+                        </div>
+
+                        <div class="form-group">
+                            <button id="btn_save" class="btn btn-warning btn-block">Save Changes</button>
+                            <button id="btn_back" class="btn btn-primary btn-block">Back</button>
+                        </div>
+
+                    </fieldset>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="plugin_id" style="display: none">
+    {{ plugin_id }}
+</div>
+
+
+<!-- jQuery -->
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+
+<!-- Metis Menu Plugin JavaScript -->
+<script src="{% static 'vendor/metisMenu/metisMenu.min.js' $}"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="{% static 'dist/js/sb-admin-2.js' %}"></script>
+
+<!-- config js -->
+<script src="{% static 'js/config.js' %}"></script>
+
+
+</body>
+</html>
