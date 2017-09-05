@@ -5,7 +5,7 @@ import json
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
 
-from plugins.enrollment_plugin.enrollments.models import OwnerModel, EnrollmentModel
+from enrollments.models import OwnerModel, EnrollmentModel
 
 
 @xframe_options_exempt

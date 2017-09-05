@@ -27,7 +27,9 @@ SECRET_KEY = '#5+_92bs8yqvd&(61cr8eyj^*=tcny^%8!6w=u-3*mk#folxut'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "*"
+]
 
 
 # Application definition
@@ -39,6 +41,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'enrollments'
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -121,3 +126,4 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(PROJECT_PATH, 'static'),
 )
+
