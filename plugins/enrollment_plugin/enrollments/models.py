@@ -17,4 +17,4 @@ class EnrollmentModel(models.Model):
     enrollment_name = models.CharField(max_length=25)
     open_date = models.DateTimeField()
     close_date = models.DateTimeField()
-    expiry_date = models.DateTimeField()
+    expiry_date = models.DateTimeField(null=True, blank=True)
