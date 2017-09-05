@@ -30,7 +30,7 @@ def config(request):
     }
 
     try:
-        r = requests.get(url + "/enrollments")
+        r = requests.get(url + "/enrollments", headers=headers)
         enrollments = json.loads(r.text)
 
         for enrollment in enrollments:

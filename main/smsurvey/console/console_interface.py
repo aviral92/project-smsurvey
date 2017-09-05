@@ -122,16 +122,16 @@ class PluginsRequestHandler(RequestHandler):
                         "url": os.environ.get("SYSTEM_URL")
                     }
 
-                    p = requests.post(plugin_url + "/register/", data)
+                    post = requests.post(plugin_url + "/register/", json=data)
 
-                    p = p.json()
+                    p = post.json()
 
-                    if p.status_code == 200 and "status" in p and p["status"] == "success":
+                    if post.status_code == 200 and "status" in p and p["status"] == "success":
                         self.set_status(200)
                         response = {
                             "status": "success"
                         }
-                    elif p.status_code != 200:
+                    elif post.status_code != 200:
                         self.set_status(400)
                         response = {
                             "status": "error",
