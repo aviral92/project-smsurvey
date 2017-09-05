@@ -4,6 +4,7 @@ import json
 
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 from dateutil import parser
 
@@ -36,12 +37,16 @@ def do_post(request):
     enrollment_id = int(request.POST.get('id'))
     plugin_id = int(request.POST.get('plugin_id'))
     enrollment_name = str(request.POST.get('name'))
-    open_date = parser.parse(request.POST.get('open_date'))
-    close_date = parser.parse(request.POST.get('close_date'))
-    expires = str(request.post.GET("expires"))
+    open_date_no_tz = parser.parse(request.POST.get('open_date'))
+    open_date = timezone.now().replace(day=open_date_no_tz.hour, month=open_date_no_tz.month, year=open_date_no_tz.year)
+    close_date_no_tz = parser.parse(request.POST.get('close_date'))
+    close_date = timezone.now().replace(day=close_date_no_tz.hour, month=close_date_no_tz.month, year=close_date_no_tz.year)
+    expires = str(request.POST.get("expires"))
 
     if expires == 'True' or expires == 'true':
-        expiry_date = parser.parse(request.POST.get('expiry_date'))
+        expiry_date_no_tz = parser.parse(request.POST.get('expiry_date'))
+        expiry_date = timezone.now().replace(day=expiry_date_no_tz.hour, month=expiry_date_no_tz.month,
+                                           year=expiry_date_no_tz.year)
     else:
         expiry_date = None
 

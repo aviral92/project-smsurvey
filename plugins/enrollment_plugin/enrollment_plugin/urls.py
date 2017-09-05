@@ -28,12 +28,13 @@ pp = os.path.dirname(p)
 ppp = os.path.dirname(pp)
 sys.path.insert(0, ppp)
 
-from enrollments import info_handler, register_handler, healthcheck_handler, views
+from enrollments import info_handler, register_handler, metadata_handler, healthcheck_handler, views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'info/', info_handler.handle),
     url(r'config/', views.config, name='config'),
     url(r'register/', register_handler.handle),
-    url(r'healthcheck/', healthcheck_handler.handle)
+    url(r'healthcheck/', healthcheck_handler.handle),
+    url(r'metadata/', metadata_handler.handle)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

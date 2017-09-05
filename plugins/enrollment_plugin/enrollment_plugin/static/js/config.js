@@ -11,14 +11,14 @@ $(document).ready(function() {
                "name": $("#tb_name").val(),
                "open_date": $("#dp_open").val(),
                "close_date": $("#dp_close").val(),
-               "expires": $("#cb_expires").val(),
+               "expires": $("#cb_expires").is(":checked"),
                "expiry_date": $("#dp_expires").val(),
                "plugin_id": $("#plugin_id").html()
            };
 
            $.ajax(
                {
-                   url: "/metadata",
+                   url: "/metadata/",
                    method: "POST",
                    data: to_send,
                    success: function() {
@@ -43,6 +43,8 @@ $(document).ready(function() {
 
     $("#btn_new_enrollment").click(function(){
         prepare_wizard_new();
+        $("#config_home").hide();
+        $("#config_wizard").show();
     });
 });
 
@@ -89,8 +91,8 @@ function remove_enrollment(enrollment_id) {
 }
 
 function prepare_wizard_new() {
-    $("#span_id").html("<em>Generated on save</em>");
-    $("#span_url").html("<em>Generated on save</em>");
+    $("#span_id").html("0");
+    $("#span_url").html("0");
     $("#tb_name").val("");
     $("#dp_open").val("");
     $("#dp_close").val("");
