@@ -50,15 +50,15 @@
 
                             {% for enrollment in enrollments %}
                             <tr>
-                                <td>{{ enrollment['name'] }}</td>
-                                <td>{{ enrollment['participant_count'] }}</td>
+                                <td>{{ enrollment.name }}</td>
+                                <td>{{ enrollment.participant_count }}</td>
                                 <td>
-                                    <button onclick="show_metadata({{ enrollment['id'] }})" class="btn btn-info btn-xs">
+                                    <button onclick="show_metadata({{ enrollment.id }})" class="btn btn-info btn-xs">
                                         Metadata
                                     </button>
                                 </td>
                                 <td>
-                                    <button onclick="remove_enrollment({{ enrollment['id'] }})"
+                                    <button onclick="remove_enrollment({{ enrollment.id }})"
                                             class="btn btn-danger btn-xs">Remove
                                     </button>
                                 </td>
@@ -122,9 +122,10 @@
 
 </div>
 
-<div id="plugin_id" style="display: none">
-    {{ plugin_id }}
+<div>
+    Plugin id: <span id="plugin_id">{{plugin_id}}</span>
 </div>
+
 
 
 <!-- jQuery -->
