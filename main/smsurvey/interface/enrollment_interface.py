@@ -62,11 +62,35 @@ class AllEnrollmentsHandler(RequestHandler):
         if auth_response["valid"]:
             enrollments = EnrollmentService.get_by_owner(auth_response["owner_id"])
 
+            enrollments_list = []
+
+            for enrollment in enrollments:
+                enrollment_dict = {
+                    "id": enrollment.id,
+                    "name": enrollment.name,
+                    "participants": EnrollmentService.participant_count(enrollment.id)
+                }
+
+                if enrollment.open_date is not None:
+                    enrollment_dict["open_date"] = enrollment.open_date.strftime('%Y-%m-%d')
+                else:
+                    enrollment_dict["open_date"] = None
+
+                if enrollment.close_date is not None:
+                    enrollment_dict["close_date"] = enrollment.close_date.strftime('%Y-%m-%d')
+                else:
+                    enrollment_dict["close_date"] = None
+
+                if enrollment.expiry_date is not None:
+                    enrollment_dict["expiry_date"] = enrollment.expiry_date.strftime('%Y-%m-%d')
+                else:
+                    enrollment_dict["expiry_date"] = None
+
+                enrollments_list.append(enrollment_dict)
+
             response = {
                 "status": "success",
-                "enrollments": [{"id": e.id, "name": e.name, "open_date": e.open_date, "close_date": e.close_date,
-                                 "expiry_date": e.expiry_date,
-                                 "participants": EnrollmentService.participant_count(e.id)} for e in enrollments]
+                "enrollments": enrollments_list
             }
             self.set_status(200)
         else:
