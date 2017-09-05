@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from dateutil import parser
 
-from plugins.enrollment_plugin.enrollments.models import EnrollmentModel, OwnerModel
+from enrollments.models import EnrollmentModel, OwnerModel
 
 
 @csrf_exempt
@@ -142,6 +142,7 @@ def do_post_update(enrollment_name, open_date, close_date, expiry_date, url, enr
             "status": "error",
             "message": "System rejected enrollment update"
         }, status=400)
+
 
 def do_delete(request):
     plugin_id = int(request.DELETE.get('plugin_id'))

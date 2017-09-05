@@ -3,7 +3,7 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from plugins.enrollment_plugin.enrollments.models import OwnerModel
+from enrollments.models import OwnerModel
 
 
 @csrf_exempt

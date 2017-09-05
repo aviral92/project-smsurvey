@@ -1,13 +1,11 @@
 import base64
 import requests
 import json
-import os
 
 from rapidsms.router import send, lookup_connections
 from rapidsms.apps.base import AppBase
 
 from responsehandler.models import ParticipantModel, OwnerModel
-
 
 
 class ResponseRespond(AppBase):
