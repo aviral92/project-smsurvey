@@ -40,7 +40,7 @@ class EnrollmentService:
     @staticmethod
     def is_enrollment_open(enrollment_id):
         enrollment = EnrollmentService.get(enrollment_id)
-        now = datetime.now(tz=pytz.utc)
+        now = datetime.now()
         return enrollment.open_date <= now < enrollment.close_date
 
     @staticmethod

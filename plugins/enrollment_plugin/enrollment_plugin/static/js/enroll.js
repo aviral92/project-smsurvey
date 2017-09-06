@@ -10,7 +10,7 @@ function addParticipant(enrollment_id) {
 
     $.ajax(
         {
-            url: "/enroller",
+            url: "/enroller/",
             method: "POST",
             data: to_send,
             success: function () {
@@ -22,5 +22,3 @@ function addParticipant(enrollment_id) {
             }
         }
     );
-
-}

@@ -274,7 +274,7 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
             owner = OwnerService.get_by_id(auth_response["owner_id"])
 
             if PluginService.is_owned_by(plugin_id, owner.id):
-                enrollment = EnrollmentService.get(enrollment_id)
+                enrollment = EnrollmentService.get(int(enrollment_id))
 
                 if owner.id == enrollment.owner_id:
                     try:

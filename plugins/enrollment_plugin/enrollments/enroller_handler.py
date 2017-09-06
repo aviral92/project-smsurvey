@@ -2,15 +2,17 @@ import base64
 import requests
 
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from enrollments.models import OwnerModel, EnrollmentModel
 
 
+@csrf_exempt
 def handle(request):
 
     participant_plugin_id = int(request.POST.get("plugin_id"))
     plugin_scratch = str(request.POST.get("plugin_scratch"))
-    enrollment_id = int(request.post.get("enrollment_id"))
+    enrollment_id = int(request.POST.get("enrollment_id"))
 
     enrollment = EnrollmentModel.objects.get(enrollment_id=enrollment_id)
     plugin_id = enrollment.plugin_id
@@ -39,7 +41,7 @@ def handle(request):
         try:
             post_json = post.json()
 
-            if post_json["success"]:
+            if post_json["status"] == "success":
                 return JsonResponse({
                     "status": "success"
                 }, status=200)
