@@ -201,15 +201,8 @@ if __name__ == "__main__":
     survey_id = "1"
 
     print("Creating Owner")
-    owner = OwnerService.create_owner('owner', 'test', 'password')
+    owner = OwnerService.create_owner('sam', 'mhealth', 'password')
     print("Owner created")
-
-    print("Creating plugin")
-    plugin_id, token = PluginService.register_plugin("SMS", OwnerService.get("owner", "test").id,
-                                                     "http://smsurvey-twilio-2028755190.us-east-1.elb.amazonaws.com",
-                                                     "fa-phone-square", "2112331111")
-    print("Plugin created")
-    print("token = " + token)
 
     print("Generating questions")
     one = get_one(survey_id)

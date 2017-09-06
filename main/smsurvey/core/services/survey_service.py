@@ -10,12 +10,13 @@ class SurveyService:
         return surveys.select(Where(surveys.id, Where.EQUAL, survey_id))
 
     @staticmethod
-    def create_survey(owner_id, protocol_id, enrollment_id):
+    def create_survey(owner_id, protocol_id, enrollment_id, enable_notes):
         surveys = Model.repository.surveys
         survey = surveys.create()
 
         survey.owner_id = owner_id
         survey.protocol_id = protocol_id
         survey.enrollment_id = enrollment_id
+        survey.enable_notes = enable_notes
 
         return survey.save()

@@ -22,3 +22,4 @@ function addParticipant(enrollment_id) {
             }
         }
     );
+}
