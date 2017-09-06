@@ -44,8 +44,10 @@ def do_get(request):
     else:
         expiry_date = None
 
+    url = os.environ.get("SYSTEM_URL") + '/enroll?id=' + str(enrollment_id)
+
     ed = {"id": e.enrollment_id, "name": e.enrollment_name, "open_date": open_date, "close_date": close_date,
-          "expiry_date": expiry_date}
+          "expiry_date": expiry_date, "url": url}
 
     return JsonResponse(ed, status=200)
 

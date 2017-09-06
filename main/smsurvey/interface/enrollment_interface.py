@@ -1,4 +1,3 @@
-import base64
 import json
 
 from dateutil import parser
@@ -10,48 +9,7 @@ from smsurvey.core.services.owner_service import OwnerService
 from smsurvey.core.services.enrollment_service import EnrollmentService
 from smsurvey.core.services.participant_service import ParticipantService
 from smsurvey.core.security.secure import SecurityException
-
-
-def authenticate(response):
-    auth = response.request.headers.get("Authorization")
-
-    if auth is None:
-        response.set_status(401)
-        response.write('{"status":"error","message":"Missing Authorization header"}')
-        response.flush()
-
-    if auth.startswith("Basic"):
-        base64enc = auth[6:]
-        credentials = base64.b64decode(base64enc).decode()
-        hyphen_index = credentials.find("-")
-        colon_index = credentials.find(":")
-
-        if colon_index is -1 or hyphen_index is -1:
-            response.set_status(401)
-            response.write('{"status":"error","message":"Invalid Authorization header"}')
-            response.flush()
-        else:
-            owner_id = credentials[:hyphen_index]
-
-            plugin_id = credentials[hyphen_index + 1: colon_index]
-            token = credentials[colon_index + 1:]
-
-            if PluginService.validate_plugin(plugin_id, owner_id, token):
-                return {
-                    "valid": True,
-                    "owner_id": owner_id
-                }
-            else:
-                response.set_status(403)
-                response.write('{"status":"error","message":"Do not have authorization to administer enrollments"}')
-                response.flush()
-
-    else:
-        response.set_status(401)
-        response.write('{"status":"error","message":"Invalid Authorization header - no basic"}')
-        response.flush()
-
-    return {"valid": False}
+from smsurvey.core.security.permissions import authenticate, Permissions
 
 
 class AllEnrollmentsHandler(RequestHandler):
@@ -59,7 +17,7 @@ class AllEnrollmentsHandler(RequestHandler):
     # GET /enrollments - return all authorized enrollments
     def get(self):
         logger.debug("User attempting to retrieve all enrollments")
-        auth_response = authenticate(self)
+        auth_response = authenticate(self, [Permissions.READ_ENROLLMENT])
 
         if auth_response["valid"]:
             enrollments = EnrollmentService.get_by_owner(auth_response["owner_id"])
@@ -117,7 +75,7 @@ class AllEnrollmentsHandler(RequestHandler):
         close_date = self.get_argument("close_date", None)
         expiry_date = self.get_argument("expiry_date", None)
 
-        auth_response = authenticate(self)
+        auth_response = authenticate(self, [Permissions.WRITE_ENROLLMENT])
 
         if auth_response["valid"]:
 
@@ -160,7 +118,7 @@ class AnEnrollmentHandler(RequestHandler):
     # GET /enrollments/<enrollment-id> - returns meta data about enrollment
     def get(self, enrollment_id):
         logger.debug("Getting metadata about an enrollment")
-        auth_response = authenticate(self)
+        auth_response = authenticate(self, [Permissions.READ_ENROLLMENT])
 
         if auth_response["valid"]:
             owner = OwnerService.get_by_id(auth_response["owner_id"])
@@ -201,7 +159,7 @@ class AnEnrollmentHandler(RequestHandler):
         close_date = self.get_argument("close_date", None)
         expiry_date = self.get_argument("expiry_date", None)
 
-        auth_response = authenticate(self)
+        auth_response = authenticate(self, [Permissions.WRITE_ENROLLMENT])
 
         if auth_response['valid']:
             owner = OwnerService.get_by_id(auth_response["owner_id"])
@@ -242,7 +200,7 @@ class AnEnrollmentHandler(RequestHandler):
     # DELETE /enrollments/<enrollment-id> - deletes an enrollment and all enrolled participants
     def delete(self, enrollment_id):
         logger.debug("Removing an enrollment")
-        auth_response = authenticate(self)
+        auth_response = authenticate(self, [Permissions.WRITE_ENROLLMENT])
 
         if auth_response['valid']:
             owner = OwnerService.get_by_id(auth_response["owner_id"])
@@ -277,7 +235,7 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
     # GET /enrollments/<enrollment-id>/enrolled - returns the list of enrolled participants
     def get(self, enrollment_id):
         logger.debug("Getting list of enrolled participants")
-        auth_response = authenticate(self)
+        auth_response = authenticate(self, [Permissions.READ_ENROLLMENT, Permissions.READ_PARTICIPANT])
 
         if auth_response["valid"]:
             owner = OwnerService.get_by_id(auth_response["owner_id"])
@@ -310,7 +268,7 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
         plugin_id = self.get_argument("plugin_id")
         plugin_scratch = self.get_argument("plugin_scratch")
 
-        auth_response = authenticate(self)
+        auth_response = authenticate(self, [Permissions.READ_ENROLLMENT, Permissions.WRITE_PARTICIPANT])
 
         if auth_response["valid"]:
             owner = OwnerService.get_by_id(auth_response["owner_id"])
@@ -358,7 +316,7 @@ class AnEnrollmentAParticipantHandler(RequestHandler):
     # GET /enrollments/<enrollment-id>/<participant-id> - retrieves participant info
     def get(self, enrollment_id, participant_id):
         logger.debug("Retrieving participant info")
-        auth_response = authenticate(self)
+        auth_response = authenticate(self, [[Permissions.READ_ENROLLMENT, Permissions.READ_PARTICIPANT]])
 
         if auth_response["valid"]:
             owner = OwnerService.get_by_id(auth_response["owner_id"])
@@ -415,7 +373,7 @@ class AnEnrollmentAParticipantHandler(RequestHandler):
     # DELETE /enrollments/<enrollment-id>/<participant-id> - deletes participant from the enrollment
     def delete(self, enrollment_id, participant_id):
         logger.debug("Removing participant from enrollment")
-        auth_response = authenticate(self)
+        auth_response = authenticate(self, [Permissions.READ_ENROLLMENT, Permissions.WRITE_PARTICIPANT])
 
         if auth_response["valid"]:
             owner = OwnerService.get_by_id(auth_response["owner_id"])

@@ -1,13 +1,14 @@
 import json
 import os
 import time
+import re
+import requests
+
 from base64 import b64encode
 
-import requests
 
 from smsurvey.core.model.model import Model
 from smsurvey.core.model.query.where import Where
-
 from smsurvey.core.security import secure
 from smsurvey.core.services.owner_service import OwnerService
 
@@ -84,3 +85,28 @@ class PluginService:
         }
 
         requests.post(plugin.url + "/poke/", json.dumps(data))
+
+    @staticmethod
+    def get_plugins_with_at_least_permissions(permissions):
+        # This will not scale
+
+        permissions_regex = ""
+        for char in permissions:
+            if char == '1':
+                permissions_regex += '[1|2|3|4]'
+            elif char == '2':
+                permissions_regex += '[2|4]'
+            elif char == '3':
+                permissions_regex += '[3|4]'
+            else:
+                permissions_regex += char
+
+        plugins = Model.repository.plugins.select(force_list=True)
+
+        matched = []
+        for plugin in plugins:
+            if re.match(permissions_regex, plugin.permissions):
+                matched.append(plugin)
+
+        return matched
+
