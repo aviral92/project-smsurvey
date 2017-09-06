@@ -22,7 +22,7 @@ def enroll(request):
     owner_id = str(owner.owner_id)
     token = str(owner.token)
 
-    a = owner_id + "-" + plugin_id + ":" + token
+    a = owner_id + "-" + str(plugin_id) + ":" + token
     b64 = base64.b64encode(a.encode()).decode()
 
     headers = {
@@ -39,8 +39,8 @@ def enroll(request):
             "enrollment": {
                 "id": enrollment_id,
                 "name": str(enrollment.enrollment_name),
-                "plugins": get_json["plugins"]
-            }
+            },
+            "plugins": get_json["plugins"]
         }
     )
 
