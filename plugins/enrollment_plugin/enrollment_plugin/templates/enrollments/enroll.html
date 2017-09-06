@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="{% static 'vendor/metisMenu/metisMenu.min.css' %}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{% static 'dist/css/sb-admin-2.css' %}" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+</head>
+<body style="background: white">
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header"><i class="fa fa-child fa-fw"></i> Enrollments</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<div id="config_home">
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="panel panel-info">
+
+                <div class="panel-body">
+                    <button id="btn_new_enrollment" class="btn btn-primary btn-block">Create Enrollment</button>
+
+                    <br/>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th># Participants</th>
+                                <th>Metadata</th>
+                                <th>Remove</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for enrollment in enrollments %}
+                            <tr>
+                                <td>{{ enrollment.name }}</td>
+                                <td>{{ enrollment.participants }}</td>
+                                <td>
+                                    <button onclick="show_metadata({{ enrollment.id }})" class="btn btn-info btn-xs">
+                                        Metadata
+                                    </button>
+                                </td>
+                                <td>
+                                    <button onclick="remove_enrollment({{ enrollment.id }})"
+                                            class="btn btn-danger btn-xs">Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="config_wizard" style="display: none">
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="panel panel-info">
+
+                <div class="panel-body">
+                    <fieldset>
+                        <div class="form-group">
+                            <label>Name: </label> {{ enrollment.name }}<br />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sel_plugin">Contact Means: </label>
+                            <select id="sel_plugin" class="form-control">
+                                {% for plugin in plugins %}
+                                <option value="{{ plugin.id }}">{{ plugin.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tb_scratch">Contact Detail:</label>
+                            <input id="tb_scratch" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <button id="btn_add" class="btn btn-warning btn-block" onclick="addParticipant({{ enrollment.id}})">Add</button>
+                        </div>
+
+                    </fieldset>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- jQuery -->
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+
+<!-- Metis Menu Plugin JavaScript -->
+<script src="{% static 'vendor/metisMenu/metisMenu.min.js' $}"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="{% static 'dist/js/sb-admin-2.js' %}"></script>
+
+<!-- config js -->
+<script src="{% static 'js/enroll.js' %}"></script>
+
+
+</body>
+</html>

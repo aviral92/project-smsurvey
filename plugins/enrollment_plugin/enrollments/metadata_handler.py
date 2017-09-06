@@ -28,8 +28,24 @@ def handle(request):
 def do_get(request):
     enrollment_id = request.GET.get("enrollment_id")
     e = EnrollmentModel.objects.get(enrollment_id=enrollment_id)
-    ed = {"id": e.enrollment_id, "name": e.enrollment_name, "open_date": e.open_date, "close_date": e.close_date,
-          "expiry_date": e.expiry_date}
+
+    if e.open_date is not None:
+        open_date = e.open_date.strftime("%Y-%m-%d")
+    else:
+        open_date = None
+
+    if e.close_date is not None:
+        close_date = e.close_date.strftime("%Y-%m-%d")
+    else:
+        close_date = None
+
+    if e.expiry_date is not None:
+        expiry_date = e.expiry_date.strftime("%Y-%m-%d")
+    else:
+        expiry_date = None
+
+    ed = {"id": e.enrollment_id, "name": e.enrollment_name, "open_date": open_date, "close_date": close_date,
+          "expiry_date": expiry_date}
 
     return JsonResponse(ed, status=200)
 
@@ -148,8 +164,13 @@ def do_post_update(enrollment_name, open_date, close_date, expiry_date, url, enr
 
 
 def do_delete(request):
-    plugin_id = int(request.DELETE.get('plugin_id'))
-    enrollment_id = int(request.DELETE.get('enrollment_id'))
+
+    body = request.body.decode()
+    first_eq = body.find('=')
+    amper = body.find('&')
+    second_eq = body.rfind('=')
+    plugin_id = int(body[first_eq + 1: amper])
+    enrollment_id = int(body[second_eq + 1:])
 
     enrollment = EnrollmentModel.objects.get(enrollment_id=enrollment_id)
 
