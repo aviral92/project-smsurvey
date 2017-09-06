@@ -101,8 +101,8 @@ function prepare_wizard_new() {
 
 function prepare_wizard_existing(enrollment) {
     $("#span_id").html(enrollment["id"]);
-    var url_html = '<a href=' + enrollment["url"] + '">' + enrollment["url"] + "</a>";
-    $("#span_url").html(enrollment["url"]);
+    var url_html = '<a target="_blank" href="' + enrollment["url"] + '">' + enrollment["url"] + "</a>";
+    $("#span_url").html(url_html);
     $("#tb_name").val(enrollment["name"]);
     $("#dp_open").val(enrollment["open_date"]);
     $("#dp_close").val(enrollment["close_date"]);
