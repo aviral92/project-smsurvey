@@ -4,7 +4,7 @@ import json
 from dateutil import parser
 from tornado.web import RequestHandler
 
-from config import logger
+from smsurvey.config import logger
 from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.owner_service import OwnerService
 from smsurvey.core.services.enrollment_service import EnrollmentService
@@ -238,8 +238,6 @@ class AnEnrollmentHandler(RequestHandler):
             logger.debug(response_json)
             self.write(response_json)
             self.flush()
-
-
 
     # DELETE /enrollments/<enrollment-id> - deletes an enrollment and all enrolled participants
     def delete(self, enrollment_id):

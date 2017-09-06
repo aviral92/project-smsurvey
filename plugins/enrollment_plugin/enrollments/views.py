@@ -2,6 +2,7 @@ import requests
 import base64
 import json
 import pytz
+import os
 
 from dateutil import parser
 
@@ -10,6 +11,22 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.utils.timezone import make_aware
 
 from enrollments.models import OwnerModel, EnrollmentModel
+
+
+def enroll(request):
+    enrollment_id = int(request.GET.get('enrollment_id'))
+    enrollment = EnrollmentModel.objects.get(enrollment_id=enrollment_id)
+
+    return render(
+        request,
+        "enrollments/enroll.html",
+        context= {
+            "enrollment": {
+                "id": enrollment_id,
+                "name": str(enrollment.enrollment_name)
+            }
+        }
+    )
 
 
 @xframe_options_exempt
@@ -62,6 +79,8 @@ def config(request):
                                 enrollment_name=enrollment['name'], open_date=open_date,
                                 close_date=close_date, expiry_date=expiry_date)
             e.save()
+
+            enrollment['url'] = os.environ.get("SYSTEM_URL") + '/enroll?id=' + str(enrollment['id'])
     except:
         return render(
             request,

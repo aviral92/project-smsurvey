@@ -29,7 +29,7 @@ $(document).ready(function() {
                        alert("Error occurred on saving of enrollment");
                    }
                }
-           )
+           );
        }
     });
 
@@ -70,7 +70,7 @@ function remove_enrollment(enrollment_id) {
 
     var to_send = {
         "plugin_id": $("#plugin_id").html(),
-        "id": $("#span_id").html()
+        "id": enrollment_id
     };
 
     if (confirm("Removing enrollments will remove all participants in enrollment and any associated surveys")) {
@@ -106,7 +106,7 @@ function prepare_wizard_existing(enrollment) {
     $("#dp_open").val(enrollment["open_date"]);
     $("#dp_close").val(enrollment["close_date"]);
 
-    if (enrollment["expiry_date"] === '0') {
+    if (enrollment["expiry_date"] === null) {
         $("#cb_expires").prop('checked', false);
         $("#dp_expires").val("").prop('disabled', true);
     } else {
@@ -114,5 +114,3 @@ function prepare_wizard_existing(enrollment) {
         $("#dp_expires").val(enrollment["expiry_date"]).prop('disabled', false);
     }
 }
-
-//TODO: THIS IS WHERE I LEFT OFF, SHOW META_DATA
