@@ -20,62 +20,12 @@
 
 <div class="row">
     <div class="col-lg-12">
-        <h1 class="page-header"><i class="fa fa-child fa-fw"></i> Enrollments</h1>
+        <h1 class="page-header"><i class="fa fa-child fa-fw"></i> Add To Enrollment</h1>
     </div>
     <!-- /.col-lg-12 -->
 </div>
 
-<div id="config_home">
-
-    <div class="row">
-        <div class="col-lg-4">
-            <div class="panel panel-info">
-
-                <div class="panel-body">
-                    <button id="btn_new_enrollment" class="btn btn-primary btn-block">Create Enrollment</button>
-
-                    <br/>
-
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th># Participants</th>
-                                <th>Metadata</th>
-                                <th>Remove</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-
-                            {% for enrollment in enrollments %}
-                            <tr>
-                                <td>{{ enrollment.name }}</td>
-                                <td>{{ enrollment.participants }}</td>
-                                <td>
-                                    <button onclick="show_metadata({{ enrollment.id }})" class="btn btn-info btn-xs">
-                                        Metadata
-                                    </button>
-                                </td>
-                                <td>
-                                    <button onclick="remove_enrollment({{ enrollment.id }})"
-                                            class="btn btn-danger btn-xs">Remove
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<div id="config_wizard" style="display: none">
+<div id="config_wizard">
 
     <div class="row">
         <div class="col-lg-4">

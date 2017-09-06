@@ -2,7 +2,6 @@ import requests
 import base64
 import json
 import pytz
-import os
 
 from dateutil import parser
 
@@ -17,13 +16,30 @@ def enroll(request):
     enrollment_id = int(request.GET.get('enrollment_id'))
     enrollment = EnrollmentModel.objects.get(enrollment_id=enrollment_id)
 
+    plugin_id = enrollment.plugin_id
+    owner = OwnerModel.objects.get(plugin_id=plugin_id)
+    url = str(owner.url)
+    owner_id = str(owner.owner_id)
+    token = str(owner.token)
+
+    a = owner_id + "-" + plugin_id + ":" + token
+    b64 = base64.b64encode(a.encode()).decode()
+
+    headers = {
+        "Authorization": "Basic " + b64
+    }
+
+    get = requests.get(url + '/plugins?permissions=2112331111', headers=headers)
+    get_json = get.json()
+
     return render(
         request,
         "enrollments/enroll.html",
         context= {
             "enrollment": {
                 "id": enrollment_id,
-                "name": str(enrollment.enrollment_name)
+                "name": str(enrollment.enrollment_name),
+                "plugins": get_json["plugins"]
             }
         }
     )
@@ -79,8 +95,6 @@ def config(request):
                                 enrollment_name=enrollment['name'], open_date=open_date,
                                 close_date=close_date, expiry_date=expiry_date)
             e.save()
-
-            enrollment['url'] = os.environ.get("SYSTEM_URL") + '/enroll?id=' + str(enrollment['id'])
     except:
         return render(
             request,
