@@ -30,7 +30,7 @@ def handle(request):
         "Authorization": "Basic " + b64
     }
 
-    r = requests.get(url + "instances?survey_id=" + survey_id + "&status=not_started", headers=headers)
+    r = requests.get(url + "/instances?survey_id=" + survey_id + "&status=not_started", headers=headers)
     if r.status_code == 500:
         print("Error from system, giving up with request")
         return HttpResponse()
