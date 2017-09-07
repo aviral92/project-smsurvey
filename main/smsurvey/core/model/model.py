@@ -132,6 +132,11 @@ class Model:
             except ValueError as e:
                 raise ValueError(column_name + ": " + str(e))
 
+        def format_column(self, column_name, value):
+            column = self.columns[column_name]
+            data_type = column.data_type
+            return data_type.format(value)
+
         def create(self):
             cs = {}
 
@@ -163,6 +168,9 @@ class Model:
             def save(self, id_override=None):
                 for key in self.model.columns:
                     self.model.validate_column(key, self.__dict__[key])
+
+                    formatted = self.model.format_column(key, self.__dict__[key])
+                    self.model.columns[key] = formatted
 
                 if self.__new:
                     return self.save_new(id_override)
