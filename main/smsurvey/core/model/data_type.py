@@ -27,6 +27,10 @@ class DataType(metaclass=ABCMeta):
     def validate(self, value):
         pass
 
+    @abstractmethod
+    def format(self, value):
+        pass
+
     @staticmethod
     def validate_required(required, value):
         if required and value is None:
@@ -44,6 +48,9 @@ class Bool(DataType):
     def validate(self, value):
         if not self.validate_required(self.required, value):
             return True
+
+    def format(self, value):
+        return value
 
 
 class Int(DataType):
@@ -65,6 +72,9 @@ class Int(DataType):
             raise e
 
         return True
+
+    def format(self, value):
+        return value
 
 
 class TinyInt(DataType):
@@ -90,6 +100,9 @@ class TinyInt(DataType):
 
         return True
 
+    def format(self, value):
+        return value
+
 
 class Varchar(DataType):
 
@@ -108,6 +121,9 @@ class Varchar(DataType):
 
         return True
 
+    def format(self, value):
+        return value
+
 
 class Timestamp(DataType):
 
@@ -122,3 +138,6 @@ class Timestamp(DataType):
             return True
 
         raise ValueError("Only Python's datetime object accepted")
+
+    def format(self, value):
+        return value.strftime('%Y-%m-%d %H:%M:%S')
