@@ -120,7 +120,6 @@ class InstanceService:
         for participant in participants:
             PluginService.send_message(participant.plugin_id, participant.id, message)
 
-
     @staticmethod
     def run_loop():
         logger.info("Starting instance service loop")

@@ -87,12 +87,12 @@ class PluginService:
         requests.post(plugin.url + "/poke/", json.dumps(data))
 
     @staticmethod
-    def send_message(plugin_id, participant_id, message):
+    def send_message(plugin_id, instance_id, message):
         plugin = PluginService.get_plugin(plugin_id)
 
         data = {
             'plugin_id': plugin_id,
-            'participant_id': participant_id,
+            'instance_id': instance_id,
             'message': message
         }
 
