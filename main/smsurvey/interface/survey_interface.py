@@ -141,6 +141,8 @@ class LatestQuestionHandler(RequestHandler):
                             self.write('{"status":"success","response_accepted":"False","reason":"Survey has finished"}')
                             self.flush()
                         elif state.timeout.replace(tzinfo=pytz.utc) < now:
+                            state.status = Status.TERMINATED_TIMEOUT.value
+                            state.save()
                             self.set_status(200)
                             self.write(
                                 '{"status":"success","response_accepted":"False","reason":"Survey has timed out"}')
