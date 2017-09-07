@@ -87,6 +87,18 @@ class PluginService:
         requests.post(plugin.url + "/poke/", json.dumps(data))
 
     @staticmethod
+    def send_message(plugin_id, participant_id, message):
+        plugin = PluginService.get_plugin(plugin_id)
+
+        data = {
+            'plugin_id': plugin_id,
+            'participant_id': participant_id,
+            'message': message
+        }
+
+        requests.post(plugin.url + '/message/', json.dumps(data))
+
+    @staticmethod
     def get_plugins_with_at_least_permissions(permissions):
         # This will not scale
 

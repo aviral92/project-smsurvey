@@ -1,4 +1,7 @@
 import json
+import pytz
+
+from datetime import datetime
 
 from tornado.escape import json_decode
 from tornado.web import RequestHandler
@@ -126,8 +129,10 @@ class LatestQuestionHandler(RequestHandler):
 
                     question_service = QuestionService()
                     question = question_service.get(survey.protocol_id, question_number)
+                    now = datetime.now(tz=pytz.utc)
 
                     if question is not None:
+
                         if question.final:
                             state.status = Status.TERMINATED_COMPLETE.value
                             StateService.update_state(state)
@@ -135,6 +140,10 @@ class LatestQuestionHandler(RequestHandler):
                             self.set_status(200)
                             self.write('{"status":"success","response_accepted":"False","reason":"Survey has finished"}')
                             self.flush()
+                        elif state.timeout < now:
+                            self.set_status(200)
+                            self.write(
+                                '{"status":"success","response_accepted":"False","reason":"Survey has timed out"}')
                         else:
                             state.status = Status.PROCESSING_USER_RESPONSE.value
                             StateService.update_state(state)
@@ -157,7 +166,7 @@ class LatestQuestionHandler(RequestHandler):
                                 if new_questions is not None:
                                     for new_question in new_questions:
                                         StateService.create_state(instance_id, new_question[0][1],
-                                                                  Status.CREATED_MID, new_question[1])
+                                                                  Status.CREATED_MID, state.timeout, new_question[1])
 
                                 state.status = Status.TERMINATED_COMPLETE.value
                                 StateService.update_state(state)

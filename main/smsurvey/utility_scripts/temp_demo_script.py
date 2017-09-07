@@ -12,7 +12,7 @@ Model.from_database(config.DAO)
 owner = OwnerService.get("sam", "mhealth")
 
 enrollment = EnrollmentService.get_by_owner(owner.id)[0]
-survey = SurveyService.create_survey(owner.id, ProtocolService.get_all_protocols()[0].id, enrollment.id, 0)
+survey = SurveyService.create_survey(owner.id, ProtocolService.get_all_protocols()[0].id, enrollment.id, 1, 20, 1)
 
 
 instances = InstanceService.create_instances(survey.id)

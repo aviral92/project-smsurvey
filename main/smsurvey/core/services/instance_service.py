@@ -1,7 +1,7 @@
 import time
 import pytz
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from smsurvey.config import logger
 from smsurvey.core.model.status import Status
@@ -97,8 +97,10 @@ class InstanceService:
         print("Starting instance " + str(instance_id))
 
         survey = SurveyService.get_survey(instance.survey_id)
+        timeout_minutes = survey.timeout
+        timeout_timestamp = datetime.now(tz=pytz.utc) + timedelta(minutes=timeout_minutes)
 
-        StateService.create_state(instance_id, 1, Status.CREATED_START, 0)
+        StateService.create_state(instance_id, 1, Status.CREATED_START, timeout_timestamp, 0)
 
         participants = ParticipantService.get_participants_in_enrollment(survey.enrollment_id)
 
@@ -111,8 +113,20 @@ class InstanceService:
             PluginService.poke(plugin_id, survey.id)
 
     @staticmethod
+    def send_message_for_instance(instance, message):
+        survey = SurveyService.get_survey(instance.survey_id)
+        participants = ParticipantService.get_participants_in_enrollment(survey.enrollment_id)
+
+        for participant in participants:
+            PluginService.send_message(participant.plugin_id, participant.id, message)
+
+
+    @staticmethod
     def run_loop():
         logger.info("Starting instance service loop")
+
+        next_warning = {}
+
         while True:
             logger.info("Running instance service loop")
             instances = InstanceService.get_current_instances()
@@ -132,11 +146,30 @@ class InstanceService:
                     else:
                         in_progress.append(instance)
 
+                now = datetime.now(tz=pytz.utc)
+
                 for instance in in_progress:
                     unfinished = StateService.get_unfinished_states(instance)
 
                     if unfinished is None or len(unfinished) is 0:
                         finished.append(instance)
+                    elif unfinished[0].timeout < now:
+                        InstanceService.send_message_for_instance(instance,
+                                                                  "Survey has expired")
+                        finished.append(instance)
+                    else:
+                        if instance.id not in next_warning:
+                            next_warning[instance.id] = now + timedelta(minutes=5)
+                        else:
+                            if now > next_warning[instance.id]:
+                                expires = StateService.get_next_state_in_instance(instance).timeout
+                                now_ts = time.mktime(now.timetuple())
+                                expires_ts = time.mktime(expires.timetuple())
+                                delta = str(int((expires_ts - now_ts) / 60))
+                                message = "Warning - survey expires in " + delta + " minutes"
+                                InstanceService.send_message_for_instance(instance, message)
+                                next_warning[instance.id] = now + timedelta(minutes=5)
+
 
                 logger.info("%d instances not started, %d instances in progress, %d instances awaiting purge",
                             len(not_started), len(in_progress), len(finished))
@@ -146,6 +179,9 @@ class InstanceService:
 
                     InstanceService.delete_instances(finished)
                     StateService.delete_states_for_instances(finished)
+
+                    if instance.id in next_warning:
+                        del next_warning[instance.id]
 
                 if len(not_started) > 0:
                     logger.info("Starting instances: %s", str(not_started))
