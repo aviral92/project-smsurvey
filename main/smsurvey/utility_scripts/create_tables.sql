@@ -67,6 +67,8 @@ CREATE TABLE survey (
   enrollment_id INT NOT NULL,
   owner_id INT NOT NULL,
   enable_notes BOOL NOT NULL,
+  timeout INT NOT NULL,
+  enable_warnings BOOL NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (enrollment_id) REFERENCES enrollment (id) ON DELETE CASCADE,
   FOREIGN KEY (owner_id) REFERENCES owner (id) ON DELETE CASCADE,
@@ -86,7 +88,6 @@ CREATE TABLE instance (
   survey_id INT NOT NULL,
   participant_id INT NOT NULL,
   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  timeout TIMESTAMP,
   PRIMARY KEY(id),
   FOREIGN KEY(survey_id) REFERENCES survey(id) ON DELETE CASCADE,
   FOREIGN KEY (participant_id) REFERENCES participant(id) ON DELETE CASCADE
@@ -98,6 +99,7 @@ CREATE TABLE state (
   question_number VARCHAR(100) NOT NULL,
   status INTEGER NOT NULL,
   priority TINYINT DEFAULT 0 NOT NULL,
+  timeout TIMESTAMP NOT NULL,
   PRIMARY KEY(id),
   FOREIGN KEY(instance_id) REFERENCES instance(id) ON DELETE CASCADE
 ) CHARACTER SET utf8;

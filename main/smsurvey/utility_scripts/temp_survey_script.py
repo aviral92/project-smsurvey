@@ -13,7 +13,6 @@ from smsurvey.core.model.model import Model
 from smsurvey.core.model.question import Question
 from smsurvey.core.services.question_service import QuestionService
 from smsurvey.core.services.owner_service import OwnerService
-from smsurvey.core.services.plugin_service import PluginService
 from smsurvey.core.services.protocol_service import ProtocolService
 
 from smsurvey.utility_scripts import create_question_store
