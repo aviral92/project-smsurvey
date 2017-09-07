@@ -114,11 +114,8 @@ class InstanceService:
 
     @staticmethod
     def send_message_for_instance(instance, message):
-        survey = SurveyService.get_survey(instance.survey_id)
-        participants = ParticipantService.get_participants_in_enrollment(survey.enrollment_id)
-
-        for participant in participants:
-            PluginService.send_message(participant.plugin_id, instance.id, message)
+        participant = ParticipantService.get_participant(instance.participant_id)
+        PluginService.send_message(participant.plugin_id, instance.id, message)
 
     @staticmethod
     def run_loop():
@@ -155,7 +152,6 @@ class InstanceService:
                     elif unfinished[0].timeout.replace(tzinfo=pytz.utc) < now:
                         InstanceService.send_message_for_instance(instance,
                                                                   "Survey has expired")
-                        finished.append(instance)
                     else:
                         if instance.id not in next_warning:
                             next_warning[instance.id] = now + timedelta(minutes=5)
