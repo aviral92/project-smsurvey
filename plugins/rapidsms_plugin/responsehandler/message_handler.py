@@ -16,6 +16,6 @@ def handle(request):
     message = str(body['message'])
     participant = ParticipantModel.objects.get(instance_id=instance_id)
 
-    send(message, lookup_connections(backend='twilio-backend', identities=participant.phone_number))
+    send(message, lookup_connections(backend='twilio-backend', identities=[participant.phone_number]))
 
     return HttpResponse()

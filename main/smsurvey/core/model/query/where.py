@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 class Where:
 
     E, EQUAL = '=', '='
@@ -38,6 +41,9 @@ class Where:
     def format_second_clause(value):
         if isinstance(value, str):
             return "'" + value + "'"
+
+        if isinstance(value, datetime):
+            return "'" + value.strftime('%Y-%m-%d %H:%M:%S') + "'"
 
         if isinstance(value, list) or isinstance(value, set) or isinstance(value, tuple):
             s = '('
