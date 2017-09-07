@@ -13,7 +13,7 @@ class ResponseRespond(AppBase):
     def handle(self, msg):
         p = msg.connection.identity
 
-        participant = ParticipantModel.objects.get(phone_numer=p)
+        participant = ParticipantModel.objects.get(phone_number=p)
         instance_id = str(participant.instance_id)
         owner_id = participant.owner_id
 
@@ -34,12 +34,12 @@ class ResponseRespond(AppBase):
             "response": msg.text
         }
 
-        r = requests.post(url + 'instances/' + instance_id + "/latest", data=json.dumps(data), headers=headers)
+        r = requests.post(url + '/instances/' + instance_id + "/latest", data=json.dumps(data), headers=headers)
         rd = json.loads(r.text)
 
         if rd['status'].lower() == 'success':
             if rd['response_accepted'].lower() == 'true':
-                new_question = requests.get(url + 'instances/' + instance_id + "/latest", data=json.dumps(data),
+                new_question = requests.get(url + '/instances/' + instance_id + "/latest", data=json.dumps(data),
                                             headers=headers)
 
                 if new_question.status_code == 200:
@@ -71,11 +71,11 @@ class SurveyStarter:
             "Authorization": "Basic " + b64
         }
 
-        requests.post(url + 'instances/' + str(instance_id), json.dumps(data), headers=headers)
+        requests.post(url + '/instances/' + str(instance_id), json.dumps(data), headers=headers)
 
         #get participant for survey
         params = "?survey_id=" + str(survey_id) + "&instance_id=" + str(instance_id)
-        participant_request = requests.get(url + "participants" + params, headers=headers)
+        participant_request = requests.get(url + "/participants" + params, headers=headers)
         participant = json.loads(participant_request.text)
         participant_number = participant["participant"]
 
@@ -87,10 +87,9 @@ class SurveyStarter:
         p = ParticipantModel(instance_id=instance_id, phone_number=participant_number, owner_id=int(owner_id))
         p.save()
 
-
         print(participant_number + " assigned to survey " + survey_id)
 
-        first_question = requests.get(url + 'instances/' + str(instance_id) + "/latest", headers=headers)
+        first_question = requests.get(url + '/instances/' + str(instance_id) + "/latest", headers=headers)
         question_text = json.loads(first_question.text)["question_text"]
 
         send(question_text, lookup_connections(backend="twilio-backend", identities=[participant_number]))
