@@ -8,6 +8,9 @@ from tornado.escape import json_decode
 from smsurvey.config import logger
 from smsurvey.core.security import secure
 from smsurvey.core.services.plugin_service import PluginService
+from smsurvey.core.services.instance_service import InstanceService
+from smsurvey.core.services.survey_service import SurveyService
+from smsurvey.core.services.state_service import StateService
 
 
 class PluginsRequestHandler(RequestHandler):

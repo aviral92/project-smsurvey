@@ -1,5 +1,7 @@
 import pymysql
 
+from datetime import datetime
+
 from smsurvey.config import logger
 from smsurvey.core.model.data_type import DataType
 from smsurvey.core.model.query.where import Where
@@ -221,6 +223,9 @@ class Model:
             def parse_value(value):
                 if isinstance(value, str):
                     return "'" + value + "'"
+
+                if isinstance(value, datetime):
+                    return "'" + value.strftime('%Y-%m-%d %H:%M:%S') + "'"
 
                 if isinstance(value, list) or isinstance(value, set) or isinstance(value, tuple):
                     s = '('

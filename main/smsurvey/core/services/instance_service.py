@@ -118,7 +118,7 @@ class InstanceService:
         participants = ParticipantService.get_participants_in_enrollment(survey.enrollment_id)
 
         for participant in participants:
-            PluginService.send_message(participant.plugin_id, participant.id, message)
+            PluginService.send_message(participant.plugin_id, instance.id, message)
 
     @staticmethod
     def run_loop():
