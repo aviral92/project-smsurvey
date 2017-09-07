@@ -152,7 +152,7 @@ class InstanceService:
 
                     if unfinished is None or len(unfinished) is 0:
                         finished.append(instance)
-                    elif unfinished[0].timeout < now:
+                    elif unfinished[0].timeout.replace(tzinfo=pytz.utc) < now:
                         InstanceService.send_message_for_instance(instance,
                                                                   "Survey has expired")
                         finished.append(instance)
@@ -161,7 +161,8 @@ class InstanceService:
                             next_warning[instance.id] = now + timedelta(minutes=5)
                         else:
                             if now > next_warning[instance.id]:
-                                expires = StateService.get_next_state_in_instance(instance).timeout
+                                expires = StateService.get_next_state_in_instance(instance).timeout\
+                                    .replace(tzinfo=pytz.utc)
                                 now_ts = time.mktime(now.timetuple())
                                 expires_ts = time.mktime(expires.timetuple())
                                 delta = str(int((expires_ts - now_ts) / 60))
