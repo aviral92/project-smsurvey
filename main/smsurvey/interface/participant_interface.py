@@ -35,7 +35,7 @@ class ParticipantHandler(RequestHandler):
             else:
                 if str(survey.owner_id) == auth_response["owner_id"]:
 
-                    participant = ParticipantService.get_participant(instance.participant_i)
+                    participant = ParticipantService.get_participant(instance.participant_id)
 
                     response = {
                         "status": "success",

@@ -289,7 +289,7 @@ class AnInstanceHandler(RequestHandler):
 
                 if state is not None:
                     survey = SurveyService.get_survey(instance.survey_id)
-                    if str(survey.id) == auth_response["owner_id"]:
+                    if str(survey.owner_id) == auth_response["owner_id"]:
                         state.status = Status.AWAITING_USER_RESPONSE.value
                         StateService.update_state(state)
                         self.set_status(200)
