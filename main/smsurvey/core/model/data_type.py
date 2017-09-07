@@ -21,7 +21,7 @@ class DataType(metaclass=ABCMeta):
             return Timestamp(required)
 
         if data_type.startswith('bool'):
-            return
+            return Bool(required)
 
     @abstractmethod
     def validate(self, value):
@@ -44,6 +44,7 @@ class Bool(DataType):
     def validate(self, value):
         if not self.validate_required(self.required, value):
             return True
+
 
 class Int(DataType):
 

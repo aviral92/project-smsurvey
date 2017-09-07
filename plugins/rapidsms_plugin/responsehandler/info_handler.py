@@ -7,5 +7,5 @@ def handle(request):
     return JsonResponse({
         "name": "SMS",
         "icon": "fa-phone-square",
-        "permissions": "2112331111"
+        "permissions": "2112334111"
     }, status=200)
