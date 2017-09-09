@@ -126,11 +126,11 @@
                             <input id="tb_name" class="form-control" value="Test Task" placeholder="Name for Task"/>
                         </div>
                         <div class="form-group">
-                            <label for="sel_protocol">Protocols: </label>
+                            <label for="sel_protocol">Protocol: </label>
                             <select id="sel_protocol" class="form-control">
                                 {% for protocol in protocols %}
                                 <option value="{{ protocol.id }}">{{ protocol.name }}</option>
-                                {% endfor %>
+                                {% endfor %}
                             </select>
                         </div>
 
@@ -139,7 +139,10 @@
                                 <label for="tp_runtime1">Runtime: </label>
                                 <input id="tp_runtime1" type="time" class="form-control">
                             </div>
+                            <br />
                             <button id="btn_add_runtime" class="button btn-info btn-xs">Add Runtime</button>
+                        </div>
+                        <div class="form-group">
                             <label for="dp_run_date">Run on:</label>
                             <input type="date" id="dp_run_date">
                         </div>
@@ -148,47 +151,51 @@
                             <label for="cb_repeats">Repeats? </label>
                             <input type="checkbox" id="cb_repeats">
 
-                            <label for="sel_repeats" disabled="true">Repeats:</label>
-                            <select id="sel_repeats">
-                                <option value="daily">Daily</option>
-                                <option value="weekly">Weekly</option>
-                                <option value="monthly_date">Monthly - Date</option>
-                                <option value="monthly_day">Monthly - Day</option>
-                            </select>
+                            <div id="repeats" style="display: none">
+                                <label for="sel_repeats"> On a </label>
+                                <select id="sel_repeats">
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly_date">Monthly - Date</option>
+                                    <option value="monthly_day">Monthly - Day</option>
+                                </select> basis
+                            </div>
 
                             <div id="repeats_daily" style="display: none">
-                                <label for="tb_every_daily" >Repeat every:</label>
-                                <input id="tb_every_daily" value="1" /> days
+                                <br />
+                                <label for="tb_every_daily" >Repeat every</label>
+                                <input id="tb_every_daily" value="1" size="2"/> days
                             </div>
 
                             <div id="repeats_weekly" style="display: none">
-                                <label for="tb_every_weekly">Repeat every:</label>
-                                <input id="tb_every_weekly" value="1" /> weeks
+                                <label for="tb_every_weekly">Repeat every </label>
+                                <input id="tb_every_weekly" value="1" size="2"/> weeks
 
-                                <input type="checkbox" id="cb_w_mon" title="MON"/>
-                                <input type="checkbox" id="cb_w_tue" title="TUE"/>
-                                <input type="checkbox" id="cb_w_wed" title="WED"/>
-                                <input type="checkbox" id="cb_w_thu" title="THU"/>
-                                <input type="checkbox" id="cb_w_fri" title="FRI"/>
-                                <input type="checkbox" id="cb_w_sat" title="SAT"/>
-                                <input type="checkbox" id="cb_w_sun" title="SUN"/>
+                                <br/>Days of week:
+                                MON <input type="checkbox" id="cb_w_mon" title="MON"/> <br />
+                                TUE <input type="checkbox" id="cb_w_tue" title="TUE"/> <br />
+                                WED <input type="checkbox" id="cb_w_wed" title="WED"/> <br />
+                                THU <input type="checkbox" id="cb_w_thu" title="THU"/> <br />
+                                FRI <input type="checkbox" id="cb_w_fri" title="FRI"/> <br />
+                                SAT <input type="checkbox" id="cb_w_sat" title="SAT"/> <br />
+                                SUN <input type="checkbox" id="cb_w_sun" title="SUN"/> <br />
                             </div>
 
                             <div id="repeats_monthly_date" style="display: none">
                                 <label for="tb_every_monthly_date">Repeat every:</label>
-                                <input id="tb_every_monthly_date" value="1" /> months
+                                <input id="tb_every_monthly_date" value="1" size="2"/> months
 
                                 <div id="rundates">
-                                    <label for="tb_date1">Date: </label>
-                                    <input id="tb_date1" class="form-control">
+                                    <label for="tb_date1" >Date of Month: </label>
+                                    <input id="tb_date1" class="form-control" size="2">
                                 </div>
-
-                                <button id="btn_add_date" class="button btn-info btn-xs">Add Date</button>
+                                <br />
+                                <button id="btn_add_date" class="button btn-info btn-xs">Add Date of Month</button>
                             </div>
 
                             <div id="repeats_monthly_day" style="display: none">
                                 <label for="tb_every_monthly_day">Repeat every:</label>
-                                <input id="tb_every_monthly_day" value="1" /> months
+                                <input id="tb_every_monthly_day" value="1" /> months <br />
 
                                 <label for="sel_monthly_day">Run on the </label>
                                 <select id="sel_monthly_day">
@@ -199,22 +206,26 @@
                                     <option value="fifth">Last</option>
                                 </select>
 
-                                <input type="checkbox" id="cb_m_mon" title="MON"/>
-                                <input type="checkbox" id="cb_m_tue" title="TUE"/>
-                                <input type="checkbox" id="cb_m_wed" title="WED"/>
-                                <input type="checkbox" id="cb_m_thu" title="THU"/>
-                                <input type="checkbox" id="cb_m_fri" title="FRI"/>
-                                <input type="checkbox" id="cb_m_sat" title="SAT"/>
-                                <input type="checkbox" id="cb_m_sun" title="SUN"/>
-                            </div>
+                                MON <input type="checkbox" id="cb_m_mon" title="MON"/> <br />
+                                TUE <input type="checkbox" id="cb_m_tue" title="TUE"/> <br />
+                                WED <input type="checkbox" id="cb_m_wed" title="WED"/> <br />
+                                THU <input type="checkbox" id="cb_m_thu" title="THU"/> <br />
+                                FRI <input type="checkbox" id="cb_m_fri" title="FRI"/> <br />
+                                SAT <input type="checkbox" id="cb_m_sat" title="SAT"/> <br />
+                                SUN <input type="checkbox" id="cb_m_sun" title="SUN"/> <br />
 
+                                <br /> of the month
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label for="dp_until">Until: </label>
                             <input type="date" id="dp_until" />
                         </div>
 
                         <div class="form-group">
                             <button id="btn_save" class="btn btn-warning btn-block">Save Task</button>
-                            <button id="btn_wizard_back" class="btn btn-primary btn-block">Back</button>
+                            <button id="btn_w_back" class="btn btn-primary btn-block">Back</button>
                         </div>
 
                     </fieldset>

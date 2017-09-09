@@ -249,6 +249,6 @@ if __name__ == "__main__":
     question_service.insert(survey_id, 21, twenty_one)
     print("Questions inserted")
 
-    protocol = ProtocolService.create_protocol(owner.id)
+    protocol = ProtocolService.create_protocol(owner.id, "JUUL Protocol")
 
     print("Script finished")

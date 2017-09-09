@@ -7,7 +7,7 @@ from smsurvey.core.security.permissions import authenticate, Permissions
 from smsurvey.core.services.protocol_service import ProtocolService
 
 
-class ProtocolInterface(RequestHandler):
+class AllProtocolsHandler(RequestHandler):
 
     def get(self):
         logger.debug("GET /protocol - retrieving owner's protocols")
