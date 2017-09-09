@@ -36,7 +36,7 @@ until = starting_from + timedelta(days=1)
 run_at = time(tzinfo=pytz.utc).replace(hour=16, minute=35, second=0, microsecond=0)
 tr = RepeatsDailyTimeRule(starting_from, every, until, [run_at])
 time_rule_id = TimeRuleService().insert(survey.id, tr, str(survey.id) + "1")
-TaskService.create_task(survey.id, time_rule_id)
+TaskService.create_task("Demo task", survey.id, time_rule_id)
 
 print("Surveys inserted and generated")
 

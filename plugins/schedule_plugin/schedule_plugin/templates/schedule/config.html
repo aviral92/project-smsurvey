@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="{% static 'vendor/metisMenu/metisMenu.min.css' %}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{% static 'dist/css/sb-admin-2.css' %}" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+</head>
+<body style="background: white">
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header"><i class="fa fa-calendar fa-fw"></i> Scheduling</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<div id="config_home">
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="panel panel-info">
+
+                <div class="panel-body">
+                    <button id="btn_new_task" class="btn btn-primary btn-block">Create Task</button>
+
+                    <br/>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Task Name</th>
+                                <th>Protocol Name</th>
+                                <th>Enrollment Name</th>
+                                <th>View Runtimes</th>
+                                <th>Remove</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for task in tasks %}
+                            <tr>
+                                <td>{{ task.name }}</td>
+                                <td>{{ task.protocol_name }}</td>
+                                <td>{{ task.enrollment_name }}</td>
+                                <td>
+                                    <button onclick="view_run_times({{ task.id }})"
+                                            class="btn btn-danger btn-xs">View Run Times
+                                    </button>
+                                </td>
+
+                                <td>
+                                    <button onclick="view_task({{ task.id }})"
+                                            class="btn btn-danger btn-xs">View Run Times
+                                    </button>
+                                </td>
+
+                                <td>
+                                    <button onclick="remove_task({{ task.id }})"
+                                            class="btn btn-danger btn-xs">Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="config_view_times" style="display: none">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="panel panel-info">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <td>Run Times</td>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button id="btn_vt_back" class="btn btn-primary btn-block">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="config_wizard" style="display: none">
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="panel panel-info">
+
+                <div class="panel-body">
+                    <fieldset>
+                        <div class="form-group">
+                            <label>ID: </label> <span id="span_id"></span><br/>
+                        </div>
+                        <div class="form-group">
+                            <label for="tb_name">Name: </label>
+                            <input id="tb_name" class="form-control" value="Test Task" placeholder="Name for Task"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="sel_protocol">Protocols: </label>
+                            <select id="sel_protocol" class="form-control">
+                                {% for protocol in protocols %}
+                                <option value="{{ protocol.id }}">{{ protocol.name }}</option>
+                                {% endfor %>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <div id="runtimes">
+                                <label for="tp_runtime1">Runtime: </label>
+                                <input id="tp_runtime1" type="time" class="form-control">
+                            </div>
+                            <button id="btn_add_runtime" class="button btn-info btn-xs">Add Runtime</button>
+                            <label for="dp_run_date">Run on:</label>
+                            <input type="date" id="dp_run_date">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cb_repeats">Repeats? </label>
+                            <input type="checkbox" id="cb_repeats">
+
+                            <label for="sel_repeats" disabled="true">Repeats:</label>
+                            <select id="sel_repeats">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly_date">Monthly - Date</option>
+                                <option value="monthly_day">Monthly - Day</option>
+                            </select>
+
+                            <div id="repeats_daily" style="display: none">
+                                <label for="tb_every_daily" >Repeat every:</label>
+                                <input id="tb_every_daily" value="1" /> days
+                            </div>
+
+                            <div id="repeats_weekly" style="display: none">
+                                <label for="tb_every_weekly">Repeat every:</label>
+                                <input id="tb_every_weekly" value="1" /> weeks
+
+                                <input type="checkbox" id="cb_w_mon" title="MON"/>
+                                <input type="checkbox" id="cb_w_tue" title="TUE"/>
+                                <input type="checkbox" id="cb_w_wed" title="WED"/>
+                                <input type="checkbox" id="cb_w_thu" title="THU"/>
+                                <input type="checkbox" id="cb_w_fri" title="FRI"/>
+                                <input type="checkbox" id="cb_w_sat" title="SAT"/>
+                                <input type="checkbox" id="cb_w_sun" title="SUN"/>
+                            </div>
+
+                            <div id="repeats_monthly_date" style="display: none">
+                                <label for="tb_every_monthly_date">Repeat every:</label>
+                                <input id="tb_every_monthly_date" value="1" /> months
+
+                                <div id="rundates">
+                                    <label for="tb_date1">Date: </label>
+                                    <input id="tb_date1" class="form-control">
+                                </div>
+
+                                <button id="btn_add_date" class="button btn-info btn-xs">Add Date</button>
+                            </div>
+
+                            <div id="repeats_monthly_day" style="display: none">
+                                <label for="tb_every_monthly_day">Repeat every:</label>
+                                <input id="tb_every_monthly_day" value="1" /> months
+
+                                <label for="sel_monthly_day">Run on the </label>
+                                <select id="sel_monthly_day">
+                                    <option value="first">First</option>
+                                    <option value="second">Second</option>
+                                    <option value="third">Third</option>
+                                    <option value="fourth">Fourth</option>
+                                    <option value="fifth">Last</option>
+                                </select>
+
+                                <input type="checkbox" id="cb_m_mon" title="MON"/>
+                                <input type="checkbox" id="cb_m_tue" title="TUE"/>
+                                <input type="checkbox" id="cb_m_wed" title="WED"/>
+                                <input type="checkbox" id="cb_m_thu" title="THU"/>
+                                <input type="checkbox" id="cb_m_fri" title="FRI"/>
+                                <input type="checkbox" id="cb_m_sat" title="SAT"/>
+                                <input type="checkbox" id="cb_m_sun" title="SUN"/>
+                            </div>
+
+                            <label for="dp_until">Until: </label>
+                            <input type="date" id="dp_until" />
+                        </div>
+
+                        <div class="form-group">
+                            <button id="btn_save" class="btn btn-warning btn-block">Save Task</button>
+                            <button id="btn_wizard_back" class="btn btn-primary btn-block">Back</button>
+                        </div>
+
+                    </fieldset>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div>
+    Plugin id: <span id="plugin_id">{{plugin_id}}</span>
+</div>
+
+
+<!-- jQuery -->
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+
+<!-- Metis Menu Plugin JavaScript -->
+<script src="{% static 'vendor/metisMenu/metisMenu.min.js' $}"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="{% static 'dist/js/sb-admin-2.js' %}"></script>
+
+<!-- config js -->
+<script src="{% static 'js/config.js' %}"></script>
+
+
+</body>
+</html>
