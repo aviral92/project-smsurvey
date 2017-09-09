@@ -15,7 +15,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-PROJECT_PATH = os.path.join(BASE_DIR, 'enrollment_plugin')
+PROJECT_PATH = os.path.join(BASE_DIR, 'schedule_plugin')
 
 
 # Quick-start development settings - unsuitable for production
@@ -42,7 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'enrollments'
+    'schedule_app'
 
 )
 
@@ -57,7 +57,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'enrollment_plugin.urls'
+ROOT_URLCONF = 'schedule_plugin.urls'
 
 TEMPLATES = [
     {

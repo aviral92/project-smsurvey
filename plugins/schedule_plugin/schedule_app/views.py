@@ -1,15 +1,11 @@
 import requests
 import base64
 import json
-import pytz
-
-from dateutil import parser
 
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
-from django.utils.timezone import make_aware
 
-from enrollments.models import OwnerModel, EnrollmentModel
+from schedule_app.models import OwnerModel
 
 @xframe_options_exempt
 def config(request):

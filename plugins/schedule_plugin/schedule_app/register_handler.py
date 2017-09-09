@@ -3,7 +3,7 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from enrollments.models import OwnerModel
+from schedule_app.models import OwnerModel
 
 
 @csrf_exempt
