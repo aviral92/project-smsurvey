@@ -22,3 +22,8 @@ class SurveyService:
         survey.enable_warnings = enable_warnings
 
         return survey.save()
+
+    @staticmethod
+    def get_surveys_by_owner(owner_id):
+        surveys = Model.repository.surveys
+        return surveys.select(Where(surveys.owner_id, Where.E, owner_id), force_list=True)

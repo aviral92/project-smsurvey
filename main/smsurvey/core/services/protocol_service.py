@@ -14,12 +14,17 @@ class ProtocolService:
         protocols = Model.repository.protocols
         return protocols.select(force_list=True)
 
-
     @staticmethod
-    def create_protocol(owner_id):
+    def create_protocol(owner_id, name):
         protocols = Model.repository.protocols
         protocol = protocols.create()
 
         protocol.owner_id = owner_id
+        protocol.name = name
 
         return protocol.save()
+
+    @staticmethod
+    def get_protocols_owned_by(owner_id):
+        protocols = Model.repository.protocols
+        return protocols.select(Where(protocols.owner_id, Where.E, owner_id), force_list=True)

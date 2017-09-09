@@ -34,7 +34,7 @@ CREATE TABLE plugin (
 
 CREATE TABLE enrollment (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
-  name VARCHAR(25) NOT NULL,
+  name VARCHAR(50) NOT NULL,
   owner_id INT NOT NULL,
   open_date TIMESTAMP,
   close_date TIMESTAMP,
@@ -57,6 +57,7 @@ CREATE TABLE participant (
 CREATE TABLE protocol (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
   owner_id INT NOT NULL,
+  name VARCHAR(50) NOT NULL,
   PRIMARY KEY(id),
   FOREIGN KEY (owner_id) REFERENCES owner (id)
 ) CHARACTER SET utf8;
@@ -77,6 +78,7 @@ CREATE TABLE survey (
 
 CREATE TABLE task (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
+  name VARCHAR(50),
   survey_id INT NOT NULL,
   time_rule_id VARCHAR(100) NOT NULL,
   PRIMARY KEY (id),

@@ -173,8 +173,8 @@ class InstanceService:
                 if len(finished) > 0:
                     logger.info("Purging instances: %s", str(finished))
 
-                    InstanceService.delete_instances(finished)
                     StateService.delete_states_for_instances(finished)
+                    InstanceService.delete_instances(finished)
 
                     if instance.id in next_warning:
                         del next_warning[instance.id]

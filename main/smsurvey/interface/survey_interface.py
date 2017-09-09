@@ -119,10 +119,17 @@ class LatestQuestionHandler(RequestHandler):
                 return
 
             instance = InstanceService.get_instance(instance_id)
+
+            if instance is None:
+                self.set_status(410)
+                self.write('{"status":"error","message":"No response was expected for this survey"}')
+                self.finish()
+                return
+
             instance_id = instance.id  # Ensure that id is of right type
             state = StateService.get_next_state_in_instance(instance, Status.AWAITING_USER_RESPONSE)
 
-            if state is not None:
+            if state is not None and state.status is not Status.NO_RESPONSE_REQUIRED:
                 survey = SurveyService.get_survey(instance.survey_id)
                 if str(survey.owner_id) == auth_response["owner_id"]:
                     question_number = state.question_number
@@ -167,8 +174,13 @@ class LatestQuestionHandler(RequestHandler):
 
                                 if new_questions is not None:
                                     for new_question in new_questions:
-                                        StateService.create_state(instance_id, new_question[0][1],
-                                                                  Status.CREATED_MID, state.timeout, new_question[1])
+                                        if not new_question.final:
+                                            status = Status.CREATED_MID
+                                        else:
+                                            status = Status.NO_RESPONSE_REQUIRED
+
+                                        StateService.create_state(instance_id, new_question[0][1], status,
+                                                                  state.timeout, new_question[1])
 
                                 state.status = Status.TERMINATED_COMPLETE.value
                                 StateService.update_state(state)

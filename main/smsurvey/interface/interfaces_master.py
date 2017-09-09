@@ -10,6 +10,7 @@ from smsurvey.console.login_interface import LoginHandler, LogoutHandler, CheckL
 from smsurvey.console.console_interface import PluginsRequestHandler, PluginPermissionsHandler, \
     UnregisteredPluginPermissionsHandler
 from smsurvey.interface.plugin_interface import AllPluginsHandler
+from smsurvey.interface.task_interface import AllTasksHandler
 
 
 class HealthCheckHandler(RequestHandler):
@@ -36,6 +37,7 @@ def start_interface(port):
         (r"/enrollments/(\d*)/enrolled", AnEnrollmentAllParticipantsHandler),
         (r"/enrollments/(\d*)/(\d*)", AnEnrollmentAParticipantHandler),
         (r"/plugins", AllPluginsHandler),
+        (r"/tasks", AllTasksHandler),
         (r"/console/login", LoginHandler),
         (r"/console/logout", LogoutHandler),
         (r"/console/check_login", CheckLoginHandler),
