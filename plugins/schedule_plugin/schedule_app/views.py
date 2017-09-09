@@ -57,6 +57,6 @@ def config(request):
                 "status": "success",
                 "tasks": tasks,
                 "plugin_id": plugin_id,
-                "protocol": protocols
+                "protocols": protocols
             }
         )

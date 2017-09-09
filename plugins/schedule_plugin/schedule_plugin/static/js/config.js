@@ -41,10 +41,10 @@ $(document).ready(function() {
 
     $("#cb_repeats").change(function(){
         if ($(this).is(":checked")) {
-            $("#sel_repeats").prop("disabled", false).val('daily');
+            $("#sel_repeats").show().val('daily');
             $("#repeats_daily").show();
         } else {
-            $("#sel_repeats").prop("disabled", true);
+            $("#sel_repeats").hide();
             $("#repeats_daily").hide();
             $("#repeats_weekly").hide();
             $("#repeats_monthly_date").hide();
@@ -93,7 +93,7 @@ $(document).ready(function() {
 
     $("#btn_add_date").click(function() {
        number_of_dates += 1;
-       var html = '<label for="tb_date' + number_of_dates + '">Runtime: </label><input id="tb_date' + number_of_dates + '" type="date" class="form-control">';
+       var html = '<label for="tb_date' + number_of_dates + '">Date of month: </label><input id="tb_date' + number_of_dates + '" class="form-control" size="2">';
        $("#rundates").append(html)
     });
 });
