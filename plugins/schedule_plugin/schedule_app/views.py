@@ -40,7 +40,7 @@ def config(request):
     except Exception as e:
         return render(
             request,
-            "enrollments/config.html",
+            "schedule/config.html",
             context={
                 "status": "error",
                 "tasks": tasks,
@@ -52,7 +52,7 @@ def config(request):
     else:
         return render(
             request,
-            "enrollments/config.html",
+            "schedule/config.html",
             context={
                 "status": "success",
                 "tasks": tasks,
