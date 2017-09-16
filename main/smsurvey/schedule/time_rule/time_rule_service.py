@@ -4,7 +4,7 @@ from datetime import datetime
 
 from botocore.exceptions import ClientError
 
-from smsurvey.schedule.time_rule.time_rule import NoRepeatTimeRule, RepeatsDailyTimeRule, RepeatsMonthlyDate,\
+from smsurvey.schedule.time_rule.time_rule import NoRepeat, RepeatsDaily, RepeatsMonthlyDate, \
     RepeatsMonthlyDay, RepeatsWeekly
 
 from smsurvey import config
@@ -37,10 +37,10 @@ class TimeRuleService:
                 tr_type = response['Item']['type']['S']
 
                 if tr_type == 'no-repeat':
-                    return NoRepeatTimeRule.from_params(response['Item']['params']['S'])
+                    return NoRepeat.from_params(response['Item']['params']['S'])
 
                 if tr_type == 'repeat-daily':
-                    return RepeatsDailyTimeRule.from_params(response['Item']['params']['S'])
+                    return RepeatsDaily.from_params(response['Item']['params']['S'])
 
                 if tr_type == 'repeat-monthly-date':
                     return RepeatsMonthlyDate.from_params(response['Item']['params']['S'])

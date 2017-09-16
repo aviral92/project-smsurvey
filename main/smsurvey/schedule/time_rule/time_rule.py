@@ -24,25 +24,29 @@ class TimeRule(metaclass=ABCMeta):
         pass
 
 
-class NoRepeatTimeRule(TimeRule):
+class NoRepeat(TimeRule):
 
-    def __init__(self, run_times):
+    def __init__(self, run_date, run_times):
+        self.run_date = run_date
         self.run_times = run_times
 
     @staticmethod
     def from_params(params):
+        p = params.split("~")
+        run_date = parser.parse(p[0])
         run_times = []
-        for param in params.split('&'):
+        for param in p[1].split('&'):
             run_times.append(parser.parse(param))
 
-        return NoRepeatTimeRule(run_times)
+        return NoRepeat(run_date, run_times)
 
     @property
     def to_params(self):
 
-        params = ""
+        params = self.run_date.strftime("%Y-%m-%d %Z") + "~"
+
         for run_time in self.run_times:
-            params += run_time.strftime("%Y-%m-%d %H:%M:%S %Z") + "&"
+            params += run_time.strftime("%H:%M:%S %Z") + "&"
 
         return params[:-1]
 
@@ -51,10 +55,15 @@ class NoRepeatTimeRule(TimeRule):
         return "no-repeat"
 
     def get_date_times(self):
-        return self.run_times
+        processed = []
+
+        for run_time in self.run_times:
+            processed.append(self.run_date.replace(hour=run_time.hour, minute=run_time.minute, second=run_time.second))
+
+        return processed
 
 
-class RepeatsDailyTimeRule(TimeRule):
+class RepeatsDaily(TimeRule):
 
     def __init__(self, starting_from, every, until, run_times):
         self.starting_from = starting_from
@@ -73,7 +82,7 @@ class RepeatsDailyTimeRule(TimeRule):
         for run_time in p[3].split("&"):
             run_times.append(parser.parse(run_time))
 
-        return RepeatsDailyTimeRule(starting_from, every, until, run_times)
+        return RepeatsDaily(starting_from, every, until, run_times)
 
     @property
     def to_params(self):
@@ -153,10 +162,10 @@ class RepeatsMonthlyDate(TimeRule):
 
 class RepeatsMonthlyDay(TimeRule):
 
-    def __init__(self, every, param1, day_of_week, until, run_times):
+    def __init__(self, every, param1, days_of_week, until, run_times):
         self.every = every
         self.param1 = param1
-        self.day_of_week = day_of_week
+        self.days_of_week = days_of_week
         self.until = until
         self.run_times = run_times
 
@@ -165,10 +174,14 @@ class RepeatsMonthlyDay(TimeRule):
         p = params.split("~")
         every = int(p[0])
         param1 = p[1]
-        day_of_week = int(p[2])
+        days_of_week = []
+
+        for d in p[2].split("&"):
+            days_of_week.append(int(d))
+
         until = parser.parse(p[3])
         run_times = [parser.parse(run_at) for run_at in p[4].split('&')]
-        return RepeatsMonthlyDay(every, param1, day_of_week, until, run_times)
+        return RepeatsMonthlyDay(every, param1, days_of_week, until, run_times)
 
     @property
     def to_params(self):
@@ -178,7 +191,12 @@ class RepeatsMonthlyDay(TimeRule):
         for run_at in self.run_times:
             run_times += run_at.strftime("%H:%M:%S %Z") + '&'
 
-        return str(self.every) + "~" + self.param1 + "~" + str(self.day_of_week) + "~" \
+        days_of_week = ""
+
+        for day_of_week in self.days_of_week:
+            days_of_week += str(day_of_week) + "&"
+
+        return str(self.every) + "~" + self.param1 + "~" + days_of_week[:-1] + "~" \
                + self.until.strftime("%Y-%m-%d %Z") + "~" + run_times[:-1]
 
     @staticmethod
@@ -190,21 +208,22 @@ class RepeatsMonthlyDay(TimeRule):
         today = datetime.now()
         number_of_months = (self.until.year - today.year) * 12 + today.month - self.until.month
 
-        switch = {
-            "first": lambda m: self.get_nth_of_month(1, m, self.day_of_week),
-            "second": lambda m: self.get_nth_of_month(2, m, self.day_of_week),
-            "third": lambda m: self.get_nth_of_month(3, m, self.day_of_week),
-            "fourth": lambda m: self.get_nth_of_month(4, m, self.day_of_week),
-            "last": lambda m: self.get_nth_of_month(5, m, self.day_of_week)
-        }
+        for day_of_week in self.days_of_week:
+            switch = {
+                "first": lambda m: self.get_nth_of_month(1, m, day_of_week),
+                "second": lambda m: self.get_nth_of_month(2, m, day_of_week),
+                "third": lambda m: self.get_nth_of_month(3, m, day_of_week),
+                "fourth": lambda m: self.get_nth_of_month(4, m, day_of_week),
+                "last": lambda m: self.get_nth_of_month(5, m, day_of_week)
+            }
 
-        for i in range(1, number_of_months + 1, self.every):
-            day = switch[self.param1](1)
+            for i in range(1, number_of_months + 1, self.every):
+                day = switch[self.param1](1)
 
-            for run_at in self.run_times:
-                date_times.append(day.replace(hour=run_at.hour, minute=run_at.minute, second=run_at.second))
+                for run_at in self.run_times:
+                    date_times.append(day.replace(hour=run_at.hour, minute=run_at.minute, second=run_at.second))
 
-        return date_times
+            return date_times
 
     @staticmethod
     def get_nth_of_month(week_number, months_to_add, day_of_week):

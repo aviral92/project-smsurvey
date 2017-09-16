@@ -1,7 +1,6 @@
 from smsurvey.core.model.model import Model
 from smsurvey.core.model.query.where import Where
 
-
 class TaskService:
 
     @staticmethod
