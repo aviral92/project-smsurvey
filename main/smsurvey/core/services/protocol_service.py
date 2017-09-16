@@ -28,3 +28,7 @@ class ProtocolService:
     def get_protocols_owned_by(owner_id):
         protocols = Model.repository.protocols
         return protocols.select(Where(protocols.owner_id, Where.E, owner_id), force_list=True)
+
+    @staticmethod
+    def is_owned_by(protocol_id, owner_id):
+        return ProtocolService.get_protocol(protocol_id).owner_id == owner_id
