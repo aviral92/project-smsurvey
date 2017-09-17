@@ -137,7 +137,7 @@ function get_time_rule_from_ui() {
             time_rule["params"] = get_monthly_day_params();
         }
     } else {
-        time_rule["type"] = "no-repeat";
+        time_rule["type"] = "no_repeat";
         time_rule["params"] = null
     }
 

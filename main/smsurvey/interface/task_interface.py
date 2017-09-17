@@ -28,7 +28,7 @@ class AllTasksHandler(RequestHandler):
             task_objects = []
 
             for survey in surveys:
-                task_objects += (TaskService.get_tasks_by_survey_id(survey.id), survey)
+                task_objects += TaskService.get_tasks_by_survey_id(survey.id), survey
 
             tasks = []
 
@@ -59,9 +59,9 @@ class AllTasksHandler(RequestHandler):
         protocol_id = int(self.get_argument("protocol_id"))
         enrollment_id = int(self.get_argument("enrollment_id"))
         time_rule = json.loads(self.get_argument("time_rule"))
-        enable_notes = int(self.get_argument("enable_notes"), False)
+        enable_notes = self.get_argument("enable_notes", False)
         timeout = int(self.get_argument("timeout"), 20)
-        enable_warnings = int(self.get_argument("enable_warnings"), True)
+        enable_warnings = self.get_argument("enable_warnings", True)
 
         enable_notes = 1 if enable_notes else 0
         enable_warnings = 1 if enable_warnings else 0
@@ -69,7 +69,7 @@ class AllTasksHandler(RequestHandler):
         auth = authenticate(self, [Permissions.WRITE_TASK, Permissions.WRITE_SURVEY])
 
         if auth["valid"]:
-            owner_id = int(auth['owner_ID'])
+            owner_id = int(auth['owner_id'])
             response = None
 
             if ProtocolService.is_owned_by(protocol_id, int(auth['owner_id'])):
