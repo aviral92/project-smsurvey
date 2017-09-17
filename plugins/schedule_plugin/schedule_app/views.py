@@ -30,6 +30,7 @@ def config(request):
 
     tasks = []
     protocols = []
+    enrollments = []
 
     try:
         r = requests.get(url + "/tasks", headers=headers)
@@ -37,6 +38,9 @@ def config(request):
 
         r = requests.get(url + "/protocols", headers=headers)
         protocols = json.loads(r.text)["protocols"]
+
+        r = requests.get(url + "/enrollments", headers=headers)
+        enrollments = json.loads(r.text)["enrollments"]
     except Exception as e:
         return render(
             request,
@@ -45,6 +49,7 @@ def config(request):
                 "status": "error",
                 "tasks": tasks,
                 "plugin_id": plugin_id,
+                "enrollments": enrollments,
                 "protocols": protocols,
                 "message": str(e)
             }

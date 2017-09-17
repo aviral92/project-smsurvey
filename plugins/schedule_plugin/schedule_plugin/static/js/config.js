@@ -19,7 +19,8 @@ $(document).ready(function() {
            var to_send = {
                "plugin_id": $("#plugin_id"),
                "name": $("#tb_name").val(),
-               "protocol": $("#sel_protocol").find(":selected").val(),
+               "protocol_id": $("#sel_protocol").find(":selected").val(),
+               "enrollment_id": $("#sel_enrollment").find(":selected").val(),
                "time_rule": time_rule,
                "enable_notes": $("#cb_notes").is(":checked")
            };
@@ -52,13 +53,14 @@ $(document).ready(function() {
             $("#repeats").show();
             $("#sel_repeats").val('daily');
             $("#repeats_daily").show();
-            $("#dp_until").show();
+            $("#div_until").show();
         } else {
+            $("#repeats").hide();
             $("#repeats_daily").hide();
             $("#repeats_weekly").hide();
             $("#repeats_monthly_date").hide();
             $("#repeats_monthly_day").hide();
-            $("#dp_until").hide();
+            $("#div_until").hide();
         }
     });
 

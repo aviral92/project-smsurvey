@@ -119,13 +119,16 @@
                 <div class="panel-body">
                     <fieldset>
                         <div class="form-group">
-                            <label>ID: </label> <span id="span_id"></span><br/>
-                        </div>
-                        <div class="form-group">
                             <label for="tb_name">Name: </label>
                             <input id="tb_name" class="form-control" value="Test Task" placeholder="Name for Task"/>
                         </div>
                         <div class="form-group">
+                            <label for="sel_enrollment">Enrollment: </label>
+                            <select id="sel_enrollment" class="form-control">
+                                {% for enrollment in enrollments %}
+                                <option value="{{ enrollment.id }}">{{ enrollment.name}}</option>
+                                {% endfor %}
+                            </select>
                             <label for="sel_protocol">Protocol: </label>
                             <select id="sel_protocol" class="form-control">
                                 {% for protocol in protocols %}
@@ -171,7 +174,7 @@
                                 <label for="tb_every_weekly">Repeat every </label>
                                 <input id="tb_every_weekly" value="1" size="2"/> weeks
 
-                                <br/>Days of week:
+                                <br/>Days of week:<br />
                                 MON <input type="checkbox" id="cb_w_mon" title="MON"/> <br />
                                 TUE <input type="checkbox" id="cb_w_tue" title="TUE"/> <br />
                                 WED <input type="checkbox" id="cb_w_wed" title="WED"/> <br />
@@ -204,7 +207,7 @@
                                     <option value="third">Third</option>
                                     <option value="fourth">Fourth</option>
                                     <option value="fifth">Last</option>
-                                </select>
+                                </select> <br />
 
                                 MON <input type="checkbox" id="cb_m_mon" title="MON"/> <br />
                                 TUE <input type="checkbox" id="cb_m_tue" title="TUE"/> <br />
@@ -218,7 +221,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="div_until" style="display: none">
                             <label for="dp_until">Until: </label>
                             <input type="date" id="dp_until" />
                         </div>
