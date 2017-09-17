@@ -43,7 +43,7 @@ class NoRepeat(TimeRule):
     @property
     def to_params(self):
 
-        params = self.run_date.strftime("%Y-%m-%d %Z") + "~"
+        params = self.run_date.strftime("%Y-%m-%d") + "~"
 
         for run_time in self.run_times:
             params += run_time.strftime("%H:%M:%S %Z") + "&"
@@ -92,8 +92,8 @@ class RepeatsDaily(TimeRule):
         for run_time in self.run_times:
             run_times += run_time.strftime("%H:%M:%S %Z") + "&"
 
-        return self.starting_from.strftime("%Y-%m-%d %Z") + "~" + str(self.every) + "~" \
-               + self.until.strftime("%Y-%m-%d %Z") + "~" + run_times[:-1]
+        return self.starting_from.strftime("%Y-%m-%d") + "~" + str(self.every) + "~" \
+               + self.until.strftime("%Y-%m-%d") + "~" + run_times[:-1]
 
     @staticmethod
     def get_type():
@@ -141,7 +141,7 @@ class RepeatsMonthlyDate(TimeRule):
         for run_at in self.run_times:
             run_times += run_at.strftime("%H:%M:%S %Z") + '&'
 
-        return str(self.every) + "~" + str(self.days_of_month)[1:-1] + "~" + self.until.strftime("%Y-%m-%d %Z") + "~" \
+        return str(self.every) + "~" + str(self.days_of_month)[1:-1] + "~" + self.until.strftime("%Y-%m-%d") + "~" \
             + run_times[:-1]
 
     @staticmethod
@@ -197,7 +197,7 @@ class RepeatsMonthlyDay(TimeRule):
             days_of_week += str(day_of_week) + "&"
 
         return str(self.every) + "~" + self.param1 + "~" + days_of_week[:-1] + "~" \
-               + self.until.strftime("%Y-%m-%d %Z") + "~" + run_times[:-1]
+               + self.until.strftime("%Y-%m-%d") + "~" + run_times[:-1]
 
     @staticmethod
     def get_type():
@@ -278,7 +278,7 @@ class RepeatsWeekly(TimeRule):
             run_times += run_at.strftime("%H:%M:%S %Z") + '&'
 
         return str(self.every) + "~" + str(self.days)[1:-1] + "~" + run_times[:-1] \
-            + "~" + self.starting_from.strftime("%Y-%m-%d") + "~" + self.until.strftime("%Y-%m-%d %Z")
+            + "~" + self.starting_from.strftime("%Y-%m-%d") + "~" + self.until.strftime("%Y-%m-%d")
 
     @staticmethod
     def get_type():
