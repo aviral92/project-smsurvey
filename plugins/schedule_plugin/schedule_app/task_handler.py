@@ -23,8 +23,12 @@ def do_post(request):
     try:
         plugin_id = request.POST.get("plugin_id")
         name = request.POST.get("name")
-        protocol = request.POST.get("protocol")
+        protocol_id = request.POST.get("protocol_id")
+        enrollment_id = request.POST.get("enrollment_id")
         time_rule = request.POST.get("time_rule")
+        enable_notes = request.POST.get("enable_notes")
+        timeout = request.POST.get("timeout")
+        enable_warnings = request.POST.get("enable_warnings")
     except KeyError as ke:
         return JsonResponse({
             "status": "error",
@@ -47,8 +51,12 @@ def do_post(request):
 
     data = {
         "name": name,
-        "protocol": protocol,
-        "time_rule": time_rule
+        "protocol_id": protocol_id,
+        "enrollment_id": enrollment_id,
+        "time_rule": time_rule,
+        "enable_notes": enable_notes,
+        "timeout": timeout,
+        "enable_warnings": enable_warnings
     }
 
     post = requests.post(url + "/tasks", data=data, headers=headers)

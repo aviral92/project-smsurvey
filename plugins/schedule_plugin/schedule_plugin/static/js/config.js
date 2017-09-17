@@ -17,7 +17,7 @@ $(document).ready(function() {
            var time_rule = get_time_rule_from_ui();
 
            var to_send = {
-               "plugin_id": $("#plugin_id"),
+               "plugin_id": $("#plugin_id").html(),
                "name": $("#tb_name").val(),
                "protocol_id": $("#sel_protocol").find(":selected").val(),
                "enrollment_id": $("#sel_enrollment").find(":selected").val(),
@@ -29,6 +29,9 @@ $(document).ready(function() {
            if (timeout_val !== null && timeout_val.trim() !== "") {
                to_send["timeout"] = timeout_val;
                to_send["enable_warnings"] = $("#cb_warnings").is(":checked");
+           } else {
+               to_send["timeout"] = 120;
+               to_send["enable_warnings"] = false
            }
 
            $.ajax(
@@ -113,9 +116,9 @@ $(document).ready(function() {
 function get_time_rule_from_ui() {
 
     var time_rule = {};
-    time_rule["run_date"] = $("#dp_run_date").val;
+    time_rule["run_date"] = $("#dp_run_date").val();
     time_rule["run_times"] = get_run_times();
-    time_rule["until"] = $("#dp_until").val;
+    time_rule["until"] = $("#dp_until").val();
 
     if ($("#cb_repeats").is(":checked")) {
         var selected_rule = $('#sel_repeats').find(":selected").val();
@@ -154,31 +157,31 @@ function get_weekly_params() {
     var days = [];
 
     if ($("#cb_w_mon").is(":checked")) {
-        days.append(0);
+        days.push(0);
     }
 
     if ($("#cb_w_tue").is(":checked")) {
-        days.append(1);
+        days.push(1);
     }
 
     if ($("#cb_w_wed").is(":checked")) {
-        days.append(2);
+        days.push(2);
     }
 
     if ($("#cb_w_thu").is(":checked")) {
-        days.append(3);
+        days.push(3);
     }
 
     if ($("#cb_w_fri").is(":checked")) {
-        days.append(4);
+        days.push(4);
     }
 
     if ($("#cb_w_sat").is(":checked")) {
-        days.append(5);
+        days.push(5);
     }
 
     if ($("#cb_w_sun").is(":checked")) {
-        days.append(6);
+        days.push(6);
     }
 
     params["days"] = days;
@@ -193,7 +196,7 @@ function get_monthly_date_params() {
     var dates = [];
 
     for (var i = 1; i <= number_of_dates; i++) {
-        dates.append(parseInt($("#tb_date" + i).val()));
+        dates.push(parseInt($("#tb_date" + i).val()));
     }
 
     params["dates"] = dates;
@@ -210,31 +213,31 @@ function get_monthly_day_params() {
     var days = [];
 
     if ($("#cb_m_mon").is(":checked")) {
-        days.append(0);
+        days.push(0);
     }
 
     if ($("#cb_m_tue").is(":checked")) {
-        days.append(1);
+        days.push(1);
     }
 
     if ($("#cb_m_wed").is(":checked")) {
-        days.append(2);
+        days.push(2);
     }
 
     if ($("#cb_m_thu").is(":checked")) {
-        days.append(3);
+        days.push(3);
     }
 
     if ($("#cb_m_fri").is(":checked")) {
-        days.append(4);
+        days.push(4);
     }
 
     if ($("#cb_m_sat").is(":checked")) {
-        days.append(5);
+        days.push(5);
     }
 
     if ($("#cb_m_sun").is(":checked")) {
-        days.append(6);
+        days.push(6);
     }
 
     params["param1"] = param1;
@@ -248,7 +251,7 @@ function get_run_times() {
     var runtimes = [];
 
     for (var i = 1; i <= number_of_runtimes; i++) {
-        runtimes.append($("#tp_runtime" + i).val());
+        runtimes.push($("#tp_runtime" + i).val());
     }
 
     return runtimes;

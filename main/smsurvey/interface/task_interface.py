@@ -59,9 +59,12 @@ class AllTasksHandler(RequestHandler):
         protocol_id = int(self.get_argument("protocol_id"))
         enrollment_id = int(self.get_argument("enrollment_id"))
         time_rule = json.loads(self.get_argument("time_rule"))
-        enable_notes = int(self.get_argument("enable_notes"), 0)
+        enable_notes = int(self.get_argument("enable_notes"), False)
         timeout = int(self.get_argument("timeout"), 20)
-        enable_warnings = int(self.get_argument("enable_warnings"), 1)
+        enable_warnings = int(self.get_argument("enable_warnings"), True)
+
+        enable_notes = 1 if enable_notes else 0
+        enable_warnings = 1 if enable_warnings else 0
 
         auth = authenticate(self, [Permissions.WRITE_TASK, Permissions.WRITE_SURVEY])
 
