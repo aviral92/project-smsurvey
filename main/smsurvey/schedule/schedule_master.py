@@ -1,6 +1,7 @@
-from datetime import datetime
-
+import time
 import pytz
+
+from datetime import datetime
 from apscheduler.schedulers.tornado import TornadoScheduler
 
 
@@ -27,12 +28,7 @@ def add_job(survey_id, date_time):
         logger.info("%s scheduled for %s", str(survey_id), date_time.strftime("%Y-%m-%d %H:%M:%S %Z"))
 
 
-def load_persisted_tasks():
-    tasks = TaskService.get_all_tasks()
-
-    if tasks is None:
-        return
-
+def load_tasks(tasks):
     time_rule_service = TimeRuleService()
 
     for task in tasks:
@@ -48,8 +44,38 @@ def load_persisted_tasks():
                                str(task.survey_id))
 
 
-def load_maintenance_jobs():
-    logger.info("Loading ")
+def load_persisted_tasks():
+    tasks = TaskService.get_all_tasks()
+    if len(tasks) > 0:
+        load_tasks(tasks)
+        return tasks[-1]
+    return None
+
+
+def schedule_loop(last_task):
+    i = 0
+
+    while True:
+        if last_task is not None:
+            tasks = TaskService.get_tasks_since(last_task)
+        else:
+            tasks = TaskService.get_all_tasks()
+        if len(tasks) > 0:
+            load_tasks(tasks)
+            last_task = tasks[-1]
+
+        i += 1
+
+        if i == 59:
+            break
+
+        time.sleep(60)
+
+    logger.info("Cleaning schedule, removing any deleted tasks")
+    global schedule
+    schedule.shutdown()
+    schedule = None
+    start_schedule()
 
 
 def start_schedule():
@@ -59,10 +85,8 @@ def start_schedule():
         schedule = TornadoScheduler()
         schedule.start()
         logger.info("Hydrating schedule with surveys")
-        load_persisted_tasks()
-        logger.info("Loading maintenance jobs into schedule")
-
-        logger.info("Schedule running")
-
+        latest_task = load_persisted_tasks()
+        logger.info("Schedule entering main loop")
+        schedule_loop(latest_task)
     else:
         logger.info("Schedule was already running")

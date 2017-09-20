@@ -10,7 +10,7 @@ from smsurvey.console.login_interface import LoginHandler, LogoutHandler, CheckL
 from smsurvey.console.console_interface import PluginsRequestHandler, PluginPermissionsHandler, \
     UnregisteredPluginPermissionsHandler
 from smsurvey.interface.plugin_interface import AllPluginsHandler
-from smsurvey.interface.task_interface import AllTasksHandler
+from smsurvey.interface.task_interface import AllTasksHandler, ATaskHandler
 from smsurvey.interface.protocol_interface import AllProtocolsHandler
 
 
@@ -38,6 +38,7 @@ def start_interface(port):
         (r"/enrollments/(\d*)/enrolled", AnEnrollmentAllParticipantsHandler),
         (r"/enrollments/(\d*)/(\d*)", AnEnrollmentAParticipantHandler),
         (r"/plugins", AllPluginsHandler),
+        (r"/tasks/(\d*)", ATaskHandler),
         (r"/tasks", AllTasksHandler),
         (r"/protocols", AllProtocolsHandler),
         (r"/console/login", LoginHandler),

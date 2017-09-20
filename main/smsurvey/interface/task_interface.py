@@ -13,7 +13,6 @@ from smsurvey.core.services.protocol_service import ProtocolService
 from smsurvey.schedule.time_rule.time_rule import NoRepeat, RepeatsDaily, RepeatsWeekly, RepeatsMonthlyDate, \
     RepeatsMonthlyDay
 from smsurvey.schedule.time_rule.time_rule_service import TimeRuleService
-from smsurvey.schedule.schedule_master import add_job
 
 
 class AllTasksHandler(RequestHandler):
@@ -25,21 +24,20 @@ class AllTasksHandler(RequestHandler):
         if auth["valid"]:
             surveys = SurveyService.get_surveys_by_owner(auth["owner_id"])
 
-            task_objects = []
+            surveys_tasks = {}
 
             for survey in surveys:
-                task_objects += TaskService.get_tasks_by_survey_id(survey.id), survey
+                surveys_tasks[survey] = TaskService.get_tasks_by_survey_id(survey.id)
 
             tasks = []
 
-            for task_object in task_objects:
-                task = {
-                    "name": task_object[0].name,
-                    "protocol_name": ProtocolService.get_protocol(task_object[0].protocol_id).name,
-                    "enrollment_name": EnrollmentService.get(task_object[1].enrollment_id).name
-                }
-
-                tasks.append(task)
+            for survey, task_list in surveys_tasks.items():
+                for task in task_list:
+                    tasks.append({
+                        "name": task.name,
+                        "protocol_name": ProtocolService.get_protocol(survey.protocol_id).name,
+                        "enrollment_name": EnrollmentService.get(survey.enrollment_id).name
+                    })
 
             response = {
                 "status": "success",
@@ -129,16 +127,6 @@ class AllTasksHandler(RequestHandler):
                 time_rule_id = TimeRuleService().insert(survey.id, time_rule)
                 TaskService.create_task(task_name, survey.id, time_rule_id)
 
-                date_times = time_rule.get_date_times()
-
-                for dt in date_times:
-                    dt = dt.replace(tzinfo=pytz.utc)
-                    if dt > datetime.now(pytz.utc):
-                        add_job(survey.id, dt)
-                    else:
-                        logger.warning("%s is in the past for survey %s", dt.strftime("%Y-%m-%d %H:%M:%S %Z"),
-                                       str(survey.id))
-
                 response = {
                     "status": "success"
                 }
@@ -149,9 +137,78 @@ class AllTasksHandler(RequestHandler):
             self.write(response_json)
             self.flush()
 
-    def delete(self):
-        print("Not implemented")
-
     def data_received(self, chunk):
         pass
 
+
+class ATaskHandler(RequestHandler):
+
+    def get(self, task_id):
+        logger.debug("Trying to retrieve a task's run times")
+        auth = authenticate(self, [Permissions.READ_TASK])
+
+        if auth['valid']:
+            task = TaskService.get_task(int(task_id))
+            survey = SurveyService.get_survey(task.survey_id)
+
+            if survey.owner_id == int(auth['owner_id']):
+                time_rule = TimeRuleService().get(survey.id, task.time_rule_id)
+                date_times = time_rule.get_date_times()
+
+                dts = []
+
+                for dt in date_times:
+                    dts.append({
+                        "year": dt.year,
+                        "month": dt.month,
+                        "day": dt.day,
+                        "time": dt.hour + ":" + dt.minute,
+                    })
+
+                response = {
+                    "status": "success",
+                    "run_times": dts
+                }
+                self.set_status(200)
+            else:
+                response = {
+                    "status": "error",
+                    "message": "Plugin is not registered by survey administrator"
+                }
+                self.set_status(403)
+
+            response_json = json.dumps(response)
+            logger.debug(response_json)
+            self.write(response_json)
+            self.flush()
+
+    def delete(self, task_id):
+        logger.debug("Trying to delete a task")
+        auth = authenticate(self, [Permissions.READ_TASK])
+
+        if auth['valid']:
+            task = TaskService.get_task(int(task_id))
+            survey = SurveyService.get_survey(task.survey_id)
+
+            if survey.owner_id == int(auth['owner_id']):
+                TaskService.delete_task(task.id)
+
+                self.set_status(200)
+
+                response = {
+                    "status": "success"
+                }
+            else:
+                response = {
+                    "status": "error",
+                    "message": "Plugin is not registered by survey administrator"
+                }
+                self.set_status(403)
+
+            response_json = json.dumps(response)
+            logger.debug(response_json)
+            self.write(response_json)
+            self.flush()
+
+    def data_received(self, chunk):
+        pass
