@@ -11,6 +11,8 @@ from smsurvey.core.services.instance_service import InstanceService
 from smsurvey.schedule.time_rule.time_rule_service import TimeRuleService
 
 schedule = None
+latest_task = None
+all_tasks = []
 
 
 def instance_start(survey_id):
@@ -48,29 +50,24 @@ def load_persisted_tasks():
     tasks = TaskService.get_all_tasks()
     if len(tasks) > 0:
         load_tasks(tasks)
-        return tasks[-1]
-    return None
+        global latest_task
+        latest_task = tasks[-1]
 
 
-def schedule_loop(last_task):
-    i = 0
-
-    while True:
-        if last_task is not None:
-            tasks = TaskService.get_tasks_since(last_task)
-        else:
-            tasks = TaskService.get_all_tasks()
+def check_for_new_tasks():
+    logger.info("Checking if new jobs are waiting to be scheduled")
+    global latest_task
+    if latest_task is None:
+        load_persisted_tasks()
+    else:
+        tasks = TaskService.get_tasks_since(latest_task)
+        logger.info("%s new tasks to be scheduled", str(len(tasks)))
         if len(tasks) > 0:
             load_tasks(tasks)
-            last_task = tasks[-1]
+            latest_task = tasks[-1]
 
-        i += 1
 
-        if i == 59:
-            break
-
-        time.sleep(60)
-
+def check_for_removed_tasks():
     logger.info("Cleaning schedule, removing any deleted tasks")
     global schedule
     schedule.shutdown()
@@ -85,8 +82,9 @@ def start_schedule():
         schedule = TornadoScheduler()
         schedule.start()
         logger.info("Hydrating schedule with surveys")
-        latest_task = load_persisted_tasks()
-        logger.info("Schedule entering main loop")
-        schedule_loop(latest_task)
+        load_persisted_tasks()
+        logger.info("Preparing maintenance jobs for updating schedule (adding and removing)")
+        schedule.add_job(check_for_new_tasks, 'interval', minutes=5)
+        schedule.add_job(check_for_removed_tasks, 'interval', minutes=30)
     else:
         logger.info("Schedule was already running")
