@@ -259,16 +259,12 @@ function get_run_times() {
 
 function remove_task(task_id) {
 
-    var to_send = {
-        "plugin_id": $("#plugin_id").html(),
-        "id": task_id
-    };
+    var plugin_id =  $("#plugin_id").html();
 
     if (confirm("Any surveys scheduled under this task in the next hour may still be executed," +
             " restart system for immediate effect")) {
         $.ajax({
-            url: "/task",
-            data: to_send,
+            url: "/task?plugin_id=" + plugin_id + "?task_id=" + task_id,
             method: "DELETE",
             success: function() {
                 // noinspection SillyAssignmentJS
@@ -283,7 +279,7 @@ function remove_task(task_id) {
 
 function view_run_times(id) {
     $.ajax({
-        url: "/task?id=" + id + "&plugin_id=" + $("#plugin_id").html(),
+        url: "/task?task_id=" + id + "&plugin_id=" + $("#plugin_id").html(),
         method: "GET",
         success: function(data) {
 
