@@ -10,12 +10,48 @@ from schedule_app.models import OwnerModel
 @csrf_exempt
 def handle(request):
 
+    if request.method == 'GET':
+        return do_get(request)
     if request.method == 'POST':
         return do_post(request)
     elif request.method == 'DELETE':
         return do_delete(request)
     else:
         return HttpResponse(status=405)
+
+
+def do_get(request):
+
+    try:
+        task_id = str(request.GET.get("task_id"))
+        plugin_id = int(request.GET.get("plugin_id"))
+    except (KeyError, ValueError):
+        return JsonResponse({
+            "status": "error",
+            "message": "Missing or ill-formatted parameter"
+        })
+
+    owner = OwnerModel.objects.get(plugin_id=plugin_id)
+    url = str(owner.url)
+    owner_id = str(owner.owner_id)
+    token = str(owner.token)
+
+    a = owner_id + "-" + str(plugin_id) + ":" + token
+    b64 = base64.b64encode(a.encode()).decode()
+
+    headers = {
+        "Authorization": "Basic " + b64
+    }
+
+    get = requests.get(url + "/tasks/" + task_id, headers=headers)
+
+    if get.status_code != 200:
+        return JsonResponse({
+            "status": "error",
+            "message": get.json()["message"]
+        }, status=get.status_code)
+    else:
+        return JsonResponse(get.json(), status=200)
 
 
 def do_post(request):
@@ -29,7 +65,7 @@ def do_post(request):
         enable_notes = request.POST.get("enable_notes")
         timeout = request.POST.get("timeout")
         enable_warnings = request.POST.get("enable_warnings")
-    except KeyError as ke:
+    except KeyError:
         return JsonResponse({
             "status": "error",
             "message": "Missing parameter"

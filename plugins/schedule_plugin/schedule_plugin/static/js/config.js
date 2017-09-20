@@ -21,7 +21,7 @@ $(document).ready(function() {
                "name": $("#tb_name").val(),
                "protocol_id": $("#sel_protocol").find(":selected").val(),
                "enrollment_id": $("#sel_enrollment").find(":selected").val(),
-               "time_rule": time_rule,
+               "time_rule": JSON.stringify(time_rule),
                "enable_notes": $("#cb_notes").is(":checked")
            };
 
@@ -264,7 +264,8 @@ function remove_task(task_id) {
         "id": task_id
     };
 
-    if (confirm("Removing task will mean it will not run again in the future")) {
+    if (confirm("Any surveys scheduled under this task in the next hour may still be executed," +
+            " restart system for immediate effect")) {
         $.ajax({
             url: "/task",
             data: to_send,
@@ -278,4 +279,31 @@ function remove_task(task_id) {
             }
         });
     }
+}
+
+function view_run_times(id) {
+    $.ajax({
+        url: "/task?id=" + id + "&plugin_id=" + $("#plugin_id").html(),
+        method: "GET",
+        success: function(data) {
+
+            var run_times = data["run_times"];
+            var html = "";
+
+            $.each(run_times, function(index, run_time){
+                html += "<tr><td>" + run_time['year'] + "</td>";
+                html += "<td>" + run_time['month'] + "</td>";
+                html += "<td>" + run_time['day'] + "</td>";
+                html += "<td>" + run_time['time'] + "</td></tr>"
+            });
+
+            $("#tbody_run_times").html(html);
+
+            $("#config_view_times").show();
+            $("#config_home").hide();
+        },
+        fail: function (){
+            alert("Failure retrieving run times for task")
+        }
+    });
 }
