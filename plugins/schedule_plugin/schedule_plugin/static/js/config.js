@@ -27,7 +27,7 @@ $(document).ready(function() {
 
            var timeout_val = $("#tb_timeout").val();
            if (timeout_val !== null && timeout_val.trim() !== "") {
-               to_send["timeout"] = timeout_val;
+               to_send["timeout"] = Number(timeout_val);
                to_send["enable_warnings"] = $("#cb_warnings").is(":checked");
            } else {
                to_send["timeout"] = 120;
