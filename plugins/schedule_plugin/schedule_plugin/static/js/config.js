@@ -130,9 +130,9 @@ function get_time_rule_from_ui() {
             time_rule["type"] = 'weekly';
             time_rule["params"] = get_weekly_params();
         } else if (selected_rule === 'monthly_date') {
-            time_rule["type"] = 'monthly-date';
+            time_rule["type"] = 'monthly_date';
             time_rule["params"] = get_monthly_date_params();
-        } else if (selected_rule === 'monthly-day') {
+        } else if (selected_rule === 'monthly_day') {
             time_rule["type"] = 'monthly_day';
             time_rule["params"] = get_monthly_day_params();
         }
