@@ -34,6 +34,7 @@ class AllTasksHandler(RequestHandler):
             for survey, task_list in surveys_tasks.items():
                 for task in task_list:
                     tasks.append({
+                        "id": task.id,
                         "name": task.name,
                         "protocol_name": ProtocolService.get_protocol(survey.protocol_id).name,
                         "enrollment_name": EnrollmentService.get(survey.enrollment_id).name
@@ -158,11 +159,15 @@ class ATaskHandler(RequestHandler):
                 dts = []
 
                 for dt in date_times:
+
+                    hour_str = str(dt.hour) if dt.hour > 9 else '0' + str(dt.hour)
+                    minute_str = str(dt.minute) if dt.minute > 9 else '0' + str(dt.minute)
+
                     dts.append({
                         "year": dt.year,
                         "month": dt.month,
                         "day": dt.day,
-                        "time": dt.hour + ":" + dt.minute,
+                        "time": hour_str + ":" + minute_str
                     })
 
                 response = {
