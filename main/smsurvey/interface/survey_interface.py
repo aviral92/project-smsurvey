@@ -107,19 +107,19 @@ class LatestQuestionHandler(RequestHandler):
     #  if no, latest remains (and a message is returned for the plugin to optionally relay onto the participant).
     def post(self, instance_id):
         auth_response = authenticate(self, [Permissions.WRITE_RESPONSE])
-
+        print("Getting Auth Response", auth_response)
         if auth_response["valid"]:
             data = json_decode(self.request.body)
-
+            print("Getting data", data)
             if 'response' in data:
                 response = data['response']
             else:
                 self.set_status(400)
                 self.write('{"status":"error","message":"Missing response parameter"}')
                 return
-
+            
             instance = InstanceService.get_instance(instance_id)
-
+            print("Getting instance", instance)
             if instance is None:
                 self.set_status(410)
                 self.write('{"status":"error","message":"No response was expected for this survey"}')
@@ -158,6 +158,7 @@ class LatestQuestionHandler(RequestHandler):
                             StateService.update_state(state)
 
                             new_questions = question.process(response)
+                            print("##########New Questions", new_questions)
                             if new_questions == 'INV_RESP':
                                 state.status = Status.AWAITING_USER_RESPONSE.value
                                 StateService.update_state(state)
@@ -174,7 +175,10 @@ class LatestQuestionHandler(RequestHandler):
 
                                 if new_questions is not None:
                                     for new_question in new_questions:
-                                        if not new_question.final:
+                                        print("###Inside For Loop", new_question)
+                                        #print("Is this the final question", isFinal)
+                                        #if not new_question.final:
+                                        if not False:
                                             status = Status.CREATED_MID
                                         else:
                                             status = Status.NO_RESPONSE_REQUIRED

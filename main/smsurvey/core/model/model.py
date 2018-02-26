@@ -12,7 +12,7 @@ class Model:
 
     repository = None
     dao = None
-
+    print("Calling Model Class")
     @classmethod
     def from_database(cls, _dao):
         logger.info("Loading model from database")
@@ -22,7 +22,7 @@ class Model:
         describe_table_sql = "DESCRIBE "
 
         connection = cls.dao.get_connection()
-
+        print("Getting Connection", connection)
         try:
             models = {}
 
@@ -36,11 +36,13 @@ class Model:
                     cursor.execute(describe_table_sql + table_name)
                     table_description = cursor.fetchall()
                     models[table_name + "s"] = cls._Model.from_description(table_description, table_name)
+                    print("Getting Models", models)
 
         finally:
             connection.close()
 
         cls.repository = cls.__ModelRepository(models)
+        print("Getting Repository", cls.repository)
 
     class __ModelRepository:
 

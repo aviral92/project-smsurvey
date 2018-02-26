@@ -61,9 +61,25 @@ class AllTasksHandler(RequestHandler):
         enable_notes = self.get_argument("enable_notes", False)
         timeout = int(self.get_argument("timeout"), 20)
         enable_warnings = self.get_argument("enable_warnings", True)
-
+        print("###############",time_rule['timezone'])
         enable_notes = 1 if enable_notes else 0
         enable_warnings = 1 if enable_warnings else 0
+
+        all_run_times = []
+        local_tz = pytz.timezone (time_rule['timezone'])
+        date_conversion = time_rule["run_date"]
+        time_conversion = time_rule["run_times"]
+        for several_run_time in time_conversion:
+            datetime_without_tz = datetime.strptime(str(date_conversion) + " " + str(several_run_time), "%Y-%m-%d %H:%M")
+            datetime_with_tz = local_tz.localize(datetime_without_tz, is_dst=None) # No daylight saving time
+            datetime_in_utc = datetime_with_tz.astimezone(pytz.utc)
+            str_utc_time = datetime_in_utc.strftime('%Y-%m-%d %H:%M %Z')
+            all_run_times.append(str_utc_time[11:16])
+
+        time_rule["run_date"] = str_utc_time[:10]
+        time_rule["run_times"] = all_run_times
+        print("###############",time_rule["run_times"])
+        print("###############",time_rule["run_date"])
 
         auth = authenticate(self, [Permissions.WRITE_TASK, Permissions.WRITE_SURVEY])
 

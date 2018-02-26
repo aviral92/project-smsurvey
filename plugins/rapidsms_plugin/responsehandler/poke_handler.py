@@ -36,7 +36,7 @@ def handle(request):
         return HttpResponse()
 
     response = json.loads(r.text)
-
+    print("Response::", response)
     for iid in response['ids']:
         SurveyStarter.start_survey(plugin_id, owner_id, token, url, survey_id, iid)
 

@@ -15,19 +15,18 @@ $(document).ready(function() {
     $("#btn_save").click(function() {
        if (confirm("Are you sure you want to save?")) {
            var time_rule = get_time_rule_from_ui();
+
            var to_send = {
                "plugin_id": $("#plugin_id").html(),
                "name": $("#tb_name").val(),
                "protocol_id": $("#sel_protocol").find(":selected").val(),
                "enrollment_id": $("#sel_enrollment").find(":selected").val(),
-			   "timezone": $("#tp_timezone :selected").val();
                "time_rule": JSON.stringify(time_rule),
                "enable_notes": $("#cb_notes").is(":checked")
            };
-
            var timeout_val = $("#tb_timeout").val();
            if (timeout_val !== null && timeout_val.trim() !== "") {
-               to_send["timeout"] = Number(timeout_val);
+               to_send["timeout"] = timeout_val;
                to_send["enable_warnings"] = $("#cb_warnings").is(":checked");
            } else {
                to_send["timeout"] = 120;
@@ -117,6 +116,7 @@ function get_time_rule_from_ui() {
 
     var time_rule = {};
     time_rule["run_date"] = $("#dp_run_date").val();
+	time_rule["timezone"] = $("#tp_timezone :selected").val();
     time_rule["run_times"] = get_run_times();
     time_rule["until"] = $("#dp_until").val();
 
@@ -140,7 +140,7 @@ function get_time_rule_from_ui() {
         time_rule["type"] = "no_repeat";
         time_rule["params"] = null
     }
-
+    console.log('Hi');
     return time_rule;
 }
 
@@ -261,11 +261,17 @@ function remove_task(task_id) {
 
     var plugin_id =  $("#plugin_id").html();
 
+    var to_send = {
+        "plugin_id": plugin_id,
+        "task_id": task_id
+    };
+
     if (confirm("Any surveys scheduled under this task in the next hour may still be executed," +
             " restart system for immediate effect")) {
         $.ajax({
             url: "/task?plugin_id=" + plugin_id + "?task_id=" + task_id,
             method: "DELETE",
+            data: to_send,
             success: function() {
                 // noinspection SillyAssignmentJS
                 document.location.href = document.location.href;
