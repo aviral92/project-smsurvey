@@ -12,6 +12,7 @@ def handle(request):
 
     participant_plugin_id = int(request.POST.get("plugin_id"))
     plugin_scratch = str(request.POST.get("plugin_scratch"))
+    plugin_name = str(request.POST.get("plugin_name"))
     enrollment_id = int(request.POST.get("enrollment_id"))
 
     enrollment = EnrollmentModel.objects.get(enrollment_id=enrollment_id)
@@ -32,6 +33,7 @@ def handle(request):
 
     data = {
         "plugin_id": participant_plugin_id,
+        "plugin_name": plugin_name,
         "plugin_scratch": plugin_scratch
     }
 

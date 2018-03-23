@@ -200,7 +200,7 @@ if __name__ == "__main__":
     survey_id = "1"
 
     print("Creating Owner")
-    owner = OwnerService.create_owner('sam', 'mhealth', 'password')
+    owner = OwnerService.create_owner('ayanagrawal', 'mhealth', 'password')
     print("Owner created")
 
     print("Generating questions")

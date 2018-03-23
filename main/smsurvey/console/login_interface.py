@@ -17,8 +17,10 @@ class LoginHandler(RequestHandler):
         data = json_decode(self.request.body)
         username = data["username"]
         password = data["password"]
+        print(username)
 
         splitter = username.find('@')
+        print(splitter)
 
         if splitter == -1:
             self.set_status(401)

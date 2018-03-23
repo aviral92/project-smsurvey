@@ -61,16 +61,18 @@ def do_post(request):
         name = request.POST.get("name")
         protocol_id = request.POST.get("protocol_id")
         enrollment_id = request.POST.get("enrollment_id")
+        timezone = request.POST.get("timezone")
         time_rule = request.POST.get("time_rule")
         enable_notes = request.POST.get("enable_notes")
         timeout = request.POST.get("timeout")
         enable_warnings = request.POST.get("enable_warnings")
+        print(timezone)
     except KeyError:
         return JsonResponse({
             "status": "error",
             "message": "Missing parameter"
         }, status=400)
-
+    print(time_rule)
     owner = OwnerModel.objects.get(plugin_id=int(plugin_id))
 
     url = str(owner.url)

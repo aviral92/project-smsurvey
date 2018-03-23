@@ -77,13 +77,14 @@ class PluginService:
 
     @staticmethod
     def poke(plugin_id, survey_id):
+        print("Printing plugin ID", plugin_id)
         plugin = PluginService.get_plugin(plugin_id)
-
+        print("Getting Plugin", plugin)
         data = {
             'plugin_id': plugin_id,
             'survey_id': survey_id
         }
-
+        print("Data Plugin", data)
         requests.post(plugin.url + "/poke/", json.dumps(data))
 
     @staticmethod

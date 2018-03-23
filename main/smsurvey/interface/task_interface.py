@@ -2,7 +2,7 @@ import json
 import pytz
 
 from tornado.web import RequestHandler
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from smsurvey.config import logger
 from smsurvey.core.security.permissions import Permissions, authenticate
@@ -13,7 +13,8 @@ from smsurvey.core.services.protocol_service import ProtocolService
 from smsurvey.schedule.time_rule.time_rule import NoRepeat, RepeatsDaily, RepeatsWeekly, RepeatsMonthlyDate, \
     RepeatsMonthlyDay
 from smsurvey.schedule.time_rule.time_rule_service import TimeRuleService
-
+from smsurvey.interface.datamanagement import DataManagement
+from smsurvey.core.services.participant_service import ParticipantService
 
 class AllTasksHandler(RequestHandler):
 
@@ -61,9 +62,24 @@ class AllTasksHandler(RequestHandler):
         enable_notes = self.get_argument("enable_notes", False)
         timeout = int(self.get_argument("timeout"), 20)
         enable_warnings = self.get_argument("enable_warnings", True)
-
         enable_notes = 1 if enable_notes else 0
         enable_warnings = 1 if enable_warnings else 0
+
+        all_run_times = []
+        all_run_dates = []
+        local_tz = pytz.timezone (time_rule['timezone'])
+        date_conversion = time_rule["run_date"]
+        time_conversion = time_rule["run_times"]
+        for several_run_time in time_conversion:
+            datetime_without_tz = datetime.strptime(str(date_conversion) + " " + str(several_run_time), "%Y-%m-%d %H:%M")
+            datetime_with_tz = local_tz.localize(datetime_without_tz, is_dst=True) # No daylight saving time
+            datetime_in_utc = datetime_with_tz.astimezone(pytz.utc)
+            str_utc_time = datetime_in_utc.strftime('%Y-%m-%d %H:%M %Z')
+            all_run_dates.append(str_utc_time[:10])
+            all_run_times.append(str_utc_time[11:16])
+
+        time_rule["run_date"] = str_utc_time[:10]
+        time_rule["run_times"] = all_run_times
 
         auth = authenticate(self, [Permissions.WRITE_TASK, Permissions.WRITE_SURVEY])
 
@@ -75,7 +91,7 @@ class AllTasksHandler(RequestHandler):
                 if EnrollmentService.is_owned_by(enrollment_id, owner_id):
                     params = time_rule["params"]
                     run_time_values = time_rule["run_times"]
-                    run_date = datetime.strptime(time_rule["run_date"], "%Y-%m-%d").replace(tzinfo=pytz.utc)
+
 
                     run_times = []
 
@@ -84,22 +100,32 @@ class AllTasksHandler(RequestHandler):
                         hour = int(rtv[0])
                         minute = int(rtv[1])
                         run_times.append(datetime.now(tz=pytz.utc).replace(hour=hour, minute=minute, second=0))
-
+                    until = datetime.strptime(time_rule["run_date"], "%Y-%m-%d").replace(tzinfo=pytz.utc)
+                    run_date = datetime.strptime(time_rule["run_date"], "%Y-%m-%d").replace(tzinfo=pytz.utc)
+                    last_date = datetime.strptime(time_rule["run_date"], "%Y-%m-%d")
+                    start_date = datetime.strptime(time_rule["run_date"], "%Y-%m-%d")
+                    intervalcount = 'no_repeat'
                     if time_rule["type"] == 'no_repeat':
+                        intervalcount = 'no_repeat'
                         time_rule = NoRepeat(run_date, run_times)
                     elif time_rule["type"] == 'daily':
+                        intervalcount = 'daily'
                         every = int(params["every"])
                         until = datetime.strptime(time_rule['until'], "%Y-%m-%d").replace(tzinfo=pytz.utc)
+                        last_date = datetime.strptime(time_rule['until'], "%Y-%m-%d")
                         time_rule = RepeatsDaily(run_date, every, until, run_times)
                     elif time_rule["type"] == 'weekly':
+                        intervalcount = 'weekly'
                         every = int(params["every"])
                         until = datetime.strptime(time_rule['until'], "%Y-%m-%d").replace(tzinfo=pytz.utc)
                         time_rule = RepeatsWeekly(every, params['days'], run_times, run_date, until)
                     elif time_rule["type"] == 'monthly_date':
+                        intervalcount = 'monthly_date'
                         every = int(params["every"])
                         until = datetime.strptime(time_rule['until'], "%Y-%m-%d").replace(tzinfo=pytz.utc)
                         time_rule = RepeatsMonthlyDate(every, params['dates'], until, run_times)
                     elif time_rule["type"] == 'monthly_day':
+                        intervalcount = 'monthly_day'
                         every = int(params["every"])
                         until = datetime.strptime(time_rule['until'], "%Y-%m-%d").replace(tzinfo=pytz.utc)
                         time_rule = RepeatsMonthlyDay(every, params['param1'], params['days'], until, run_times)
@@ -109,6 +135,23 @@ class AllTasksHandler(RequestHandler):
                             "message": time_rule['type'] + " is not a valid time rule"
                         }
                         self.set_status(400)
+
+                    for daysNo in range((last_date - start_date).days + 1):
+                        DataManagement.dataStorage.append(enrollment_id)
+                        listParticipants = []
+                        participants = ParticipantService.get_participants_in_enrollment(enrollment_id)
+                        for participant in participants:
+                            listParticipants.append(participant.id)
+                        DataManagement.dataStorage.append(listParticipants)
+                        DataManagement.dataStorage.append(start_date)
+                        DataManagement.dataStorage.append(run_time_values)
+                        DataManagement.dataStorage.append("cig_ecig")
+                        DataManagement.dataStorage.append(until)
+                        DataManagement.dataStorage.append(intervalcount)
+                        DataManagement.dataStorage.append(protocol_id)
+                        DataManagement.dataStorage.append("scheduled")
+                        DataManagement.get_schedule()
+                        start_date = start_date + timedelta(days=every)
                 else:
                     response = {
                         "status": "error",
@@ -127,7 +170,7 @@ class AllTasksHandler(RequestHandler):
                                                      enable_warnings)
                 time_rule_id = TimeRuleService().insert(survey.id, time_rule)
                 TaskService.create_task(task_name, survey.id, time_rule_id)
-
+                DataManagement.getSurveyid(survey.id)
                 response = {
                     "status": "success"
                 }
@@ -145,7 +188,6 @@ class AllTasksHandler(RequestHandler):
 class ATaskHandler(RequestHandler):
 
     def get(self, task_id):
-        logger.debug("Trying to retrieve a task's run times")
         auth = authenticate(self, [Permissions.READ_TASK])
 
         if auth['valid']:

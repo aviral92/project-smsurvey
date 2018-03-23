@@ -134,7 +134,17 @@
                                 {% endfor %}
                             </select>
                         </div>
-
+                        <div class="form-group">
+							<label>Timezone: </label>
+							<select id="tp_timezone" class="form-control">
+								<option value="UTC">Universal Time (UTC)</option>
+								<option value="PST">Pacific Standard Time (PST)</option>
+								<option value="MST">Mountain Standard Time (MST)</option>
+								<option value="CST">Central Standard Time (CST)</option>
+								<option value="US/Eastern">Eastern Standard Time (EST)</option>
+								<option value="AST">Atlantic Standard Time (AST)</option>
+							</select>
+						</div>
                         <div class="form-group">
                             <div id="runtimes">
                                 <label for="tp_runtime1">Runtime: </label>
@@ -269,7 +279,7 @@
 <script src="{% static 'dist/js/sb-admin-2.js' %}"></script>
 
 <!-- config js -->
-<script src="{% static 'js/config.js' %}"></script>
+<script src="{% static 'js/config_test.js' %}"></script>
 
 
 </body>

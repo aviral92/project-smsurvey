@@ -14,7 +14,8 @@ from smsurvey.core.services.response_service import ResponseService
 from smsurvey.core.services.state_service import StateService
 from smsurvey.core.services.survey_service import SurveyService
 from smsurvey.core.model.status import Status
-
+from smsurvey.interface.participantsdetails import LoadData
+from smsurvey.interface.datamanagement import LoadData1
 
 class AllInstancesHandler(RequestHandler):
     # GET /instances <- Should return all ongoing instances that my plugin has access to
@@ -107,19 +108,17 @@ class LatestQuestionHandler(RequestHandler):
     #  if no, latest remains (and a message is returned for the plugin to optionally relay onto the participant).
     def post(self, instance_id):
         auth_response = authenticate(self, [Permissions.WRITE_RESPONSE])
-
         if auth_response["valid"]:
             data = json_decode(self.request.body)
-
             if 'response' in data:
                 response = data['response']
+                contact = data['contact']
             else:
                 self.set_status(400)
                 self.write('{"status":"error","message":"Missing response parameter"}')
                 return
-
+            
             instance = InstanceService.get_instance(instance_id)
-
             if instance is None:
                 self.set_status(410)
                 self.write('{"status":"error","message":"No response was expected for this survey"}')
@@ -128,16 +127,18 @@ class LatestQuestionHandler(RequestHandler):
 
             instance_id = instance.id  # Ensure that id is of right type
             state = StateService.get_next_state_in_instance(instance, Status.AWAITING_USER_RESPONSE)
-
             if state is not None and state.status is not Status.NO_RESPONSE_REQUIRED:
                 survey = SurveyService.get_survey(instance.survey_id)
                 if str(survey.owner_id) == auth_response["owner_id"]:
                     question_number = state.question_number
-
                     question_service = QuestionService()
                     question = question_service.get(survey.protocol_id, question_number)
                     now = datetime.now(tz=pytz.utc)
-
+                    now_csv_entry = str(datetime.now(tz=pytz.utc))
+                    loaddata = LoadData()
+                    participant_id = loaddata.sendparticpantid(contact)
+                    loaddata_response = LoadData1()
+                    #loaddata_response.concatresponse(participant_id,question_number,response, now_csv_entry[:10],now_csv_entry[11:16])
                     if question is not None:
 
                         if question.final:
@@ -156,7 +157,7 @@ class LatestQuestionHandler(RequestHandler):
                         else:
                             state.status = Status.PROCESSING_USER_RESPONSE.value
                             StateService.update_state(state)
-
+                            loaddata_response.concatresponse(participant_id,question_number,response, now_csv_entry[:10])
                             new_questions = question.process(response)
                             if new_questions == 'INV_RESP':
                                 state.status = Status.AWAITING_USER_RESPONSE.value
@@ -174,7 +175,9 @@ class LatestQuestionHandler(RequestHandler):
 
                                 if new_questions is not None:
                                     for new_question in new_questions:
-                                        if not new_question.final:
+                                        #print("Is this the final question", isFinal)
+                                        #if not new_question.final:
+                                        if not question.final:
                                             status = Status.CREATED_MID
                                         else:
                                             status = Status.NO_RESPONSE_REQUIRED

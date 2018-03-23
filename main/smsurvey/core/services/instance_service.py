@@ -18,6 +18,7 @@ class InstanceService:
     @staticmethod
     def get_instance(instance_id):
         instances = Model.repository.instances
+        print("Getting Instances - 1", instances)
         return instances.select(Where(instances.id, Where.EQUAL, instance_id))
 
     @staticmethod

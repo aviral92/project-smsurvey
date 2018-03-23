@@ -19,7 +19,6 @@ class Question:
     def process(self, param):
         if self.processor is not None:
             p = pickle.loads(self.processor)
-
             if self.free_input:
                 return p
             else:

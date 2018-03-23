@@ -12,17 +12,14 @@ class Model:
 
     repository = None
     dao = None
-
     @classmethod
     def from_database(cls, _dao):
-        logger.info("Loading model from database")
         cls.dao = _dao
 
         show_table_sql = "SHOW TABLES;"
         describe_table_sql = "DESCRIBE "
 
         connection = cls.dao.get_connection()
-
         try:
             models = {}
 

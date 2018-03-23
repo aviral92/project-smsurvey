@@ -10,7 +10,7 @@ from smsurvey.core.services.enrollment_service import EnrollmentService
 from smsurvey.core.services.participant_service import ParticipantService
 from smsurvey.core.security.secure import SecurityException
 from smsurvey.core.security.permissions import authenticate, Permissions
-
+from smsurvey.interface.participantsdetails import ParticipantDetails
 
 class AllEnrollmentsHandler(RequestHandler):
 
@@ -78,7 +78,6 @@ class AllEnrollmentsHandler(RequestHandler):
         auth_response = authenticate(self, [Permissions.WRITE_ENROLLMENT])
 
         if auth_response["valid"]:
-
             if open_date is not None:
                 open_date = parser.parse(open_date)
 
@@ -90,7 +89,6 @@ class AllEnrollmentsHandler(RequestHandler):
 
             owner = OwnerService.get_by_id(auth_response["owner_id"])
             enrollment = EnrollmentService.add_enrollment(name, owner.id, open_date, close_date, expiry_date)
-
             response = {
                 "status": "success",
                 "enrollment_id": enrollment.id
@@ -263,11 +261,11 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
 
     # POST /enrollments/<enrollment-id>/enrolled - adds participant to enrollment
     def post(self, enrollment_id):
-
         logger.debug("Adding participant to enrollment")
         plugin_id = self.get_argument("plugin_id")
+        plugin_name = self.get_argument("plugin_name")
         plugin_scratch = self.get_argument("plugin_scratch")
-
+        ParticipantDetails.participantEnrollment.append(enrollment_id)
         auth_response = authenticate(self, [Permissions.READ_ENROLLMENT, Permissions.WRITE_PARTICIPANT])
 
         if auth_response["valid"]:
@@ -280,6 +278,14 @@ class AnEnrollmentAllParticipantsHandler(RequestHandler):
                     try:
                         ParticipantService.register_participant(enrollment.id, plugin_id, plugin_scratch, owner.name,
                                                                 owner.domain)
+
+                        participants = ParticipantService.get_participants_in_enrollment(enrollment_id)
+                        for participant in participants:
+                            lastparticipantid = participant.id
+                        ParticipantDetails.participantEnrollment.append(lastparticipantid)
+                        ParticipantDetails.participantEnrollment.append(plugin_name)
+                        ParticipantDetails.participantEnrollment.append(plugin_scratch)
+                        ParticipantDetails.get_enrollment()
                     except SecurityException as e:
                         response = {
                             "status": "error",
